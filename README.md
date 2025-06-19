@@ -1,3 +1,8 @@
+# JAVA Version
+```
+JavaSE 17
+```
+
 # MySql DB 설정 방법
 
 1. DB 조회
