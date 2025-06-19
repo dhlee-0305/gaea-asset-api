@@ -1,0 +1,27 @@
+server:
+  port: 8090
+
+spring:
+# DB 연결 정보
+  datasource:
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    #url: jdbc:mysql://localhost:3306/asset_manager
+    url: jdbc:log4jdbc:mysql://localhost:3306/asset_manager
+    username: gaea
+    password: gaea1234!
+# Mybatis
+mybatis:
+  mapper-locations: classpath:mapper/**.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    call-setters-on-nulls: false
+# 쿼리 로그 관련 설정
+logging:
+  level:
+    jdbc:
+      sqlonly: INFO
+      sqltiming: OFF
+      resultsettable: INFO
+      audit: OFF
+      resultset: OFF
+      connection: OFF
