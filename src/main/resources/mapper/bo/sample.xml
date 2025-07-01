@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.bo.device.service.SampleMapper">
+    <select id="getDeviceList" parameterType="Map" resultType="com.gaea.asset.manager.bo.device.vo.SampleVO">
+        SELECT DEVICE_NUMBER
+        , DEVICE_NAME
+        , CONTENTS
+        , REG_USER
+        FROM DEVICE_INFO
+    </select>
+    
+    <select id="getDeviceTotalCount" parameterType="Map" resultType="Int">
+        SELECT COUNT(*)
+        FROM DEVICE_INFO
+    </select>
+    
+    <select id="getDeviceInfo" parameterType="Long" resultType="com.gaea.asset.manager.bo.device.vo.SampleVO">
+        SELECT DEVICE_NUMBER
+        , DEVICE_NAME
+        , CONTENTS
+        , REG_USER
+        , REG_DATE
+        , MOD_USER
+        , MOD_DATE
+        FROM DEVICE_INFO
+        WHERE DEVICE_NUMBER = #{deviceNumber}
+    </select>
+    
+    <insert id="insertDevice" parameterType="com.gaea.asset.manager.bo.device.vo.SampleVO" keyProperty="deviceNumber" useGeneratedKeys="true">
+        INSERT INTO DEVICE_INFO
+        (
+        DEVICE_NAME
+        , CONTENTS
+        , REG_USER
+        , REG_DATE
+        ) VALUES (
+        #{deviceName}
+        , #{contents}
+        , #{regUser}
+        , NOW()
+        )
+    </insert>
+    
+    <update id="updateDevice" parameterType="com.gaea.asset.manager.bo.device.vo.SampleVO">
+        UPDATE DEVICE_INFO
+        SET DEVICE_NAME = #{deviceName}
+        , CONTENTS = #{contents}
+        , MOD_USER = #{modUser}
+        , MOD_DATE = NOW()
+        WHERE DEVICE_NUMBER = #{deviceNumber}
+    </update>
+
+    <delete id="deleteDevice" parameterType="Long">
+        DELETE FROM DEVICE_INFO
+        WHERE DEVICE_NUMBER = #{deviceNumber}
+    </delete>
+</mapper>

@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.device.vo;
+package com.gaea.asset.manager.fo.device.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

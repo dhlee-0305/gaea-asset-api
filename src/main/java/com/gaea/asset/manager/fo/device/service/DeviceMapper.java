@@ -1,11 +1,11 @@
-package com.gaea.asset.manager.device.service;
+package com.gaea.asset.manager.fo.device.service;
 
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import com.gaea.asset.manager.device.vo.DeviceVO;
+import com.gaea.asset.manager.fo.device.vo.DeviceVO;
 
 @Mapper
 public interface DeviceMapper {
