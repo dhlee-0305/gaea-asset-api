@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.fo.device;
+package com.gaea.asset.manager.device;
 
 import java.util.List;
 
@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gaea.asset.manager.fo.device.service.DeviceService;
-import com.gaea.asset.manager.fo.device.vo.DeviceVO;
+import com.gaea.asset.manager.device.service.DeviceService;
+import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Search;
 
@@ -22,7 +22,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@Tag(name = "전산 장비 관리 사용자 API", description = "전산 장비 관리 사용자 API 입니다.")
+@Tag(name = "전산 장비 관리 API", description = "전산 장비 관리 API 입니다.")
 public class DeviceController {
 	private final DeviceService deviceService;
 	
@@ -30,13 +30,13 @@ public class DeviceController {
 		this.deviceService = deviceService;
 	}
 
-	@GetMapping("/fo/deviceList")
+	@GetMapping("/deviceList")
 	@Operation(summary = "전산 장비 목록 조회", description = "전산 장비 목록 조회 API")
 	Header<List<DeviceVO>> getDeviceList(@RequestParam(value="page", defaultValue = "0") int page, @RequestParam(value="size", defaultValue = "10") int size, Search search) {
 		return deviceService.getDeviceList(page, size, search);
 	}
 
-	@GetMapping("/fo/getDeviceInfo/{deviceNumber}")
+	@GetMapping("/getDeviceInfo/{deviceNumber}")
 	@Parameters({
 		@Parameter(name = "deviceNumber", description = "전산장비 번호", example = "1")
 	})
@@ -45,7 +45,7 @@ public class DeviceController {
 		return deviceService.getDeviceInfo(deviceNumber);
 	}
 
-	@PostMapping("/fo/insertDevice")
+	@PostMapping("/insertDevice")
 	@Operation(summary = "전산 장비 등록", description = "전산 장비 등록 API")
 	@Parameters({
 		@Parameter(name = "deviceName", description = "전산장비 이름", example = "테스트")
@@ -56,7 +56,7 @@ public class DeviceController {
 		return deviceService.insertDevice(DeviceVO);
 	}
 
-	@PatchMapping("/fo/updateDevice")
+	@PatchMapping("/updateDevice")
 	@Operation(summary = "전산 장비 정보 수정", description = "전산 장비 정보 수정 API")
 	@Parameters({
 		@Parameter(name = "deviceName", description = "전산장비 이름", example = "테스트 수정")
@@ -68,7 +68,7 @@ public class DeviceController {
 		return deviceService.updateDevice(DeviceVO);
 	}
 
-	@DeleteMapping("/fo/deleteDevice/{deviceNumber}")
+	@DeleteMapping("/deleteDevice/{deviceNumber}")
 	@Operation(summary = "전산 장비 삭제", description = "전산 장비 삭제 API")
 	@Parameters({
 		@Parameter(name = "deviceNumber", description = "전산장비 번호", example = "15")
