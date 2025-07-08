@@ -54,3 +54,8 @@ MOD_USER VARCHAR(64),
 MOD_DATE DATETIME
 );
 ```
+
+# Swagger UI 접속 URL
+```
+http://localhost:8090/swagger-ui/index.html
+```
