@@ -47,23 +47,12 @@ public class DeviceController {
 
 	@PostMapping("/insertDevice")
 	@Operation(summary = "전산 장비 등록", description = "전산 장비 등록 API")
-	@Parameters({
-		@Parameter(name = "deviceName", description = "전산장비 이름", example = "테스트")
-		,@Parameter(name = "contents", description = "전산장비 설명", example = "테스트 설명")
-		,@Parameter(name = "regUser", description = "등록 사용자", example = "admin")
-	})
 	Header<DeviceVO> insertDevice(@RequestBody DeviceVO DeviceVO) {
 		return deviceService.insertDevice(DeviceVO);
 	}
 
 	@PatchMapping("/updateDevice")
 	@Operation(summary = "전산 장비 정보 수정", description = "전산 장비 정보 수정 API")
-	@Parameters({
-		@Parameter(name = "deviceName", description = "전산장비 이름", example = "테스트 수정")
-		,@Parameter(name = "contents", description = "전산장비 설명", example = "테스트 설명")
-		,@Parameter(name = "modUser", description = "수정 사용자", example = "admin")
-		,@Parameter(name = "deviceNumber", description = "전산장비 번호", example = "5")
-	})
 	Header<DeviceVO> updateDevice(@RequestBody DeviceVO DeviceVO) {
 		return deviceService.updateDevice(DeviceVO);
 	}
