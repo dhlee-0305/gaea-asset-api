@@ -4,7 +4,7 @@ CREATE TABLE COMMON_CODE
   CATEGORY_NAME VARCHAR(50)  NULL     COMMENT '그룹 명',
   CODE          VARCHAR(10)  NOT NULL COMMENT '코드',
   CODE_NAME     VARCHAR(100) NOT NULL COMMENT '코드명',
-  USE_YN        CHAR         NOT NULL DEFAULT Y COMMENT '코드 사용 여부 (사용:Y, 미사용:N)'
+  USE_YN        CHAR(1)         NOT NULL DEFAULT 'Y' COMMENT '코드 사용 여부 (사용:Y, 미사용:N)'
 );
 
 ALTER TABLE COMMON_CODE
@@ -114,7 +114,7 @@ CREATE TABLE ORGANIZATION
   ORG_TYPE        ENUM('COMPANY', 'DIVISION', 'TEAM')  NOT NULL COMMENT '조직 유형 (COMPANY:회사, DIVISION:본부, TEAM:팀)',
   PARENT_ORG_ID   INT                                  NULL     DEFAULT 1 COMMENT '상위 조직 ID (자기 참조, 최상위는 NULL)',
   ORG_LEVEL       INT                                  NULL     COMMENT '조직 레벨 (1:회사, 2:본부, 3:팀)',
-  ORG_PATH        VARCHAR                              NULL     COMMENT '조직 경로 (1/2/3/4 형태로 계층 구조 표현)',
+  ORG_PATH        VARCHAR(20)                              NULL     COMMENT '조직 경로 (1/2/3/4 형태로 계층 구조 표현)',
   SORT_ORDER      INT                                  NULL     DEFAULT 0 COMMENT '정렬 순서 (같은 레벨 내에서의 표시 순서)',
   IS_ACTIVE       CHAR(1)                              NULL     COMMENT '활성 여부 (Y:활성, N:비활성)',
   CREATE_DATETIME DATETIME                             NULL     DEFAULT CURRENT_TIMESTAMP,
@@ -131,22 +131,7 @@ CREATE TABLE USER
   USER_POSITION_CD VARCHAR(10)  NULL     COMMENT '직책 코드',
   USER_GRADE_CD    VARCHAR(10)  NOT NULL COMMENT '직위 코드',
   ROLE_CODE        VARCHAR(10)  NOT NULL COMMENT '권한 코드 (COMMON_CODE)',
-  IS_EMPLOYED      CHAR         NOT NULL DEFAULT Y COMMENT '재직여부 (재직중:Y, 퇴사:N)',
+  IS_EMPLOYED      CHAR(1)         NOT NULL DEFAULT 'Y' COMMENT '재직여부 (재직중:Y, 퇴사:N)',
   CREATE_DATETIME  DATETIME     NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   PRIMARY KEY (EMP_NUM)
 );
-
-ALTER TABLE DEVICE
-  ADD CONSTRAINT FK_USER_TO_DEVICE
-    FOREIGN KEY (EMP_NUM)
-    REFERENCES USER (EMP_NUM);
-
-ALTER TABLE USER
-  ADD CONSTRAINT FK_ORGANIZATION_TO_USER
-    FOREIGN KEY (ORG_ID)
-    REFERENCES ORGANIZATION (ORG_ID);
-
-ALTER TABLE DEVICE_HISTORY
-  ADD CONSTRAINT FK_DEVICE_TO_DEVICE_HISTORY
-    FOREIGN KEY (DEVICE_NUM)
-    REFERENCES DEVICE (DEVICE_NUM);
