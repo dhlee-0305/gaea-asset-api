@@ -12,17 +12,15 @@ CREATE TABLE COMMON_CODE
   CATEGORY_NAME VARCHAR(50)  NULL     COMMENT '그룹 명',
   CODE          VARCHAR(10)  NOT NULL COMMENT '코드',
   CODE_NAME     VARCHAR(100) NOT NULL COMMENT '코드명',
-  USE_YN        CHAR(1)         NOT NULL DEFAULT 'Y' COMMENT '코드 사용 여부 (사용:Y, 미사용:N)'
+  USE_YN        CHAR(1)      NOT NULL DEFAULT 'Y' COMMENT '코드 사용 여부 (사용:Y, 미사용:N)'
 );
-
-ALTER TABLE COMMON_CODE
-  ADD CONSTRAINT UQ_CATEGORY UNIQUE (CATEGORY);
 
 CREATE TABLE DEVICE
 (
   DEVICE_NUM        INT          NOT NULL AUTO_INCREMENT COMMENT '장비 순번',
-  OLD_DEVICE_ID     VARCHAR(20)  NULL COMMENT '기존 장비 관리 번호',
+  OLD_DEVICE_ID     VARCHAR(20)  NULL     COMMENT '기존 장비 관리 번호',
   EMP_NUM           INT          NULL     COMMENT '사원 번호',
+  ORG_ID            INT          NOT NULL COMMENT '조직 ID (기본키)',
   USAGE_DIVISION    VARCHAR(10)  NOT NULL COMMENT '용도구분(업무용,개발용,실증용)',
   USAGE_PURPOSE     VARCHAR(200) NOT NULL COMMENT '사용용도(개발업무용,내부망,외부망)',
   ARCHIVE_LOCATION  VARCHAR(200) NULL     COMMENT '사용/보관 위치',
@@ -51,8 +49,9 @@ CREATE TABLE DEVICE_HISTORY
 (
   HISTORY_NUM       INT          NOT NULL COMMENT '이력 순번',
   DEVICE_NUM        INT          NOT NULL COMMENT '장비 순번',
-  OLD_DEVICE_ID     VARCHAR(20)  NULL COMMENT '기존 장비 관리 번호',
+  OLD_DEVICE_ID     VARCHAR(20)  NULL     COMMENT '기존 장비 관리 번호',
   EMP_NUM           INT          NULL     COMMENT '사원 번호',
+  ORG_ID            INT          NOT NULL COMMENT '조직 ID (기본키)',
   USAGE_DIVISION    VARCHAR(10)  NOT NULL COMMENT '용도구분(업무용,개발용,실증용)',
   USAGE_PURPOSE     VARCHAR(200) NOT NULL COMMENT '사용용도(개발업무용,내부망,외부망)',
   ARCHIVE_LOCATION  VARCHAR(200) NULL     COMMENT '사용/보관 위치',
@@ -79,8 +78,9 @@ CREATE TABLE DEVICE_HISTORY
 CREATE TABLE DEVICE_TEMP
 (
   DEVICE_NUM        INT          NOT NULL COMMENT '장비 순번',
-  OLD_DEVICE_ID     VARCHAR(20)  NULL COMMENT '기존 장비 관리 번호',
+  OLD_DEVICE_ID     VARCHAR(20)  NULL     COMMENT '기존 장비 관리 번호',
   EMP_NUM           INT          NULL     COMMENT '사원 번호',
+  ORG_ID            INT          NOT NULL COMMENT '조직 ID (기본키)',
   USAGE_DIVISION    VARCHAR(10)  NOT NULL COMMENT '용도구분(업무용,개발용,실증용)',
   USAGE_PURPOSE     VARCHAR(200) NOT NULL COMMENT '사용용도(개발업무용,내부망,외부망)',
   ARCHIVE_LOCATION  VARCHAR(200) NULL     COMMENT '사용/보관 위치',
@@ -113,17 +113,14 @@ CREATE TABLE NOTICE
   PRIMARY KEY (NOTICE_NUM)
 );
 
-ALTER TABLE NOTICE
-  ADD CONSTRAINT UQ_TITLE UNIQUE (TITLE);
-
 CREATE TABLE ORGANIZATION
 (
   ORG_ID          INT                                  NOT NULL COMMENT '조직 ID (기본키)',
-  ORG_NAME        	VARCHAR(100)                        NOT NULL COMMENT '조직명',
+  ORG_NAME        	VARCHAR(100)                       NOT NULL COMMENT '조직명',
   ORG_TYPE        ENUM('COMPANY', 'DIVISION', 'TEAM')  NOT NULL COMMENT '조직 유형 (COMPANY:회사, DIVISION:본부, TEAM:팀)',
   PARENT_ORG_ID   INT                                  NULL     DEFAULT 1 COMMENT '상위 조직 ID (자기 참조, 최상위는 NULL)',
   ORG_LEVEL       INT                                  NULL     COMMENT '조직 레벨 (1:회사, 2:본부, 3:팀)',
-  ORG_PATH        VARCHAR(20)                              NULL     COMMENT '조직 경로 (1/2/3/4 형태로 계층 구조 표현)',
+  ORG_PATH        VARCHAR(20)                          NULL     COMMENT '조직 경로 (1/2/3/4 형태로 계층 구조 표현)',
   SORT_ORDER      INT                                  NULL     DEFAULT 0 COMMENT '정렬 순서 (같은 레벨 내에서의 표시 순서)',
   IS_ACTIVE       CHAR(1)                              NULL     COMMENT '활성 여부 (Y:활성, N:비활성)',
   CREATE_DATETIME DATETIME                             NULL     DEFAULT CURRENT_TIMESTAMP,
@@ -132,16 +129,16 @@ CREATE TABLE ORGANIZATION
 
 CREATE TABLE USER
 (
-  EMP_NUM          INT          NOT NULL AUTO_INCREMENT COMMENT '사원 번호',
-  USER_ID          VARCHAR(50)  NOT NULL COMMENT '사용자 ID (회사 메일 계정)',
-  USER_NAME        VARCHAR(100) NOT NULL COMMENT '사용자명',
-  PASSWORD         VARCHAR(100) NULL     DEFAULT 1111 COMMENT '비밀번호 (암호화 BCrypt)',
-  ORG_ID           INT          NOT NULL COMMENT '조직 ID (기본키)',
-  USER_POSITION_CD VARCHAR(10)  NULL     COMMENT '직책 코드',
-  USER_GRADE_CD    VARCHAR(10)  NOT NULL COMMENT '직위 코드',
-  ROLE_CODE        VARCHAR(10)  NOT NULL COMMENT '권한 코드 (COMMON_CODE)',
-  IS_EMPLOYED      CHAR(1)         NOT NULL DEFAULT 'Y' COMMENT '재직여부 (재직중:Y, 퇴사:N)',
+  EMP_NUM              INT          NOT NULL COMMENT '사원 번호',
+  USER_ID              VARCHAR(50)  NOT NULL COMMENT '사용자 ID (회사 메일 계정)',
+  USER_NAME            VARCHAR(100) NOT NULL COMMENT '사용자명',
+  PASSWORD             VARCHAR(100) NULL     DEFAULT 1111 COMMENT '비밀번호 (암호화 BCrypt)',
+  ORG_ID               INT          NOT NULL COMMENT '조직 ID (기본키)',
+  USER_POSITION_CD     VARCHAR(10)  NULL     COMMENT '직책 코드',
+  USER_GRADE_CD        VARCHAR(10)  NOT NULL COMMENT '직위 코드',
+  ROLE_CODE            VARCHAR(10)  NOT NULL COMMENT '권한 코드 (COMMON_CODE)',
+  IS_EMPLOYED          CHAR(1)      NOT NULL DEFAULT 'Y' COMMENT '재직여부 (재직중:Y, 퇴사:N)',
   PASSWORD_CHANGE_DATE VARCHAR(8)   NULL     COMMENT '비밀번호 변경일자',
-  CREATE_DATETIME  DATETIME     NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
+  CREATE_DATETIME      DATETIME     NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   PRIMARY KEY (EMP_NUM)
 );
