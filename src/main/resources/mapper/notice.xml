@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.notice.service.NoticeMapper">
+    <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
+        SELECT NOTICE_NUM
+        ,TITLE
+        , CREATE_DATETIME
+        , CONCAT (
+            ( SELECT ORG_NAME
+              FROM ORGANIZATION
+              WHERE ORGANIZATION.ORG_ID =
+                ( SELECT ORG_ID
+                  FROM USER
+                  WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
+            )
+            ,'/'
+            , ( SELECT USER_NAME
+                FROM USER
+                WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
+        ) AS CREATE_USER
+        FROM NOTICE
+        ORDER BY NOTICE_NUM DESC
+    </select>
+    
+    <select id="getNoticeTotalCount" parameterType="Map" resultType="Int">
+        SELECT COUNT(NOTICE_NUM)
+        FROM NOTICE
+    </select>
+    
+    <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
+        SELECT NOTICE_NUM
+        ,TITLE
+        , CONTENT
+        , CREATE_DATETIME
+        , CONCAT (
+            ( SELECT ORG_NAME
+              FROM ORGANIZATION
+              WHERE ORGANIZATION.ORG_ID =
+                ( SELECT ORG_ID
+                  FROM USER
+                  WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
+            )
+            ,'/'
+            , ( SELECT USER_NAME
+                FROM USER
+                WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
+        ) AS CREATE_USER
+        FROM NOTICE
+        WHERE NOTICE_NUM = #{noticeNum}
+    </select>
+    
+    <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
+        INSERT INTO NOTICE
+        (
+        TITLE
+        , CONTENT
+        , CREATE_DATETIME
+        , CREATE_USER
+        ) VALUES (
+        #{title}
+        , #{content}
+        , NOW()
+        , #{createUser}
+        )
+    </insert>
+    
+    <update id="updateNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO">
+        UPDATE NOTICE
+        SET TITLE = #{title}
+        , CONTENT = #{content}
+        , UPDATE_DATETIME = NOW()
+        , UPDATE_USER = #{updateUser}
+        WHERE NOTICE_NUM = #{noticeNum}
+    </update>
+
+    <delete id="deleteNotice" parameterType="Long">
+        DELETE FROM NOTICE
+        WHERE NOTICE_NUM = #{noticeNum}
+    </delete>
+</mapper>
