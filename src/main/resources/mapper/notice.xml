@@ -4,23 +4,12 @@
 
 <mapper namespace="com.gaea.asset.manager.notice.service.NoticeMapper">
     <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
-        SELECT NOTICE_NUM
-        ,TITLE
-        , CREATE_DATETIME
-        , CONCAT (
-            ( SELECT ORG_NAME
-              FROM ORGANIZATION
-              WHERE ORGANIZATION.ORG_ID =
-                ( SELECT ORG_ID
-                  FROM USER
-                  WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
-            )
-            ,'/'
-            , ( SELECT USER_NAME
-                FROM USER
-                WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
-        ) AS CREATE_USER
-        FROM NOTICE
+        SELECT N.NOTICE_NUM
+        , N.TITLE
+        , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
+        , N.CREATE_DATETIME
+        FROM NOTICE N, USER U, ORGANIZATION O
+        WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
         ORDER BY NOTICE_NUM DESC
     </select>
     
@@ -30,25 +19,14 @@
     </select>
     
     <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
-        SELECT NOTICE_NUM
-        ,TITLE
-        , CONTENT
-        , CREATE_DATETIME
-        , CONCAT (
-            ( SELECT ORG_NAME
-              FROM ORGANIZATION
-              WHERE ORGANIZATION.ORG_ID =
-                ( SELECT ORG_ID
-                  FROM USER
-                  WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
-            )
-            ,'/'
-            , ( SELECT USER_NAME
-                FROM USER
-                WHERE USER.EMP_NUM = NOTICE.CREATE_USER )
-        ) AS CREATE_USER
-        FROM NOTICE
-        WHERE NOTICE_NUM = #{noticeNum}
+        SELECT N.NOTICE_NUM
+        , N.TITLE
+        , N.CONTENT
+        , N.CREATE_DATETIME
+        , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
+        FROM NOTICE N, USER U, ORGANIZATION O
+        WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
+        AND NOTICE_NUM = #{noticeNum}
     </select>
     
     <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
