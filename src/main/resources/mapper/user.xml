@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.user.service.UserMapper">
+    <select id="getUserList" parameterType="Map" resultType="com.gaea.asset.manager.user.vo.UserVO">
+        SELECT U.EMP_NUM
+          , U.USER_ID
+          , U.USER_NAME
+          , U.ORG_ID
+          , O.ORG_NAME
+        FROM USER U
+        JOIN ORGANIZATION O
+          ON U.ORG_ID = O.ORG_ID
+        <where>
+          <if test="searchValue != null and searchValue != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          </if>
+        </where>
+        ORDER BY U.CREATE_DATETIME DESC
+    </select>
+</mapper>

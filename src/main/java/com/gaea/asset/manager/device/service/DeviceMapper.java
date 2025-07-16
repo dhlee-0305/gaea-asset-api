@@ -13,11 +13,11 @@ public interface DeviceMapper {
 
 	int getDeviceTotalCount(HashMap<String, Object> paramMap);
 
-	DeviceVO getDeviceInfo(Long idx);
+	DeviceVO getDevice(Integer deviceNum);
 
 	int insertDevice(DeviceVO entity);
 
 	int updateDevice(DeviceVO entity);
 
-	int deleteDevice(Long idx);
+	int deleteDevice(Integer idx);
 }

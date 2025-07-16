@@ -4,56 +4,159 @@
 
 <mapper namespace="com.gaea.asset.manager.device.service.DeviceMapper">
     <select id="getDeviceList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
-        SELECT DEVICE_NUMBER
-        , DEVICE_NAME
-        , CONTENTS
-        , REG_USER
-        FROM DEVICE_INFO
+        SELECT D.DEVICE_NUM
+          , D.OLD_DEVICE_ID
+          , DEVICE_TYPE AS DEVICE_TYPE_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '6' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '5' AND C.CODE = D.STATUS_CODE) AS STATUS
+          , U.USER_NAME
+          , O.ORG_NAME
+          , D.MODEL_NAME
+          , D.MANUFACTURE_DATE
+        FROM DEVICE D
+        LEFT JOIN USER U
+          ON D.EMP_NUM = U.EMP_NUM
+        LEFT JOIN ORGANIZATION O
+          ON U.ORG_ID = O.ORG_ID
+        <where>
+        <if test="searchKey != null and searchKey == 'userName'">
+          <if test="searchValue != null and searchValue != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          </if>
+        </if>
+        <if test="searchKey != null and searchKey == 'orgName'">
+          <if test="searchValue != null and searchValue != ''">
+            AND O.ORG_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          </if>
+        </if>
+        </where>
+        ORDER BY D.CREATE_DATETIME DESC
+        LIMIT #{size} OFFSET #{page}
     </select>
-    
-    <select id="getDeviceTotalCount" parameterType="Map" resultType="Int">
+
+    <select id="getDeviceTotalCount" parameterType="Map" resultType="Integer">
         SELECT COUNT(*)
-        FROM DEVICE_INFO
+        FROM DEVICE D
+        LEFT JOIN USER U
+          ON D.EMP_NUM = U.EMP_NUM
+        <where>
+        <if test="searchKey != null and searchKey == 'userName'">
+          <if test="searchValue != null and searchValue != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          </if>
+        </if>
+        </where>
     </select>
-    
-    <select id="getDeviceInfo" parameterType="Long" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
-        SELECT DEVICE_NUMBER
-        , DEVICE_NAME
-        , CONTENTS
-        , REG_USER
-        , REG_DATE
-        , MOD_USER
-        , MOD_DATE
-        FROM DEVICE_INFO
-        WHERE DEVICE_NUMBER = #{deviceNumber}
+
+    <select id="getDevice" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+        SELECT D.DEVICE_NUM
+          , D.OLD_DEVICE_ID
+          , D.USAGE_DIVISION
+          , D.USAGE_PURPOSE
+          , D.ARCHIVE_LOCATION
+          , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '6' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+          , D.MODEL_NAME
+          , D.MANUFACTURE_DATE
+          , D.CPU_SPEC
+          , D.MEMORY_SIZE
+          , D.STORAGE_INFO
+          , D.OPERATING_SYSTEM
+          , D.SCREEN_SIZE
+          , D.GPU_SPEC
+          , D.STATUS_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '5' AND C.CODE = D.STATUS_CODE) AS STATUS
+          , D.PURCHASE_DATE
+          , D.RETURN_DATE
+          , D.REMARKS
+          , D.EMP_NUM
+          , U.USER_NAME
+          , O.ORG_NAME
+          , D.MODEL_NAME
+          , D.MANUFACTURE_DATE
+        FROM DEVICE D
+        LEFT JOIN USER U
+          ON D.EMP_NUM = U.EMP_NUM
+        LEFT JOIN ORGANIZATION O
+          ON U.ORG_ID = O.ORG_ID
+        WHERE DEVICE_NUM = #{deviceNum}
     </select>
-    
-    <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNumber" useGeneratedKeys="true">
-        INSERT INTO DEVICE_INFO
+
+    <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNum" useGeneratedKeys="true">
+        INSERT INTO DEVICE
         (
-        DEVICE_NAME
-        , CONTENTS
-        , REG_USER
-        , REG_DATE
+            OLD_DEVICE_ID
+          , EMP_NUM
+          , ORG_ID
+          , USAGE_DIVISION
+          , USAGE_PURPOSE
+          , DEVICE_TYPE
+          , MODEL_NAME
+          , MANUFACTURE_DATE
+          , CPU_SPEC
+          , MEMORY_SIZE
+          , STORAGE_INFO
+          , OPERATING_SYSTEM
+          , SCREEN_SIZE
+          , STATUS_CODE
+          , PURCHASE_DATE
+          , RETURN_DATE
+          , REMARKS
+          , CREATE_DATETIME
+          , CREATE_USER
         ) VALUES (
-        #{deviceName}
-        , #{contents}
-        , #{regUser}
-        , NOW()
+          #{oldDeviceId}
+          , #{empNum}
+          , 135
+          , '01'
+          , #{usagePurpose}
+          , #{deviceTypeCode}
+          , #{modelName}
+          , #{manufactureDate}
+          , #{cpuSpec}
+          , #{memorySize}
+          , #{storageInfo}
+          , #{operatingSystem}
+          , #{screenSize}
+          , '01'
+          , #{purchaseDate}
+          , #{returnDate}
+          , #{remarks}
+          , NOW()
+          , 100010
         )
     </insert>
-    
+
     <update id="updateDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
-        UPDATE DEVICE_INFO
-        SET DEVICE_NAME = #{deviceName}
-        , CONTENTS = #{contents}
-        , MOD_USER = #{modUser}
-        , MOD_DATE = NOW()
-        WHERE DEVICE_NUMBER = #{deviceNumber}
+        UPDATE DEVICE
+        SET
+            OLD_DEVICE_ID = #{oldDeviceId}
+          , EMP_NUM = #{empNum}
+          , USAGE_DIVISION = #{usageDivision}
+          , USAGE_PURPOSE = #{usagePurpose}
+          , ARCHIVE_LOCATION = #{archiveLocation}
+          , DEVICE_TYPE = #{deviceTypeCode}
+          , MANUFACTURER_CODE  = #{manufacturerCode}
+          , MODEL_NAME = #{modelName}
+          , MANUFACTURE_DATE = #{manufactureDate}
+          , CPU_SPEC = #{cpuSpec}
+          , MEMORY_SIZE = #{memorySize}
+          , STORAGE_INFO = #{storageInfo}
+          , OPERATING_SYSTEM = #{operatingSystem}
+          , SCREEN_SIZE = #{screenSize}
+          , GPU_SPEC = #{gpuSpec}
+          , STATUS_CODE = #{statusCode}
+          , PURCHASE_DATE = #{purchaseDate}
+          , RETURN_DATE = #{returnDate}
+          , REMARKS = #{remarks}
+          , UPDATE_DATETIME = NOW()
+          , UPDATE_USER = 100010
+        WHERE DEVICE_NUM = #{deviceNum};
     </update>
 
-    <delete id="deleteDevice" parameterType="Long">
-        DELETE FROM DEVICE_INFO
-        WHERE DEVICE_NUMBER = #{deviceNumber}
+    <delete id="deleteDevice" parameterType="Integer">
+        DELETE FROM DEVICE
+        WHERE DEVICE_NUM = #{deviceNum}
     </delete>
+
 </mapper>
