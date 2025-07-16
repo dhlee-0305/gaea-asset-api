@@ -10,12 +10,19 @@
         , N.CREATE_DATETIME
         FROM NOTICE N, USER U, ORGANIZATION O
         WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
+        <if test="searchValue != null and searchValue != ''">
+            AND N.TITLE LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
         ORDER BY NOTICE_NUM DESC
+        LIMIT #{size} OFFSET #{page}
     </select>
     
     <select id="getNoticeTotalCount" parameterType="Map" resultType="Int">
         SELECT COUNT(NOTICE_NUM)
         FROM NOTICE
+        <if test="searchValue != null and searchValue != ''">
+            WHERE TITLE LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
     </select>
     
     <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
