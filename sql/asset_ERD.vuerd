@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -825,
-    "scrollLeft": -131.8147,
+    "scrollTop": -625,
+    "scrollLeft": -4.551,
     "zoomLevel": 0.82,
     "show": 511,
     "database": 4,
@@ -59,6 +59,7 @@
           "hI4c7zwmE1M3JMkRKtjpE",
           "RGPy7BnIvpw_q127AfYAg",
           "_cV0gZOmZaBxKACNlD1fV",
+          "cJE2-k8_NPFWhMztzqZy_",
           "unwstCYlk4mfIGOXPJUT7",
           "jNdBTAhZhGXLTxnMzUpqb"
         ],
@@ -88,6 +89,7 @@
           "RoYtU5DpumFA1_C8b9RGi",
           "RGPy7BnIvpw_q127AfYAg",
           "_cV0gZOmZaBxKACNlD1fV",
+          "cJE2-k8_NPFWhMztzqZy_",
           "unwstCYlk4mfIGOXPJUT7",
           "jNdBTAhZhGXLTxnMzUpqb",
           "7KubnVV2EOXbN_TTzeFC_",
@@ -102,7 +104,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1752727111679,
+          "updateAt": 1752730395810,
           "createAt": 1751938503096
         }
       },
@@ -1923,18 +1925,18 @@
         "tableId": "f569ec74-0669-4f7d-a707-741199773ffa",
         "name": "USAGE_DIVISION",
         "comment": "용도구분(업무용,개발용,실증용)",
-        "dataType": "VARCHAR(50)",
+        "dataType": "VARCHAR(2)",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 93,
           "widthComment": 170,
-          "widthDataType": 75,
+          "widthDataType": 68,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1752726120843,
+          "updateAt": 1752730344856,
           "createAt": 1751954271857
         }
       },
@@ -1943,18 +1945,18 @@
         "tableId": "f569ec74-0669-4f7d-a707-741199773ffa",
         "name": "USAGE_PURPOSE",
         "comment": "사용용도(개발업무용,내부망,외부망)",
-        "dataType": "VARCHAR(50)",
+        "dataType": "VARCHAR(100)",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 94,
           "widthComment": 194,
-          "widthDataType": 75,
+          "widthDataType": 81,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1752726127782,
+          "updateAt": 1752730350261,
           "createAt": 1751954272760
         }
       },
@@ -2103,18 +2105,18 @@
         "tableId": "jun00LukVHVNWefsDk-_7",
         "name": "USAGE_DIVISION",
         "comment": "용도구분(업무용,개발용,실증용)",
-        "dataType": "VARCHAR(50)",
+        "dataType": "VARCHAR(2)",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 93,
           "widthComment": 170,
-          "widthDataType": 75,
+          "widthDataType": 68,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1752727181434,
+          "updateAt": 1752730362384,
           "createAt": 1751955396648
         }
       },
@@ -2123,18 +2125,18 @@
         "tableId": "jun00LukVHVNWefsDk-_7",
         "name": "USAGE_PURPOSE",
         "comment": "사용용도(개발업무용,내부망,외부망)",
-        "dataType": "VARCHAR(50)",
+        "dataType": "VARCHAR(100)",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 94,
           "widthComment": 194,
-          "widthDataType": 75,
+          "widthDataType": 81,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1752727185334,
+          "updateAt": 1752730367076,
           "createAt": 1751955403903
         }
       },
@@ -3097,6 +3099,26 @@
           "updateAt": 1752727173447,
           "createAt": 1752727152514
         }
+      },
+      "cJE2-k8_NPFWhMztzqZy_": {
+        "id": "cJE2-k8_NPFWhMztzqZy_",
+        "tableId": "3ccab7a4-368a-4823-8573-5b59f7f15c4a",
+        "name": "REASON",
+        "comment": "사유",
+        "dataType": "VARCHAR(1000)",
+        "default": "",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 60,
+          "widthComment": 60,
+          "widthDataType": 87,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1752730410513,
+          "createAt": 1752730377943
+        }
       }
     },
     "relationshipEntities": {
@@ -3176,7 +3198,7 @@
             "OJNYWkyX03a-2ShSz9H-J"
           ],
           "x": 1211.9115,
-          "y": 1057.0093000000002,
+          "y": 1069.0093000000002,
           "direction": 1
         },
         "meta": {

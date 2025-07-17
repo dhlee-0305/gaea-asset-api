@@ -7,8 +7,9 @@
         SELECT D.DEVICE_NUM
           , D.OLD_DEVICE_ID
           , DEVICE_TYPE AS DEVICE_TYPE_CODE
-          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '6' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
-          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '5' AND C.CODE = D.STATUS_CODE) AS STATUS
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C004' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C005' AND C.CODE = D.DEVICE_STATUS_CODE) AS DEVICE_STATUS
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C006' AND C.CODE = D.APPROVAL_STATUS_CODE) AS APPROVAL_STATUS
           , U.USER_NAME
           , O.ORG_NAME
           , D.MODEL_NAME
@@ -39,10 +40,17 @@
         FROM DEVICE D
         LEFT JOIN USER U
           ON D.EMP_NUM = U.EMP_NUM
+        LEFT JOIN ORGANIZATION O
+          ON U.ORG_ID = O.ORG_ID
         <where>
         <if test="searchKey != null and searchKey == 'userName'">
           <if test="searchValue != null and searchValue != ''">
             AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          </if>
+        </if>
+        <if test="searchKey != null and searchKey == 'orgName'">
+          <if test="searchValue != null and searchValue != ''">
+            AND O.ORG_NAME LIKE CONCAT('%', #{searchValue}, '%')
           </if>
         </if>
         </where>
@@ -55,7 +63,7 @@
           , D.USAGE_PURPOSE
           , D.ARCHIVE_LOCATION
           , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
-          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '6' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C004' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
           , D.MODEL_NAME
           , D.MANUFACTURE_DATE
           , D.CPU_SPEC
@@ -64,8 +72,10 @@
           , D.OPERATING_SYSTEM
           , D.SCREEN_SIZE
           , D.GPU_SPEC
-          , D.STATUS_CODE
-          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = '5' AND C.CODE = D.STATUS_CODE) AS STATUS
+          , D.DEVICE_STATUS_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C005' AND C.CODE = D.DEVICE_STATUS_CODE) AS DEVICE_STATUS
+          , D.APPROVAL_STATUS_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C006' AND C.CODE = D.APPROVAL_STATUS_CODE) AS APPROVAL_STATUS
           , D.PURCHASE_DATE
           , D.RETURN_DATE
           , D.REMARKS
@@ -87,7 +97,6 @@
         (
             OLD_DEVICE_ID
           , EMP_NUM
-          , ORG_ID
           , USAGE_DIVISION
           , USAGE_PURPOSE
           , DEVICE_TYPE
@@ -98,7 +107,7 @@
           , STORAGE_INFO
           , OPERATING_SYSTEM
           , SCREEN_SIZE
-          , STATUS_CODE
+          , DEVICE_STATUS_CODE
           , PURCHASE_DATE
           , RETURN_DATE
           , REMARKS
@@ -107,8 +116,7 @@
         ) VALUES (
           #{oldDeviceId}
           , #{empNum}
-          , 135
-          , '01'
+          , #{usageDivision}
           , #{usagePurpose}
           , #{deviceTypeCode}
           , #{modelName}
@@ -145,7 +153,8 @@
           , OPERATING_SYSTEM = #{operatingSystem}
           , SCREEN_SIZE = #{screenSize}
           , GPU_SPEC = #{gpuSpec}
-          , STATUS_CODE = #{statusCode}
+          , DEVICE_STATUS_CODE = #{deviceStatusCode}
+          , APPROVAL_STATUS_CODE = #{approvalStatusCode}
           , PURCHASE_DATE = #{purchaseDate}
           , RETURN_DATE = #{returnDate}
           , REMARKS = #{remarks}

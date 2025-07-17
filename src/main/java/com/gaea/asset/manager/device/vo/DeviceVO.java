@@ -73,10 +73,16 @@ public class DeviceVO {
 	private Integer gpuSpec;
 
 	@Schema(description = "장비상태 코드", example = "")
-	private String statusCode;
+	private String deviceStatusCode;
 
 	@Schema(description = "장비상태", example = "")
-	private String status;
+	private String deviceStatus;
+
+	@Schema(description = "결재상태 코드", example = "")
+	private String approvalStatusCode;
+
+	@Schema(description = "결재상태", example = "")
+	private String approvalStatus;
 
 	@Schema(description = "구매일자", example = "")
 	private String purchaseDate;
