@@ -28,8 +28,8 @@ public class DeviceController {
 
 	@GetMapping("/devices")
 	@Operation(summary = "전산 장비 목록 조회", description = "전산 장비 목록 조회 API")
-	Header<List<DeviceVO>> getDeviceList(@RequestParam(value="page", defaultValue = "1") int page, @RequestParam(value="size", defaultValue = "10") int size, Search search) {
-		return deviceService.getDeviceList(page, size, search);
+	Header<List<DeviceVO>> getDeviceList(@RequestParam(value="currentPage", defaultValue = "1") int currentPage, @RequestParam(value="pageSize", defaultValue = "10") int pageSize, Search search) {
+		return deviceService.getDeviceList(currentPage, pageSize, search);
 	}
 
 	@GetMapping("/devices/{deviceNum}")

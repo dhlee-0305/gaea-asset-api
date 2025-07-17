@@ -32,8 +32,8 @@ public class NoticeController {
 
 	@GetMapping("/notices")
 	@Operation(summary = "공지사항 목록 조회", description = "공지사항 목록 조회 API")
-	Header<List<NoticeVO>> getNoticeList(@RequestParam(value="page", defaultValue = "0") int page, @RequestParam(value="size", defaultValue = "10") int size, Search search) {
-		return noticeService.getNoticeList(page, size, search);
+	Header<List<NoticeVO>> getNoticeList(@RequestParam(value="currentPage", defaultValue = "1") int currentPage, @RequestParam(value="pageSize", defaultValue = "10") int pageSize, Search search) {
+		return noticeService.getNoticeList(currentPage, pageSize, search);
 	}
 
 	@GetMapping("/notices/{noticeNum}")

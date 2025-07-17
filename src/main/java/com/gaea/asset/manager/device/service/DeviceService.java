@@ -17,19 +17,19 @@ import lombok.RequiredArgsConstructor;
 public class DeviceService {
 	private final DeviceMapper deviceMapper;
 
-	public Header<List<DeviceVO>> getDeviceList(int page, int size, Search search) {
+	public Header<List<DeviceVO>> getDeviceList(int currentPage, int pageSize, Search search) {
 		HashMap<String, Object> paramMap = new HashMap<>();
 
-		paramMap.put("page", (page - 1) * size);
-		paramMap.put("size", size);
-		paramMap.put("searchKey", search.getSearchKey());
-		paramMap.put("searchValue", search.getSearchValue());
+		paramMap.put("page", (currentPage - 1) * pageSize);
+		paramMap.put("size", pageSize);
+		paramMap.put("searchColumn", search.getSearchColumn());
+		paramMap.put("searchKeyword", search.getSearchKeyword());
 
 		List<DeviceVO> deviceList = deviceMapper.getDeviceList(paramMap);
 		Pagination pagination = new Pagination(
 				deviceMapper.getDeviceTotalCount(paramMap),
-				page,
-				size,
+				currentPage,
+				pageSize,
 				10
 		);
 

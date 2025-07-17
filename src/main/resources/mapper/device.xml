@@ -20,14 +20,14 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
-        <if test="searchKey != null and searchKey == 'userName'">
-          <if test="searchValue != null and searchValue != ''">
-            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchColumn != null and searchColumn == 'userName'">
+          <if test="searchKeyword != null and searchKeyword != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
           </if>
         </if>
-        <if test="searchKey != null and searchKey == 'orgName'">
-          <if test="searchValue != null and searchValue != ''">
-            AND O.ORG_NAME LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+          <if test="searchKeyword != null and searchKeyword != ''">
+            AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
           </if>
         </if>
         </where>
@@ -43,14 +43,14 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
-        <if test="searchKey != null and searchKey == 'userName'">
-          <if test="searchValue != null and searchValue != ''">
-            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchColumn != null and searchColumn == 'userName'">
+          <if test="searchKeyword != null and searchKeyword != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
           </if>
         </if>
-        <if test="searchKey != null and searchKey == 'orgName'">
-          <if test="searchValue != null and searchValue != ''">
-            AND O.ORG_NAME LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+          <if test="searchKeyword != null and searchKeyword != ''">
+            AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
           </if>
         </if>
         </where>

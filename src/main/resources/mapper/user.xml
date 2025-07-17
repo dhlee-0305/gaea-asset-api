@@ -13,8 +13,8 @@
         JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
-          <if test="searchValue != null and searchValue != ''">
-            AND U.USER_NAME LIKE CONCAT('%', #{searchValue}, '%')
+          <if test="searchKeyword != null and searchKeyword != ''">
+            AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
           </if>
         </where>
         ORDER BY U.CREATE_DATETIME DESC

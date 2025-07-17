@@ -10,21 +10,21 @@
         , N.CREATE_DATETIME
         FROM NOTICE N, USER U, ORGANIZATION O
         WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
-        <if test="searchValue != null and searchValue != ''">
-            AND N.TITLE LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchKeyword != null and searchKeyword != ''">
+            AND N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
         ORDER BY NOTICE_NUM DESC
         LIMIT #{size} OFFSET #{page}
     </select>
-    
+
     <select id="getNoticeTotalCount" parameterType="Map" resultType="Int">
         SELECT COUNT(NOTICE_NUM)
         FROM NOTICE
-        <if test="searchValue != null and searchValue != ''">
-            WHERE TITLE LIKE CONCAT('%', #{searchValue}, '%')
+        <if test="searchKeyword != null and searchKeyword != ''">
+            WHERE TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
     </select>
-    
+
     <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
         SELECT N.NOTICE_NUM
         , N.TITLE
@@ -35,7 +35,7 @@
         WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
         AND NOTICE_NUM = #{noticeNum}
     </select>
-    
+
     <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
         INSERT INTO NOTICE
         (
@@ -50,7 +50,7 @@
         , #{createUser}
         )
     </insert>
-    
+
     <update id="updateNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO">
         UPDATE NOTICE
         SET TITLE = #{title}

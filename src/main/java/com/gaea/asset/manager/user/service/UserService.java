@@ -16,11 +16,11 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserMapper userMapper;
 
-	public Header<List<UserVO>> getUserList(Integer page, Integer size, Search search) {
+	public Header<List<UserVO>> getUserList(Integer currentPage, Integer pageSize, Search search) {
 		HashMap<String, Object> paramMap = new HashMap<>();
 
-		paramMap.put("searchKey", search.getSearchKey());
-		paramMap.put("searchValue", search.getSearchValue());
+		paramMap.put("searchColumn", search.getSearchColumn());
+		paramMap.put("searchKeyword", search.getSearchKeyword());
 
 		List<UserVO> userList = userMapper.getUserList(paramMap);
 

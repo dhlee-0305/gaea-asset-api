@@ -23,8 +23,8 @@ public class UserController {
 
 	@GetMapping("/userList")
 	@Operation(summary = "사용자 목록 조회", description = "사용자 목록 조회 API")
-	Header<List<UserVO>> getUserList(@RequestParam(value="page", required = false) Integer page, @RequestParam(value="size", required = false) Integer size, Search search) {
-		return userService.getUserList(page, size, search);
+	Header<List<UserVO>> getUserList(@RequestParam(value="currentPage", required = false) Integer currentPage, @RequestParam(value="pageSize", required = false) Integer pageSize, Search search) {
+		return userService.getUserList(currentPage, pageSize, search);
 	}
 
 }

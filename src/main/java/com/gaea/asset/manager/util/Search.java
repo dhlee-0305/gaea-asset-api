@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class Search {
-	private String searchKey;
-	private String searchValue;
+	// 검색 항목
+	private String searchColumn;
+	// 검색어
+	private String searchKeyword;
 }
