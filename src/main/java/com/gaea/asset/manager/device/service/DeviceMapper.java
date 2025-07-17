@@ -19,5 +19,5 @@ public interface DeviceMapper {
 
 	int updateDevice(DeviceVO entity);
 
-	int deleteDevice(Integer idx);
+	int deleteDevice(Integer deviceNum);
 }

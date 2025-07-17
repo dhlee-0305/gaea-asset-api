@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.device.vo.DeviceVO;
-import com.gaea.asset.manager.user.vo.UserVO;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Pagination;
 import com.gaea.asset.manager.util.Search;
@@ -41,17 +40,17 @@ public class DeviceService {
 		return Header.OK(deviceMapper.getDevice(deviceNum));
 	}
 
-	public Header<DeviceVO> insertDevice(DeviceVO DeviceVO) {
-		if (deviceMapper.insertDevice(DeviceVO) > 0) {
+	public Header<DeviceVO> insertDevice(DeviceVO deviceVO) {
+		if (deviceMapper.insertDevice(deviceVO) > 0) {
 			return Header.OK();
 		} else {
 			return Header.ERROR("9999", "ERROR");
 		}
 	}
 
-	public Header<DeviceVO> updateDevice(DeviceVO DeviceVO) {
-		if (deviceMapper.updateDevice(DeviceVO) > 0) {
-			return Header.OK(DeviceVO);
+	public Header<DeviceVO> updateDevice(DeviceVO deviceVO) {
+		if (deviceMapper.updateDevice(deviceVO) > 0) {
+			return Header.OK(deviceVO);
 		} else {
 			return Header.ERROR("9999", "ERROR");
 		}
