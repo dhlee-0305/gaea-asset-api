@@ -4,15 +4,19 @@
 
 <mapper namespace="com.gaea.asset.manager.notice.service.NoticeMapper">
     <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
-        SELECT N.NOTICE_NUM
-        , N.TITLE
-        , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
-        , N.CREATE_DATETIME
-        FROM NOTICE N, USER U, ORGANIZATION O
-        WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
-        <if test="searchKeyword != null and searchKeyword != ''">
-            AND N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-        </if>
+        SELECT ROW_NUMBER() OVER (ORDER BY N.NOTICE_NUM ASC) AS ROW_NUM
+             , N.NOTICE_NUM
+             , N.TITLE
+             , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
+             , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
+        FROM NOTICE N
+        JOIN USER U ON N.CREATE_USER = U.EMP_NUM
+        JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
+        <where>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </where>
         ORDER BY NOTICE_NUM DESC
         LIMIT #{size} OFFSET #{page}
     </select>
@@ -20,43 +24,46 @@
     <select id="getNoticeTotalCount" parameterType="Map" resultType="Int">
         SELECT COUNT(NOTICE_NUM)
         FROM NOTICE
-        <if test="searchKeyword != null and searchKeyword != ''">
-            WHERE TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-        </if>
+        <where>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </where>
     </select>
 
     <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
         SELECT N.NOTICE_NUM
-        , N.TITLE
-        , N.CONTENT
-        , N.CREATE_DATETIME
-        , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
-        FROM NOTICE N, USER U, ORGANIZATION O
-        WHERE N.CREATE_USER = U.EMP_NUM AND U.ORG_ID = O.ORG_ID
-        AND NOTICE_NUM = #{noticeNum}
+             , N.TITLE
+             , N.CONTENT
+             , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
+             , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
+        FROM NOTICE N
+        JOIN USER U ON N.CREATE_USER = U.EMP_NUM
+        JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
+        WHERE NOTICE_NUM = #{noticeNum}
     </select>
 
     <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
         INSERT INTO NOTICE
         (
-        TITLE
-        , CONTENT
-        , CREATE_DATETIME
-        , CREATE_USER
+            TITLE
+          , CONTENT
+          , CREATE_DATETIME
+          , CREATE_USER
         ) VALUES (
-        #{title}
-        , #{content}
-        , NOW()
-        , #{createUser}
+            #{title}
+          , #{content}
+          , NOW()
+          , #{createUser}
         )
     </insert>
 
     <update id="updateNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO">
         UPDATE NOTICE
         SET TITLE = #{title}
-        , CONTENT = #{content}
-        , UPDATE_DATETIME = NOW()
-        , UPDATE_USER = #{updateUser}
+          , CONTENT = #{content}
+          , UPDATE_DATETIME = NOW()
+          , UPDATE_USER = #{updateUser}
         WHERE NOTICE_NUM = #{noticeNum}
     </update>
 
