@@ -3,6 +3,7 @@ package com.gaea.asset.manager.device.service;
 import java.util.HashMap;
 import java.util.List;
 
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.device.vo.DeviceVO;
@@ -40,6 +41,10 @@ public class DeviceService {
 		return Header.OK(deviceMapper.getDevice(deviceNum));
 	}
 
+	public Header<DeviceVO> getDeviceTemp(Integer deviceNum) {
+		return Header.OK(deviceMapper.getDeviceTemp(deviceNum));
+	}
+
 	public Header<DeviceVO> insertDevice(DeviceVO deviceVO) {
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
 			return Header.OK();
@@ -48,12 +53,26 @@ public class DeviceService {
 		}
 	}
 
-	public Header<DeviceVO> updateDevice(DeviceVO deviceVO) {
-		if (deviceMapper.updateDevice(deviceVO) > 0) {
-			return Header.OK(deviceVO);
+	@Transactional
+	public Header<DeviceVO> insertDeviceTemp(DeviceVO deviceVO) {
+		DeviceVO device = deviceMapper.getDevice(deviceVO.getDeviceNum());
+
+		// 결재 대기 상태(A1, A2)면 요청 불가
+		if ("A1".equals(device.getApprovalStatusCode()) || "A2".equals(device.getApprovalStatusCode())) {
+			return Header.ERROR("9999", "ERROR");
+		}
+
+		// 결재 상태 업데이트
+		deviceVO.setApprovalStatusCode("A1");
+
+		if (deviceMapper.updateApprovalStatusCode(deviceVO) > 0) {
+			if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
+				return Header.OK(deviceVO);
+			}
 		} else {
 			return Header.ERROR("9999", "ERROR");
 		}
+		return Header.ERROR("9999", "ERROR");
 	}
 
 	public Header<String> deleteDevice(Integer deviceNum) {
@@ -62,5 +81,24 @@ public class DeviceService {
 		} else {
 			return Header.ERROR("9999", "ERROR");
 		}
+	}
+
+	@Transactional
+	public Header<DeviceVO> processApproval(DeviceVO deviceVO) {
+		String status = deviceVO.getApprovalStatusCode();
+
+		if ("A3".equals(status)) { // 승인 처리
+			if (deviceMapper.updateDevice(deviceVO) > 0) {
+				deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
+				return Header.OK(deviceVO);
+			}
+		} else if ("A4".equals(status)) { // 반려 처리
+			if (deviceMapper.updateApprovalStatusCode(deviceVO) > 0) {
+				deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
+				return Header.OK(deviceVO);
+			}
+		}
+
+		return Header.ERROR("9999", "ERROR");
 	}
 }

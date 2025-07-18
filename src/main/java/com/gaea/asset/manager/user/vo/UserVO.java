@@ -16,7 +16,7 @@ public class UserVO {
 	@Schema(description = "사원번호", example = "100000")
 	Integer empNum;
 
-	@Schema(description = "사용자ID", example = "gaea@gaeasoft.co.kr")
+	@Schema(description = "사용자ID", example = "gaea")
 	String userId;
 
 	@Schema(description = "사용자명", example = "홍길동")
