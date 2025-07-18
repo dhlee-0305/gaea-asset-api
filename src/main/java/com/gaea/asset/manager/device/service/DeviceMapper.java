@@ -25,7 +25,7 @@ public interface DeviceMapper {
 
 	int insertDeviceTemp(DeviceVO entity);
 
-	int deleteDeviceTemp(Integer deviceNum);
+	void deleteDeviceTemp(Integer deviceNum);
 
 	int updateApprovalStatusCode(DeviceVO entity);
 }

@@ -93,13 +93,9 @@ public class DeviceService {
 				return Header.OK(deviceVO);
 			}
 		} else if ("A4".equals(status)) { // 반려 처리
-			DeviceVO rejectTarget = new DeviceVO();
-			rejectTarget.setDeviceNum(deviceVO.getDeviceNum());
-			rejectTarget.setApprovalStatusCode("A4");
-
-			if (deviceMapper.updateApprovalStatusCode(rejectTarget) > 0) {
+			if (deviceMapper.updateApprovalStatusCode(deviceVO) > 0) {
 				deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
-				return Header.OK(rejectTarget);
+				return Header.OK(deviceVO);
 			}
 		}
 
