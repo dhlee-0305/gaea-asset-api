@@ -92,6 +92,40 @@
         WHERE DEVICE_NUM = #{deviceNum}
     </select>
 
+    <select id="getDeviceTemp" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+        SELECT D.DEVICE_NUM
+        , D.OLD_DEVICE_ID
+        , D.USAGE_DIVISION
+        , D.USAGE_PURPOSE
+        , D.ARCHIVE_LOCATION
+        , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
+        , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C004' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+        , D.MODEL_NAME
+        , D.MANUFACTURE_DATE
+        , D.CPU_SPEC
+        , D.MEMORY_SIZE
+        , D.STORAGE_INFO
+        , D.OPERATING_SYSTEM
+        , D.SCREEN_SIZE
+        , D.GPU_SPEC
+        , D.DEVICE_STATUS_CODE
+        , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C005' AND C.CODE = D.DEVICE_STATUS_CODE) AS DEVICE_STATUS
+        , D.APPROVAL_STATUS_CODE
+        , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C006' AND C.CODE = D.APPROVAL_STATUS_CODE) AS APPROVAL_STATUS
+        , D.PURCHASE_DATE
+        , D.RETURN_DATE
+        , D.REMARKS
+        , D.EMP_NUM
+        , D.CHANGE_REASON
+        , U.USER_NAME
+        , D.MODEL_NAME
+        , D.MANUFACTURE_DATE
+        FROM DEVICE_TEMP D
+        LEFT JOIN USER U
+            ON D.EMP_NUM = U.EMP_NUM
+        WHERE DEVICE_NUM = #{deviceNum}
+    </select>
+
     <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNum" useGeneratedKeys="true">
         INSERT INTO DEVICE
         (
@@ -135,6 +169,51 @@
         )
     </insert>
 
+    <insert id="insertDeviceTemp" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+        INSERT INTO DEVICE_TEMP
+        (
+        DEVICE_NUM
+        , OLD_DEVICE_ID
+        , EMP_NUM
+        , USAGE_DIVISION
+        , USAGE_PURPOSE
+        , DEVICE_TYPE
+        , MODEL_NAME
+        , MANUFACTURE_DATE
+        , CPU_SPEC
+        , MEMORY_SIZE
+        , STORAGE_INFO
+        , OPERATING_SYSTEM
+        , SCREEN_SIZE
+        , DEVICE_STATUS_CODE
+        , APPROVAL_STATUS_CODE
+        , PURCHASE_DATE
+        , RETURN_DATE
+        , REMARKS
+        , CHANGE_REASON
+        ) VALUES (
+        #{deviceNum}
+        , #{oldDeviceId}
+        , #{empNum}
+        , #{usageDivision}
+        , #{usagePurpose}
+        , #{deviceTypeCode}
+        , #{modelName}
+        , #{manufactureDate}
+        , #{cpuSpec}
+        , #{memorySize}
+        , #{storageInfo}
+        , #{operatingSystem}
+        , #{screenSize}
+        , #{deviceStatusCode}
+        , #{approvalStatusCode}
+        , #{purchaseDate}
+        , #{returnDate}
+        , #{remarks}
+        , #{changeReason}
+        )
+    </insert>
+
     <update id="updateDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
         UPDATE DEVICE
         SET
@@ -163,8 +242,21 @@
         WHERE DEVICE_NUM = #{deviceNum};
     </update>
 
+    <update id="updateApprovalStatusCode" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+        UPDATE DEVICE
+        SET
+            APPROVAL_STATUS_CODE = #{approvalStatusCode}
+        WHERE
+            DEVICE_NUM = #{deviceNum}
+    </update>
+
     <delete id="deleteDevice" parameterType="Integer">
         DELETE FROM DEVICE
+        WHERE DEVICE_NUM = #{deviceNum}
+    </delete>
+
+    <delete id="deleteDeviceTemp" parameterType="Integer">
+        DELETE FROM DEVICE_TEMP
         WHERE DEVICE_NUM = #{deviceNum}
     </delete>
 

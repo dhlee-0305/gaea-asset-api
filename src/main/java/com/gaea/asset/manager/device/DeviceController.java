@@ -38,17 +38,29 @@ public class DeviceController {
 		return deviceService.getDevice(deviceNum);
 	}
 
+	@GetMapping("/devices/{deviceNum}/draft")
+	@Operation(summary = "전산 장비 변경 정보 조회", description = "전산 장비 수정 요청 정보 조회 API")
+	Header<DeviceVO> getDeviceTemp(@PathVariable(name="deviceNum") Integer deviceNum) {
+		return deviceService.getDeviceTemp(deviceNum);
+	}
+
 	@PostMapping("/devices")
 	@Operation(summary = "전산 장비 등록", description = "전산 장비 등록 API")
 	Header<DeviceVO> insertDevice(@RequestBody DeviceVO deviceVO) {
 		return deviceService.insertDevice(deviceVO);
 	}
 
+	@PostMapping("/devices/{deviceNum}")
+	@Operation(summary = "전산 장비 정보 수정 요청", description = "전산 장비 수정 요청 API")
+	Header<DeviceVO> insertDeviceTemp(@RequestBody DeviceVO deviceVO) {
+		return deviceService.insertDeviceTemp(deviceVO);
+	}
+
 	@PutMapping("/devices/{deviceNum}")
-	@Operation(summary = "전산 장비 정보 수정", description = "전산 장비 정보 수정 API")
-	Header<DeviceVO> updateDevice(@PathVariable(name="deviceNum") Integer deviceNum, @RequestBody DeviceVO deviceVO) {
+	@Operation(summary = "전산 장비 승인/반려 처리", description = "전산 장비 승인(A3) 또는 반려(A4) 처리 API")
+	public Header<DeviceVO> processApproval(@PathVariable(name = "deviceNum") Integer deviceNum, @RequestBody DeviceVO deviceVO) {
 		deviceVO.setDeviceNum(deviceNum);
-		return deviceService.updateDevice(deviceVO);
+		return deviceService.processApproval(deviceVO);
 	}
 
 	@DeleteMapping("/devices/{deviceNum}")

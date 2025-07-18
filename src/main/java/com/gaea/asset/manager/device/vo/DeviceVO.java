@@ -104,4 +104,7 @@ public class DeviceVO {
 
 	@Schema(description = "최종 변경자", example = "")
 	private String updateUser;
+
+	@Schema(description = "장비 변경 요청 사유", example = "")
+	private String changeReason;
 }
