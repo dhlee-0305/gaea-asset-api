@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.login.service.LoginMapper">
+    <select id="authLogin" parameterType="com.gaea.asset.manager.login.vo.LoginVO" resultType="com.gaea.asset.manager.login.vo.UserVO">
+        SELECT U.EMP_NUM
+             , U.USER_ID
+             , U.PASSWORD
+             , U.USER_NAME
+             , U.ORG_ID
+             , O.ORG_NAME
+             , U.ROLE_CODE
+        FROM USER U
+        LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
+        WHERE U.USER_ID = #{userId}
+        AND U.IS_EMPLOYED = 'Y'
+    </select>
+</mapper>
