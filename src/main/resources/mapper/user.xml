@@ -16,7 +16,7 @@
         FROM USER U
         JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
-        <where>
+        WHERE IS_EMPLOYED = 'Y'
         <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
                 AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
@@ -27,7 +27,6 @@
                 AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
         </if>
-        </where>
         ORDER BY U.CREATE_DATETIME DESC
         LIMIT #{size} OFFSET #{page}
     </select>
@@ -36,8 +35,8 @@
         SELECT COUNT(*)
         FROM USER U
         JOIN ORGANIZATION O
-        ON U.ORG_ID = O.ORG_ID
-        <where>
+          ON U.ORG_ID = O.ORG_ID
+        WHERE IS_EMPLOYED = 'Y'
         <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
                 AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
@@ -48,7 +47,6 @@
                     AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
                 </if>
         </if>
-        </where>
         ORDER BY U.CREATE_DATETIME DESC
     </select>
 
@@ -64,9 +62,18 @@
           , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C002' AND U.USER_GRADE_CD = C.CODE) AS USER_GRADE_Name
         FROM USER U
         JOIN ORGANIZATION O
-        ON U.ORG_ID = O.ORG_ID
+            ON U.ORG_ID = O.ORG_ID
         WHERE U.EMP_NUM = #{empNum}
+            AND IS_EMPLOYED = 'Y'
         ORDER BY U.CREATE_DATETIME DESC
+    </select>
+
+    <select id="chkLeaderAvl" parameterType="com.gaea.asset.manager.user.vo.UserVO" resultType="Integer">
+        SELECT COUNT(*)
+        FROM USER
+        WHERE EMP_NUM <![CDATA[<>]]> #{empNum}
+            AND USER_POSITION_CD = '03'
+            AND IS_EMPLOYED = 'Y'
     </select>
 
     <insert id="insertUser" parameterType="com.gaea.asset.manager.user.vo.UserVO">

@@ -16,6 +16,8 @@ public interface UserMapper {
 
 	UserVO getUser(Integer empNum);
 
+	int chkLeaderAvl(UserVO entity);
+
 	int insertUser(UserVO entity);
 
 	int updateUser(UserVO entity);
