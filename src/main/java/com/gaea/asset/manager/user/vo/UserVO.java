@@ -37,6 +37,12 @@ public class UserVO {
 	@Schema(description = "직위코드", example = "07")
 	String userGradeCd;
 
+	@Schema(description = "직책명", example = "04")
+	String userPositionName;
+
+	@Schema(description = "직위명", example = "07")
+	String userGradeName;
+
 	@Schema(description = "권한코드", example = "01")
 	String roleCode;
 

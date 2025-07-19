@@ -5,10 +5,14 @@
 <mapper namespace="com.gaea.asset.manager.user.service.UserMapper">
     <select id="getUserList" parameterType="Map" resultType="com.gaea.asset.manager.user.vo.UserVO">
         SELECT U.EMP_NUM
-          , U.USER_ID
+          , CONCAT(SUBSTRING(U.USER_ID, 1, LENGTH(U.USER_ID)-2), '**') AS USER_ID
           , U.USER_NAME
           , U.ORG_ID
           , O.ORG_NAME
+          , U.USER_POSITION_CD
+          , U.USER_GRADE_CD
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C001' AND U.USER_POSITION_CD = C.CODE) AS USER_POSITION_Name
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C002' AND U.USER_GRADE_CD = C.CODE) AS USER_GRADE_Name
         FROM USER U
         JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
@@ -18,5 +22,73 @@
           </if>
         </where>
         ORDER BY U.CREATE_DATETIME DESC
+        LIMIT #{size} OFFSET #{page}
     </select>
+
+    <select id="getUserListCount" parameterType="Map" resultType="Integer">
+        SELECT COUNT(*)
+        FROM USER U
+        JOIN ORGANIZATION O
+        ON U.ORG_ID = O.ORG_ID
+        <where>
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </where>
+        ORDER BY U.CREATE_DATETIME DESC
+    </select>
+
+    <select id="getUser" parameterType="Integer" resultType="com.gaea.asset.manager.user.vo.UserVO">
+        SELECT U.EMP_NUM
+          , CONCAT(SUBSTRING(U.USER_ID, 1, LENGTH(U.USER_ID)-2), '**') AS USER_ID
+          , U.USER_NAME
+          , U.ORG_ID
+          , O.ORG_NAME
+          , U.USER_POSITION_CD
+          , U.USER_GRADE_CD
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C001' AND U.USER_POSITION_CD = C.CODE) AS USER_POSITION_Name
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C002' AND U.USER_GRADE_CD = C.CODE) AS USER_GRADE_Name
+        FROM USER U
+        JOIN ORGANIZATION O
+        ON U.ORG_ID = O.ORG_ID
+        WHERE U.EMP_NUM = #{empNum}
+        ORDER BY U.CREATE_DATETIME DESC
+    </select>
+
+    <insert id="insertUser" parameterType="com.gaea.asset.manager.user.vo.UserVO">
+        INSERT INTO USER(
+            EMP_NUM,
+            USER_ID,
+            USER_NAME,
+            ORG_ID,
+            USER_POSITION_CD,
+            USER_GRADE_CD,
+            ROLE_CODE
+        )
+        VALUES(
+            #{empNum},
+            #{userId},
+            #{userName},
+            #{orgId},
+            #{userPositionCd},
+            #{userGradeCd},
+            #{roleCode}
+        )
+    </insert>
+
+    <update id="updateUser" parameterType="com.gaea.asset.manager.user.vo.UserVO">
+        UPDATE USER
+        SET
+            USER_NAME = #{userName},
+            ORG_ID = #{orgId},
+            USER_GRADE_CD = #{userGradeCd},
+            USER_POSITION_CD = #{userPositionCd}
+        WHERE EMP_NUM = #{empNum}
+    </update>
+
+    <delete id="deleteUser" parameterType="Integer">
+        DELETE FROM USER
+        WHERE EMP_NUM = #{empNum}
+    </delete>
+
 </mapper>
