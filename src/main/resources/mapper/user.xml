@@ -17,9 +17,16 @@
         JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
-          <if test="searchKeyword != null and searchKeyword != ''">
-            AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-          </if>
+        <if test="searchColumn != null and searchColumn == 'userName'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </if>
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </if>
         </where>
         ORDER BY U.CREATE_DATETIME DESC
         LIMIT #{size} OFFSET #{page}
@@ -31,9 +38,16 @@
         JOIN ORGANIZATION O
         ON U.ORG_ID = O.ORG_ID
         <where>
+        <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
                 AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
+        </if>
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+                <if test="searchKeyword != null and searchKeyword != ''">
+                    AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+                </if>
+        </if>
         </where>
         ORDER BY U.CREATE_DATETIME DESC
     </select>
