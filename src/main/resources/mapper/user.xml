@@ -93,7 +93,12 @@
             #{orgId},
             #{userPositionCd},
             #{userGradeCd},
-            #{roleCode}
+            <if test="userPositionCd != null and userPositionCd == '04'">
+                '00'
+            </if>
+            <if test="userPositionCd != null and userPositionCd == '03'">
+                '01'
+            </if>
         )
     </insert>
 
