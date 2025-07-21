@@ -50,17 +50,22 @@ public class DeviceController {
 		return deviceService.insertDevice(deviceVO);
 	}
 
-	@PostMapping("/devices/{deviceNum}")
-	@Operation(summary = "전산 장비 정보 수정 요청", description = "전산 장비 수정 요청 API")
-	Header<DeviceVO> insertDeviceTemp(@RequestBody DeviceVO deviceVO) {
-		return deviceService.insertDeviceTemp(deviceVO);
+	@PutMapping("/devices/{deviceNum}")
+	@Operation(summary = "전산 장비 정보 수정", description = "전산 장비 수정 요청 API")
+	Header<DeviceVO> updateDevice(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
+		return deviceService.updateDevice(deviceVO, userRoleCode);
 	}
 
-	@PutMapping("/devices/{deviceNum}")
-	@Operation(summary = "전산 장비 승인/반려 처리", description = "전산 장비 승인(A3) 또는 반려(A4) 처리 API")
-	public Header<DeviceVO> processApproval(@PathVariable(name = "deviceNum") Integer deviceNum, @RequestBody DeviceVO deviceVO) {
-		deviceVO.setDeviceNum(deviceNum);
-		return deviceService.processApproval(deviceVO);
+	@PostMapping("/devices/{deviceNum}/approval")
+	@Operation(summary = "전산 장비 승인", description = "전산 장비 승인 처리 API")
+	public Header<DeviceVO> approveDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
+		return deviceService.approveDeviceUpdate(deviceVO, userRoleCode);
+	}
+
+	@PostMapping("/devices/{deviceNum}/rejection")
+	@Operation(summary = "전산 장비 반려", description = "전산 장비 반려 처리 API")
+	public Header<DeviceVO> rejectDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
+		return deviceService.rejectDeviceUpdate(deviceVO, userRoleCode);
 	}
 
 	@DeleteMapping("/devices/{deviceNum}")
