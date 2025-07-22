@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.organization.service.OrganizationMapper">
+    <select id="selectOrganizationList" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
+        SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
+               ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
+               IS_ACTIVE as isActive, CREATE_DATETIME as createDatetime
+        FROM ORGANIZATION
+        WHERE IS_ACTIVE = 'Y'
+        ORDER BY SORT_ORDER ASC
+    </select>
+
+    <select id="selectOrganization" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
+        SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
+               ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
+               IS_ACTIVE as isActive, CREATE_DATETIME as createDatetime
+        FROM ORGANIZATION
+        WHERE ORG_ID = #{orgId} AND IS_ACTIVE = 'Y'
+    </select>
+
+    <insert id="insertOrganization">
+        INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
+        VALUES (#{orgId}, #{orgName}, #{orgType}, #{parentOrgId}, #{orgLevel}, #{orgPath}, #{sortOrder}, 'Y')
+    </insert>
+
+    <update id="updateOrganization">
+        UPDATE ORGANIZATION
+        SET ORG_NAME = #{orgName},
+            PARENT_ORG_ID = #{parentOrgId},
+            ORG_LEVEL = #{orgLevel},
+            ORG_PATH = #{orgPath},
+            SORT_ORDER = #{sortOrder}
+        WHERE ORG_ID = #{orgId}
+    </update>
+
+    <insert id="insertOrganizations">
+        INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.orgId}, #{item.orgName}, #{item.orgType}, #{item.parentOrgId}, #{item.orgLevel}, #{item.orgPath}, #{item.sortOrder}, #{item.isActive})
+        </foreach>
+    </insert>
+
+    <select id="selectMaxOrgIdByParent" resultType="int">
+        SELECT IFNULL(MAX(ORG_ID), #{parentOrgId} * 10)
+        FROM ORGANIZATION
+        WHERE PARENT_ORG_ID = #{parentOrgId}
+    </select>
+
+    <update id="updateIsActive">
+        UPDATE ORGANIZATION
+        SET IS_ACTIVE = #{isActive}
+        WHERE ORG_ID = #{orgId}
+    </update>
+
+    <select id="selectMaxOrgIdByType" resultType="int">
+        SELECT IFNULL(MAX(ORG_ID), 0)
+        FROM ORGANIZATION
+        WHERE ORG_TYPE = #{orgType}
+    </select>
+
+</mapper>
