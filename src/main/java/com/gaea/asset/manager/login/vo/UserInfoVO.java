@@ -13,7 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Schema(description = "전산 장비 정보")
-public class UserVO {
+public class UserInfoVO {
 
 	@Schema(description = "사원번호", example = "")
 	private Integer empNum;

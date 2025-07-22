@@ -1,6 +1,7 @@
 package com.gaea.asset.manager.login;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +24,10 @@ public class LoginController {
 	Header<String> authLogin(@RequestBody LoginVO loginVO) {
 		return loginService.authLogin(loginVO);
 	}
-
+	
+	@PutMapping("/auth/password")
+	@Operation(summary = "비밀번호 변경", description = "비밀번호 변경 API")
+	Header<LoginVO> updatePassword(@RequestBody LoginVO loginVO) {
+		return loginService.updatePassword(loginVO);
+	}
 }

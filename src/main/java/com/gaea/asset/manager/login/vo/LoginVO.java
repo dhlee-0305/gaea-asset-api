@@ -19,4 +19,7 @@ public class LoginVO {
 	
 	@Schema(description = "비밀번호 (암호화 BCrypt)", example = "1111")
 	private String password;
+	
+	@Schema(description = "신규 비밀번호 (암호화 BCrypt)", example = "")
+	private String newPassword;
 }

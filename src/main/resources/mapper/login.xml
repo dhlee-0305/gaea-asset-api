@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.gaea.asset.manager.login.service.LoginMapper">
-    <select id="authLogin" parameterType="com.gaea.asset.manager.login.vo.LoginVO" resultType="com.gaea.asset.manager.login.vo.UserVO">
+    <select id="authLogin" parameterType="com.gaea.asset.manager.login.vo.LoginVO" resultType="com.gaea.asset.manager.login.vo.UserInfoVO">
         SELECT U.EMP_NUM
              , U.USER_ID
              , U.PASSWORD
@@ -16,4 +16,11 @@
         WHERE U.USER_ID = #{userId}
         AND U.IS_EMPLOYED = 'Y'
     </select>
+    
+    <update id="updatePassword" parameterType="com.gaea.asset.manager.login.vo.LoginVO">
+        UPDATE USER
+        SET
+            PASSWORD = #{newPassword}
+        WHERE USER_ID = #{userId}
+    </update>
 </mapper>

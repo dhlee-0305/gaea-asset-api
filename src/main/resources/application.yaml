@@ -25,3 +25,6 @@ logging:
       audit: OFF
       resultset: OFF
       connection: OFF
+#Jwt Secret Key
+jwt:
+  secret: gaeaAssetApiSecretKey
