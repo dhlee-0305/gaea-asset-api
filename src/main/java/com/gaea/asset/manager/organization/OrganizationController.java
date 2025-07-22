@@ -12,7 +12,9 @@ import java.util.List;
 
 //import com.gaea.asset.manager.util.ExcelUtil;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "부서 관리 API", description = "부서 관리 관련 API 입니다.")
 @RestController
 @RequestMapping("/organization")
 @RequiredArgsConstructor
