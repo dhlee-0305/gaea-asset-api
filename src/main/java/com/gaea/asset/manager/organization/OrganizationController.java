@@ -14,7 +14,7 @@ import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController
-@RequestMapping("/api/organization")
+@RequestMapping("/organization")
 @RequiredArgsConstructor
 public class OrganizationController {
     private final OrganizationService organizationService;
