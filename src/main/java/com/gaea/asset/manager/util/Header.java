@@ -1,3 +1,4 @@
+
 package com.gaea.asset.manager.util;
 
 import java.time.LocalDateTime;
@@ -27,7 +28,7 @@ public class Header<T> {
 				.build();
 	}
 
-	//DATA OK
+	// DATA OK
 	@SuppressWarnings("unchecked")
 	public static <T> Header<T> OK(T data) {
 		return (Header<T>) Header.builder()
@@ -46,6 +47,16 @@ public class Header<T> {
 				.description("OK")
 				.data(data)
 				.pagination(pagination)
+				.build();
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> Header<T> OK(String resultCode, String description, T data) {
+		return (Header<T>) Header.builder()
+				.transactionTime(LocalDateTime.now())
+				.resultCode(resultCode)
+				.description(description)
+				.data(data)
 				.build();
 	}
 
