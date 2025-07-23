@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.gaea.asset.manager.organization.service.OrganizationMapper">
-    <!-- 특정 조직 및 하위 조직 전체 orgId 조회 (재귀) -->
+
+    <!-- 특정 조직 및 하위 조직 전체 orgId 조회 -->
     <select id="selectAllChildOrgIds" resultType="int">
         WITH RECURSIVE org_tree AS (
             SELECT ORG_ID FROM ORGANIZATION WHERE ORG_ID = #{orgId}
@@ -12,6 +13,8 @@
         )
         SELECT ORG_ID FROM org_tree
     </select>
+
+    <!-- 부서 목록 조회 -->
     <select id="selectOrganizationList" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
         SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
                ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
@@ -21,6 +24,7 @@
         ORDER BY SORT_ORDER ASC
     </select>
 
+    <!-- 부서 상세 조회 -->
     <select id="selectOrganization" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
         SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
                ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
@@ -29,11 +33,13 @@
         WHERE ORG_ID = #{orgId} AND IS_ACTIVE = 'Y'
     </select>
 
+    <!-- 부서 등록 -->
     <insert id="insertOrganization">
         INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
         VALUES (#{orgId}, #{orgName}, #{orgType}, #{parentOrgId}, #{orgLevel}, #{orgPath}, #{sortOrder}, 'Y')
     </insert>
 
+    <!-- 부서 정보 수정 -->
     <update id="updateOrganization">
         UPDATE ORGANIZATION
         SET ORG_NAME = #{orgName},
@@ -44,6 +50,7 @@
         WHERE ORG_ID = #{orgId}
     </update>
 
+    <!-- 부서 일괄 등록 -->
     <insert id="insertOrganizations">
         INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
         VALUES
@@ -52,22 +59,25 @@
         </foreach>
     </insert>
 
+    <!-- 하위부서 중 ORG_ID 최고값 조회 -->
     <select id="selectMaxOrgIdByParent" resultType="int">
         SELECT IFNULL(MAX(ORG_ID), #{parentOrgId} * 10)
         FROM ORGANIZATION
         WHERE PARENT_ORG_ID = #{parentOrgId}
     </select>
 
+    <!-- 부서 활성/비활성 처리 -->
     <update id="updateIsActive">
         UPDATE ORGANIZATION
         SET IS_ACTIVE = #{isActive}
         WHERE ORG_ID = #{orgId}
     </update>
 
+    <!-- ORG_TYPE별 ORG_ID 최고값 조회 -->
     <select id="selectMaxOrgIdByType" resultType="int">
         SELECT IFNULL(MAX(ORG_ID), 0)
         FROM ORGANIZATION
         WHERE ORG_TYPE = #{orgType}
     </select>
 
- </mapper>
+</mapper>

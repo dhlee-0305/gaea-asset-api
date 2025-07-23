@@ -21,18 +21,27 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class OrganizationController {
     private final OrganizationService organizationService;
 
+    /**
+     * 부서 목록 조회
+     */
     @GetMapping
     @Operation(summary = "부서 목록 조회", description = "활성화된 모든 부서 목록을 조회합니다.")
     public Header<List<OrganizationVO>> getOrganizationList() {
         return Header.OK(organizationService.getOrganizationList());
     }
 
+    /**
+     * 부서 상세 조회
+     */
     @GetMapping("/{orgId}")
     @Operation(summary = "부서 상세 조회", description = "특정 부서의 상세 정보를 조회합니다.")
     public Header<OrganizationVO> getOrganization(@PathVariable("orgId") Integer orgId) {
         return Header.OK(organizationService.getOrganization(orgId));
     }
 
+    /**
+     * 부서 등록
+     */
     @PostMapping
     @Operation(summary = "부서 등록", description = "새로운 부서를 등록합니다.")
     public Header<String> createOrganization(@RequestBody OrganizationVO vo) {
@@ -40,6 +49,9 @@ public class OrganizationController {
         return Header.OK("등록되었습니다.");
     }
 
+    /**
+     * 부서 정보 수정
+     */
     @PutMapping("/{orgId}")
     @Operation(summary = "부서 정보 수정", description = "기존 부서 정보를 수정합니다.")
     public Header<String> updateOrganization(@PathVariable("orgId") Integer orgId, @RequestBody OrganizationVO vo) {
@@ -47,7 +59,9 @@ public class OrganizationController {
         organizationService.updateOrganization(vo);
         return Header.OK("수정되었습니다.");
     }
-    /* 
+
+    /*
+    // 부서 엑셀 일괄등록 (주석 처리)
     @PostMapping("/excel")
     @Operation(summary = "부서 엑셀 일괄등록", description = "엑셀 파일을 업로드하여 여러 부서를 한 번에 등록합니다.")
     public Header<String> uploadExcel(@RequestParam("file") MultipartFile file) {
@@ -60,6 +74,10 @@ public class OrganizationController {
         }
     }
     */
+
+    /**
+     * 하위부서 등록
+     */
     @PostMapping("/{parentOrgId}/child")
     @Operation(summary = "하위부서 등록", description = "선택한 부서의 하위부서를 등록합니다.")
     public Header<String> createChildOrganization(
@@ -74,6 +92,9 @@ public class OrganizationController {
         }
     }
 
+    /**
+     * 부서 및 하위부서 비활성화
+     */
     @PutMapping("/{orgId}/inactive")
     @Operation(summary = "부서 비활성화", description = "부서, 하위부서 모두 비활성화 처리합니다.")
     public Header<String> deactivateOrganization(@PathVariable("orgId") Integer orgId) {
