@@ -75,9 +75,9 @@ public class OrganizationController {
     }
 
     @PutMapping("/{orgId}/inactive")
-    @Operation(summary = "부서 비활성화", description = "부서를 삭제하지 않고 비활성화 처리합니다.")
+    @Operation(summary = "부서 비활성화", description = "부서, 하위부서 모두 비활성화 처리합니다.")
     public Header<String> deactivateOrganization(@PathVariable("orgId") Integer orgId) {
-        organizationService.deactivateOrganization(orgId);
-        return Header.OK("부서가 비활성화되었습니다.");
+        organizationService.deactivateOrganizationWithChildren(orgId);
+        return Header.OK("부서 및 하위 부서가 모두 비활성화되었습니다.");
     }
 }

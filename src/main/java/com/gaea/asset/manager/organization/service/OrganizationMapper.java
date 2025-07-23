@@ -12,8 +12,9 @@ public interface OrganizationMapper {
     OrganizationVO selectOrganization(@Param("orgId") Integer orgId);
     int insertOrganization(OrganizationVO vo);
     int updateOrganization(OrganizationVO vo);
-    int insertOrganizations(@Param("list") List<OrganizationVO> list); // 일괄등록
+    int insertOrganizations(@Param("list") List<OrganizationVO> list); 
     Integer selectMaxOrgIdByParent(@Param("parentOrgId") Integer parentOrgId);
     int updateIsActive(@Param("orgId") Integer orgId, @Param("isActive") String isActive);
     Integer selectMaxOrgIdByType(@Param("orgType") String orgType);
+    List<Integer> selectAllChildOrgIds(@Param("orgId") Integer orgId);
 }

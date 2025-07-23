@@ -56,9 +56,17 @@ public class OrganizationService {
         return organizationMapper.insertOrganization(vo);
     }
 
+
+    /**
+     * orgId 및 모든 하위 조직을 비활성화 처리
+     */
     @Transactional
-    public int deactivateOrganization(Integer orgId) {
-        return organizationMapper.updateIsActive(orgId, "N");
+    public void deactivateOrganizationWithChildren(Integer orgId) {
+        // 하위 조직 포함 전체 orgId 조회
+        List<Integer> allOrgIds = organizationMapper.selectAllChildOrgIds(orgId);
+        for (Integer id : allOrgIds) {
+            organizationMapper.updateIsActive(id, "N");
+        }
     }
 
     @Transactional
