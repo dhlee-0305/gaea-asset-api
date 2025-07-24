@@ -21,9 +21,6 @@ public interface OrganizationMapper {
     // 부서 정보 수정
     int updateOrganization(OrganizationVO vo);
 
-    // 부서 일괄 등록
-    int insertOrganizations(@Param("list") List<OrganizationVO> list);
-
     // 하위부서 중 ORG_ID 최고값 조회
     Integer selectMaxOrgIdByParent(@Param("parentOrgId") Integer parentOrgId);
 

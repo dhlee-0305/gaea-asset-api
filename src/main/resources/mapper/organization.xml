@@ -50,15 +50,6 @@
         WHERE ORG_ID = #{orgId}
     </update>
 
-    <!-- 부서 일괄 등록 -->
-    <insert id="insertOrganizations">
-        INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
-        VALUES
-        <foreach collection="list" item="item" separator=",">
-            (#{item.orgId}, #{item.orgName}, #{item.orgType}, #{item.parentOrgId}, #{item.orgLevel}, #{item.orgPath}, #{item.sortOrder}, #{item.isActive})
-        </foreach>
-    </insert>
-
     <!-- 하위부서 중 ORG_ID 최고값 조회 -->
     <select id="selectMaxOrgIdByParent" resultType="int">
         SELECT IFNULL(MAX(ORG_ID), #{parentOrgId} * 10)
