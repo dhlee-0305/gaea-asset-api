@@ -4,14 +4,13 @@
 
 <mapper namespace="com.gaea.asset.manager.notice.service.NoticeMapper">
     <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
-        SELECT ROW_NUMBER() OVER (ORDER BY N.NOTICE_NUM ASC) AS ROW_NUM
-             , N.NOTICE_NUM
+        SELECT N.NOTICE_NUM
              , N.TITLE
              , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
              , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
         FROM NOTICE N
         JOIN USER U ON N.CREATE_USER = U.EMP_NUM
-        JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
+        LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
         <where>
             <if test="searchKeyword != null and searchKeyword != ''">
                 N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')

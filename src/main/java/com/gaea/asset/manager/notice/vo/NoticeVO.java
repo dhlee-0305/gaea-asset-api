@@ -14,9 +14,6 @@ import lombok.Setter;
 @Builder
 @Schema(description = "공지사항 정보")
 public class NoticeVO {
-	@Schema(description =  "공지사항 순번", example = "1")
-	private Integer rowNum;
-
 	@Schema(description = "공지사항 번호", example = "1")
 	private Long noticeNum;
 	
