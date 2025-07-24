@@ -4,7 +4,7 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -625,
+    "scrollTop": -325,
     "scrollLeft": -4.551,
     "zoomLevel": 0.82,
     "show": 511,
@@ -1904,19 +1904,19 @@
         "id": "WPxXp0Fgzci-WuNBYxChz",
         "tableId": "b7ec318e-0a14-46e3-9edc-ae3fb6c45f44",
         "name": "PASSWORD",
-        "comment": "비밀번호 (암호화 BCrypt)",
+        "comment": "비밀번호 (암호화 SHA256)",
         "dataType": "VARCHAR(100)",
         "default": "1111",
         "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 64,
-          "widthComment": 135,
+          "widthComment": 142,
           "widthDataType": 81,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1751950500279,
+          "updateAt": 1753320980075,
           "createAt": 1751950287086
         }
       },

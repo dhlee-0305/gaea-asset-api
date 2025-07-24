@@ -115,7 +115,7 @@ CREATE TABLE USER
   EMP_NUM              INT          NOT NULL COMMENT '사원 번호',
   USER_ID              VARCHAR(50)  NOT NULL COMMENT '사용자 ID (회사 메일 계정)',
   USER_NAME            VARCHAR(100) NOT NULL COMMENT '사용자명',
-  PASSWORD             VARCHAR(100) NULL     DEFAULT '$2a$10$heD/fJX.YJNqkiHz2zidi.YSmhHGr5ELc0khX.93eU9rsuWQLI49i' COMMENT '비밀번호 (암호화 BCrypt)',
+  PASSWORD             VARCHAR(100) NULL     DEFAULT '0ffe1abd1a08215353c233d6e009613e95eec4253832a761af28ff37ac5a150c' COMMENT '비밀번호 (암호화 SHA256)',
   ORG_ID               INT          NOT NULL COMMENT '조직 ID (기본키)',
   USER_POSITION_CD     VARCHAR(10)  NULL     COMMENT '직책 코드',
   USER_GRADE_CD        VARCHAR(10)  NOT NULL COMMENT '직위 코드',
