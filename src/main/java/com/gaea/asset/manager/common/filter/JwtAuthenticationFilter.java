@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.filter;
+package com.gaea.asset.manager.common.filter;
 
 import java.io.IOException;
 

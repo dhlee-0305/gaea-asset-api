@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.config;
+package com.gaea.asset.manager.common.config;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.gaea.asset.manager.filter.CustomUserDetailsService;
-import com.gaea.asset.manager.filter.JwtAuthenticationFilter;
+import com.gaea.asset.manager.common.filter.CustomUserDetailsService;
+import com.gaea.asset.manager.common.filter.JwtAuthenticationFilter;
 import com.gaea.asset.manager.util.JwtUtil;
 
 @Configuration

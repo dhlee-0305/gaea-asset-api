@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.config;
+package com.gaea.asset.manager.common.config;
 
 
 import org.springframework.context.annotation.Bean;
