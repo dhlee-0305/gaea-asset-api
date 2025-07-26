@@ -6,6 +6,7 @@ import java.util.List;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Pagination;
@@ -31,8 +32,7 @@ public class DeviceService {
 				deviceMapper.getDeviceTotalCount(paramMap),
 				currentPage,
 				pageSize,
-				10
-		);
+				10);
 
 		return Header.OK(deviceList, pagination);
 	}
@@ -165,5 +165,35 @@ public class DeviceService {
         }
 
 		return Header.ERROR("9999", "ERROR");
+	}
+
+	// DeviceHistory 관련 메서드
+	@Transactional
+	public Header<List<DeviceHistoryVO>> getDeviceHistoryList(int currentPage, int pageSize, Search search) {
+		HashMap<String, Object> paramMap = new HashMap<>();
+
+		// 페이징
+		paramMap.put("page", (currentPage - 1) * pageSize);
+		paramMap.put("size", pageSize);
+
+		// 검색
+		paramMap.put("searchColumn", search.getSearchColumn());
+		paramMap.put("searchKeyword", search.getSearchKeyword());
+
+		// 데이터 조회
+		List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
+
+		// 총 건수로 Pagination 생성
+		Pagination pagination = new Pagination(
+				deviceMapper.getDeviceHistoryTotalCount(paramMap),
+				currentPage,
+				pageSize,
+				10);
+
+		return Header.OK(historyList, pagination);
+	}
+
+	public Header<DeviceHistoryVO> getDeviceHistory(Integer historyNum) {
+		return Header.OK(deviceMapper.getDeviceHistory(historyNum));
 	}
 }

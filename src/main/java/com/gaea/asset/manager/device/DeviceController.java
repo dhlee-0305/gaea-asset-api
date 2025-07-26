@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gaea.asset.manager.device.service.DeviceService;
+import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Search;
@@ -72,5 +73,20 @@ public class DeviceController {
 	@Operation(summary = "전산 장비 삭제", description = "전산 장비 삭제 API")
 	Header<String> deleteDevice(@PathVariable(name="deviceNum") Integer deviceNum) {
 		return deviceService.deleteDevice(deviceNum);
+	}
+
+	@GetMapping("/histories")
+	@Operation(summary = "전산 장비 이력 목록 조회", description = "전산 장비 이력 목록 조회 API (검색 조건에 따라 필터링 가능)")
+	public Header<List<DeviceHistoryVO>> getDeviceHistoryList(
+			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", defaultValue = "10") int pageSize,
+			Search search) {
+		return deviceService.getDeviceHistoryList(currentPage, pageSize, search);
+	}
+
+	@GetMapping("/histories/{historyNum}")
+	@Operation(summary = "전산 장비 이력 상세 조회", description = "전산 장비 이력 상세 조회 API")
+	Header<DeviceHistoryVO> getDeviceHistory(@PathVariable(name = "historyNum") Integer historyNum) {
+		return deviceService.getDeviceHistory(historyNum);
 	}
 }

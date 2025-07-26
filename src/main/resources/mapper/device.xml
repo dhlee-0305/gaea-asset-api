@@ -260,4 +260,64 @@
         WHERE DEVICE_NUM = #{deviceNum}
     </delete>
 
+  <!-- getDeviceHistoryList: DEVICE_HISTORY 테이블에서 데이터 조회 -->
+  <select id="getDeviceHistoryList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
+    SELECT HISTORY_NUM,
+           DEVICE_NUM,
+           DEVICE_STATUS_CODE,
+           APPROVAL_STATUS_CODE,
+           CHANGE_CONTENTS,
+           REASON,
+           CREATE_DATETIME,
+           CREATE_USER
+    FROM DEVICE_HISTORY
+    <where>
+      <!-- deviceNum 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'deviceNum'">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                AND DEVICE_NUM = #{searchKeyword}
+            </if>
+      </if>
+      <!-- approvalStatusCode 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                AND APPROVAL_STATUS_CODE = #{searchKeyword}
+            </if>
+      </if>
+    </where>
+    ORDER BY CREATE_DATETIME DESC
+    LIMIT #{size} OFFSET #{page}
+  </select>
+  <!-- getDeviceHistoryTotalCount: DEVICE_HISTORY 테이블의 총 개수 조회 -->
+  <select id="getDeviceHistoryTotalCount" parameterType="Map" resultType="Integer">
+    SELECT COUNT(*)
+    FROM DEVICE_HISTORY
+    <where>
+      <!-- deviceNum 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'deviceNum'">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                AND DEVICE_NUM = #{searchKeyword}
+            </if>
+      </if>
+      <!-- approvalStatusCode 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                AND APPROVAL_STATUS_CODE = #{searchKeyword}
+            </if>
+      </if>
+    </where>
+  </select>
+  <!-- getDeviceHistory: DEVICE_HISTORY 테이블에서 단일 데이터 조회 -->
+  <select id="getDeviceHistory" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
+        SELECT HISTORY_NUM,
+               DEVICE_NUM,
+               DEVICE_STATUS_CODE,
+               APPROVAL_STATUS_CODE,
+               CHANGE_CONTENTS,
+               REASON,
+               CREATE_DATETIME,
+               CREATE_USER
+        FROM DEVICE_HISTORY
+        WHERE HISTORY_NUM = #{historyNum}
+    </select>
 </mapper>
