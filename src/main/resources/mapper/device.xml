@@ -59,11 +59,13 @@
     <select id="getDevice" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
           , D.OLD_DEVICE_ID
-          , D.USAGE_DIVISION
+          , D.USAGE_DIVISION AS USAGE_DIVISION_CODE
+          , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C007' AND C.CODE = D.USAGE_DIVISION) AS USAGE_DIVISION
           , D.USAGE_PURPOSE
           , D.ARCHIVE_LOCATION
           , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
           , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C004' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+          , MANUFACTURER_CODE
           , D.MODEL_NAME
           , D.MANUFACTURE_DATE
           , D.CPU_SPEC
@@ -133,14 +135,17 @@
           , EMP_NUM
           , USAGE_DIVISION
           , USAGE_PURPOSE
+          , ARCHIVE_LOCATION
           , DEVICE_TYPE
           , MODEL_NAME
+          , MANUFACTURER_CODE
           , MANUFACTURE_DATE
           , CPU_SPEC
           , MEMORY_SIZE
           , STORAGE_INFO
           , OPERATING_SYSTEM
           , SCREEN_SIZE
+          , GPU_SPEC
           , DEVICE_STATUS_CODE
           , PURCHASE_DATE
           , RETURN_DATE
@@ -150,17 +155,20 @@
         ) VALUES (
           #{oldDeviceId}
           , #{empNum}
-          , #{usageDivision}
+          , #{usageDivisionCode}
           , #{usagePurpose}
+          , #{archiveLocation}
           , #{deviceTypeCode}
           , #{modelName}
+          , #{manufacturerCode}
           , #{manufactureDate}
           , #{cpuSpec}
           , #{memorySize}
           , #{storageInfo}
           , #{operatingSystem}
           , #{screenSize}
-          , '01'
+          , #{gpuSpec}
+          , #{deviceStatusCode}
           , #{purchaseDate}
           , #{returnDate}
           , #{remarks}
@@ -177,14 +185,17 @@
         , EMP_NUM
         , USAGE_DIVISION
         , USAGE_PURPOSE
+        , ARCHIVE_LOCATION
         , DEVICE_TYPE
         , MODEL_NAME
+        , MANUFACTURER_CODE
         , MANUFACTURE_DATE
         , CPU_SPEC
         , MEMORY_SIZE
         , STORAGE_INFO
         , OPERATING_SYSTEM
         , SCREEN_SIZE
+        , GPU_SPEC
         , DEVICE_STATUS_CODE
         , APPROVAL_STATUS_CODE
         , PURCHASE_DATE
@@ -195,16 +206,19 @@
         #{deviceNum}
         , #{oldDeviceId}
         , #{empNum}
-        , #{usageDivision}
+        , #{usageDivisionCode}
         , #{usagePurpose}
+        , #{archiveLocation}
         , #{deviceTypeCode}
         , #{modelName}
+        , #{manufacturerCode}
         , #{manufactureDate}
         , #{cpuSpec}
         , #{memorySize}
         , #{storageInfo}
         , #{operatingSystem}
         , #{screenSize}
+        , #{gpuSpec}
         , #{deviceStatusCode}
         , #{approvalStatusCode}
         , #{purchaseDate}
@@ -219,12 +233,12 @@
         SET
             OLD_DEVICE_ID = #{oldDeviceId}
           , EMP_NUM = #{empNum}
-          , USAGE_DIVISION = #{usageDivision}
+          , USAGE_DIVISION = #{usageDivisionCode}
           , USAGE_PURPOSE = #{usagePurpose}
           , ARCHIVE_LOCATION = #{archiveLocation}
           , DEVICE_TYPE = #{deviceTypeCode}
-          , MANUFACTURER_CODE  = #{manufacturerCode}
           , MODEL_NAME = #{modelName}
+          , MANUFACTURER_CODE  = #{manufacturerCode}
           , MANUFACTURE_DATE = #{manufactureDate}
           , CPU_SPEC = #{cpuSpec}
           , MEMORY_SIZE = #{memorySize}

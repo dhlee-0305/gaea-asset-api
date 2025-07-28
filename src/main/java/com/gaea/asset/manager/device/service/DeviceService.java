@@ -80,7 +80,7 @@ public class DeviceService {
                 break;
             case "02":
             case "03": // 관리자/시스템 관리자
-                deviceVO.setApprovalStatusCode("A3");
+                //deviceVO.setApprovalStatusCode("A3");
                 if (deviceMapper.updateDevice(deviceVO) > 0) {
                     return Header.OK();
                 }

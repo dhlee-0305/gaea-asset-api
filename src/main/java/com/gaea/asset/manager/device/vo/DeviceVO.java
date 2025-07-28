@@ -30,6 +30,9 @@ public class DeviceVO {
 	@Schema(description = "조직명", example = "IT서비스부문")
 	private String orgName;
 
+	@Schema(description = "용도구분 코드", example = "")
+	private String usageDivisionCode;
+
 	@Schema(description = "용도구분", example = "")
 	private String usageDivision;
 
