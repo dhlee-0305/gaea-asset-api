@@ -52,7 +52,7 @@ public class DeviceController {
 	}
 
 	@PutMapping("/devices/{deviceNum}")
-	@Operation(summary = "전산 장비 정보 수정", description = "전산 장비 수정 요청 API")
+	@Operation(summary = "전산 장비 수정", description = "전산 장비 수정 요청 API")
 	Header<DeviceVO> updateDevice(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
 		return deviceService.updateDevice(deviceVO, userRoleCode);
 	}
