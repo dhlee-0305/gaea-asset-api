@@ -15,7 +15,7 @@ public interface DeviceMapper {
 
     int getDeviceTotalCount(HashMap<String, Object> paramMap);
 
-    DeviceVO getDevice(Integer deviceNum);
+    DeviceVO getDevice(HashMap<String, Object> paramMap);
 
     int insertDevice(DeviceVO entity);
 
@@ -30,7 +30,7 @@ public interface DeviceMapper {
     void deleteDeviceTemp(Integer deviceNum);
 
     int updateApprovalStatusCode(DeviceVO entity);
-    
+
         // DeviceHistory 관련 메서드
     List<DeviceHistoryVO> getDeviceHistoryList(HashMap<String, Object> paramMap);
 

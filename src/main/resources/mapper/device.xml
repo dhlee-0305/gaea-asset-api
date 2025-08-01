@@ -20,6 +20,12 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
+        <if test="loginEmpNum != null">
+        	AND D.EMP_NUM = #{loginEmpNum}
+        </if>
+        <if test="loginOrgId != null">
+        	AND U.ORG_ID = #{loginOrgId}
+        </if>
         <if test="searchColumn != null and searchColumn == 'userName'">
           <if test="searchKeyword != null and searchKeyword != ''">
             AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
@@ -43,6 +49,12 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         <where>
+        <if test="loginEmpNum != null">
+        	AND D.EMP_NUM = #{loginEmpNum}
+        </if>
+        <if test="loginOrgId != null">
+        	AND U.ORG_ID = #{loginOrgId}
+        </if>
         <if test="searchColumn != null and searchColumn == 'userName'">
           <if test="searchKeyword != null and searchKeyword != ''">
             AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
@@ -56,7 +68,7 @@
         </where>
     </select>
 
-    <select id="getDevice" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+    <select id="getDevice" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
           , D.OLD_DEVICE_ID
           , D.USAGE_DIVISION AS USAGE_DIVISION_CODE
@@ -92,6 +104,12 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         WHERE DEVICE_NUM = #{deviceNum}
+        <if test="loginEmpNum != null">
+        	AND D.EMP_NUM = #{loginEmpNum}
+        </if>
+        <if test="loginOrgId != null">
+        	AND U.ORG_ID = #{loginOrgId}
+        </if>
     </select>
 
     <select id="getDeviceTemp" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
@@ -173,7 +191,7 @@
           , #{returnDate}
           , #{remarks}
           , NOW()
-          , 100010
+          , #{createUser}
         )
     </insert>
 
@@ -252,7 +270,7 @@
           , RETURN_DATE = #{returnDate}
           , REMARKS = #{remarks}
           , UPDATE_DATETIME = NOW()
-          , UPDATE_USER = 100010
+          , UPDATE_USER = #{updateUser}
         WHERE DEVICE_NUM = #{deviceNum};
     </update>
 

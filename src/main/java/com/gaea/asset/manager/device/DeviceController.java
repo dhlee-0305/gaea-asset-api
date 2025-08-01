@@ -29,7 +29,10 @@ public class DeviceController {
 
 	@GetMapping("/devices")
 	@Operation(summary = "전산 장비 목록 조회", description = "전산 장비 목록 조회 API")
-	Header<List<DeviceVO>> getDeviceList(@RequestParam(value="currentPage", defaultValue = "1") int currentPage, @RequestParam(value="pageSize", defaultValue = "10") int pageSize, Search search) {
+	Header<List<DeviceVO>> getDeviceList(@RequestParam(value="currentPage", defaultValue = "1") int currentPage,
+			@RequestParam(value="pageSize", defaultValue = "10") int pageSize,
+			Search search) {
+
 		return deviceService.getDeviceList(currentPage, pageSize, search);
 	}
 
@@ -53,20 +56,20 @@ public class DeviceController {
 
 	@PutMapping("/devices/{deviceNum}")
 	@Operation(summary = "전산 장비 수정", description = "전산 장비 수정 요청 API")
-	Header<DeviceVO> updateDevice(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
-		return deviceService.updateDevice(deviceVO, userRoleCode);
+	Header<DeviceVO> updateDevice(@RequestBody DeviceVO deviceVO) {
+		return deviceService.updateDevice(deviceVO);
 	}
 
 	@PostMapping("/devices/{deviceNum}/approval")
 	@Operation(summary = "전산 장비 승인", description = "전산 장비 승인 처리 API")
 	public Header<DeviceVO> approveDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
-		return deviceService.approveDeviceUpdate(deviceVO, userRoleCode);
+		return deviceService.approveDeviceUpdate(deviceVO);
 	}
 
 	@PostMapping("/devices/{deviceNum}/rejection")
 	@Operation(summary = "전산 장비 반려", description = "전산 장비 반려 처리 API")
 	public Header<DeviceVO> rejectDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
-		return deviceService.rejectDeviceUpdate(deviceVO, userRoleCode);
+		return deviceService.rejectDeviceUpdate(deviceVO);
 	}
 
 	@DeleteMapping("/devices/{deviceNum}")

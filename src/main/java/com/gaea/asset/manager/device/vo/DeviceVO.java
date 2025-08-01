@@ -100,13 +100,13 @@ public class DeviceVO {
 	private String createDatetime;
 
 	@Schema(description = "생성자", example = "")
-	private String createUser;
+	private Integer createUser;
 
 	@Schema(description = "최종 변경일시", example = "")
 	private String updateDatetime;
 
 	@Schema(description = "최종 변경자", example = "")
-	private String updateUser;
+	private Integer updateUser;
 
 	@Schema(description = "장비 변경 요청 사유", example = "")
 	private String changeReason;

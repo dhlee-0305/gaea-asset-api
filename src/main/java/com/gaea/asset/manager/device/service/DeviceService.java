@@ -3,18 +3,23 @@ package com.gaea.asset.manager.device.service;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
+import com.gaea.asset.manager.login.vo.UserInfoVO;
+import com.gaea.asset.manager.util.AuthUtil;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Pagination;
 import com.gaea.asset.manager.util.Search;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
@@ -28,7 +33,22 @@ public class DeviceService {
 	 * @return
 	 */
 	public Header<List<DeviceVO>> getDeviceList(int currentPage, int pageSize, Search search) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
+
+		switch (userInfo.getRoleCode()) {
+        	case CodeConstants.ROLE_USER:
+        		paramMap.put("loginEmpNum", userInfo.getEmpNum());
+        		break;
+        	case CodeConstants.ROLE_TEAM_MANAGER:
+        		paramMap.put("loginOrgId", userInfo.getOrgId());
+        		break;
+        	case CodeConstants.ROLE_ASSET_MANAGER:
+            case CodeConstants.ROLE_SYSTEM_MANAGER:
+            	break;
+            default:
+                return Header.ERROR("403", "조회 권한이 없습니다.");
+		}
 
 		paramMap.put("page", (currentPage - 1) * pageSize);
 		paramMap.put("size", pageSize);
@@ -51,7 +71,25 @@ public class DeviceService {
 	 * @return
 	 */
 	public Header<DeviceVO> getDevice(Integer deviceNum) {
-		return Header.OK(deviceMapper.getDevice(deviceNum));
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+		HashMap<String, Object> paramMap = new HashMap<>();
+
+		paramMap.put("deviceNum", deviceNum);
+		switch (userInfo.getRoleCode()) {
+        	case CodeConstants.ROLE_USER:
+        		paramMap.put("loginEmpNum", userInfo.getEmpNum());
+        		break;
+        	case CodeConstants.ROLE_TEAM_MANAGER:
+        		paramMap.put("loginOrgId", userInfo.getOrgId());
+        		break;
+        	case CodeConstants.ROLE_ASSET_MANAGER:
+            case CodeConstants.ROLE_SYSTEM_MANAGER:
+            	break;
+            default:
+                return Header.ERROR("403", "조회 권한이 없습니다.");
+		}
+
+		return Header.OK(deviceMapper.getDevice(paramMap));
 	}
 
 	/**
@@ -69,6 +107,17 @@ public class DeviceService {
 	 * @return
 	 */
 	public Header<DeviceVO> insertDevice(DeviceVO deviceVO) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+
+		// 일반사용자, 부서장은 등록 권한 없음
+		if(StringUtils.isEmpty(userInfo.getRoleCode())
+				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
+				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+
+			return Header.ERROR("403", "등록 권한이 없습니다.");
+		}
+
+		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
 			return Header.OK();
 		} else {
@@ -79,13 +128,27 @@ public class DeviceService {
 	/**
 	 * 전산 장비 수정
 	 * @param deviceVO
-	 * @param userRoleCode
 	 * @return
 	 */
     @Transactional
-    public Header<DeviceVO> updateDevice(DeviceVO deviceVO, String userRoleCode) {
-        DeviceVO originDevice = deviceMapper.getDevice(deviceVO.getDeviceNum());
+    public Header<DeviceVO> updateDevice(DeviceVO deviceVO) {
+    	UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+    	HashMap<String, Object> paramMap = new HashMap<>();
+    	paramMap.put("deviceNum", deviceVO.getDeviceNum());
+
+    	// 일반사용자, 부서장은 본인 장비만 수정 가능
+    	if(CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
+    			|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+    		paramMap.put("loginEmpNum", userInfo.getEmpNum());
+    	}
+
+        DeviceVO originDevice = deviceMapper.getDevice(paramMap);
+        if(originDevice == null || StringUtils.isEmpty(userInfo.getRoleCode())) {
+    		return Header.ERROR("403", "수정 권한이 없습니다.");
+    	}
+
         String currentStatus = originDevice.getApprovalStatusCode();
+        deviceVO.setUpdateUser(userInfo.getEmpNum());
 
         // 결재 대기 상태(부서장 승인대기, 관리자 승인대기)면 수정 불가
         if (CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)
@@ -93,7 +156,7 @@ public class DeviceService {
             return Header.ERROR("403", "승인 대기 중인 장비는 수정할 수 없습니다.");
         }
 
-        switch (userRoleCode) {
+        switch (userInfo.getRoleCode()) {
             case CodeConstants.ROLE_USER: // 일반 사용자
                 originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
@@ -126,6 +189,16 @@ public class DeviceService {
      * @return
      */
 	public Header<String> deleteDevice(Integer deviceNum) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+
+		// 일반사용자, 부서장은 삭제 권한 없음
+		if(StringUtils.isEmpty(userInfo.getRoleCode())
+				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
+				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+
+			return Header.ERROR("403", "삭제 권한이 없습니다.");
+		}
+
 		if (deviceMapper.deleteDevice(deviceNum) > 0) {
 			return Header.OK();
 		} else {
@@ -140,13 +213,17 @@ public class DeviceService {
 	 * @return
 	 */
     @Transactional
-    public Header<DeviceVO> approveDeviceUpdate(DeviceVO deviceVO, String userRoleCode) {
-        DeviceVO originDevice = deviceMapper.getDevice(deviceVO.getDeviceNum());
+    public Header<DeviceVO> approveDeviceUpdate(DeviceVO deviceVO) {
+    	HashMap<String, Object> paramMap = new HashMap<>();
+    	paramMap.put("deviceNum", deviceVO.getDeviceNum());
+
+        DeviceVO originDevice = deviceMapper.getDevice(paramMap);
         String currentStatus = originDevice.getApprovalStatusCode();
+        UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
         String nextStatus;
 
         // 승인 권한 확인 및 다음 결재 상태 세팅
-        switch (userRoleCode) {
+        switch (userInfo.getRoleCode()) {
             case CodeConstants.ROLE_TEAM_MANAGER: // 부서장
                 if (!CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
                     return Header.ERROR("403", "승인 권한이 없습니다.");
@@ -189,19 +266,23 @@ public class DeviceService {
      * @return
      */
     @Transactional
-    public Header<DeviceVO> rejectDeviceUpdate(DeviceVO deviceVO, String userRoleCode) {
-        DeviceVO originDevice = deviceMapper.getDevice(deviceVO.getDeviceNum());
+    public Header<DeviceVO> rejectDeviceUpdate(DeviceVO deviceVO) {
+    	HashMap<String, Object> paramMap = new HashMap<>();
+    	paramMap.put("deviceNum", deviceVO.getDeviceNum());
+
+        DeviceVO originDevice = deviceMapper.getDevice(paramMap);
         String currentStatus = originDevice.getApprovalStatusCode();
+        UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 
         // 권한 확인
-        if (userRoleCode == null || CodeConstants.ROLE_USER.equals(userRoleCode)) {
+        if (userInfo.getRoleCode() == null || CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())) {
             return Header.ERROR("403", "반려 권한이 없습니다.");
         }
-        if (CodeConstants.ROLE_TEAM_MANAGER.equals(userRoleCode)
+        if (CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())
         		&& !CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
             return Header.ERROR("403", "반려 권한이 없습니다.");
         }
-        if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode)
+        if (CodeConstants.ROLE_ASSET_MANAGER.equals(userInfo.getRoleCode())
         		&& !CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
             return Header.ERROR("403", "반려 권한이 없습니다.");
         }

@@ -31,4 +31,7 @@ public class CustomUserDetails implements UserDetails{
 		return userInfoVO.getUserId().toString();
 	}
 
+	public UserInfoVO getUserInfo() {
+		return userInfoVO;
+	}
 }
