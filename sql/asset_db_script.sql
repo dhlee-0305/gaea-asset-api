@@ -45,10 +45,11 @@ CREATE TABLE DEVICE
   PRIMARY KEY (DEVICE_NUM)
 );
 
-CREATE TABLE DEVICE_HISTORY
+CREATE TABLE asset_manager.DEVICE_HISTORY
 (
   HISTORY_NUM       INT          NOT NULL COMMENT '이력 순번',
   DEVICE_NUM        INT          NOT NULL COMMENT '장비 순번',
+  EMP_NUM           INT          NULL     COMMENT '사원 번호',
   DEVICE_STATUS_CODE       VARCHAR(2)  NULL     COMMENT '장비 상태 코드',
   APPROVAL_STATUS_CODE       VARCHAR(2)  NULL     COMMENT '결재 상태 코드',
   CHANGE_CONTENTS     VARCHAR(2000)         NULL     COMMENT '변경내용',
@@ -200,3 +201,18 @@ INSERT INTO USER(EMP_NUM, USER_ID, USER_NAME, ORG_ID, USER_POSITION_CD, USER_GRA
 (100009, 'hslee', '이효성', 125, '04', '04', '00', 'Y', '', NOW()),
 (100010, 'cglee', '이창구', 125, '04', '04', '00', 'Y', '', NOW()),
 (100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', '', NOW());
+
+INSERT INTO DEVICE_HISTORY (
+  HISTORY_NUM, DEVICE_NUM, EMP_NUM, DEVICE_STATUS_CODE, APPROVAL_STATUS_CODE,
+  CHANGE_CONTENTS, REASON, CREATE_DATETIME, CREATE_USER
+) VALUES
+(1, 1, 100007, '01', 'A1', '장비 상태 초기화', '일정 점검 후 초기화', NOW(), 100000),
+(2, 2, 100007, '02', 'A2', '장비 상태 변경됨', '오류 발생으로 인한 조치', NOW(), 100000),
+(3, 3, 100007, '03', 'A3', '승인 상태 변경', '관리자 요청', NOW(), 100000),
+(4, 1, 100007, '02', 'A1', '장비 재활성화', '유지보수 완료', NOW(), 100000),
+(5, 2, 100007, '01', 'A3', '상태 초기화 및 승인', '긴급 상황 대응', NOW(), 100000),
+(6, 3, 100007, '03', 'A2', '장비 상태 종료', '계획된 종료', NOW(), 100000),
+(7, 1, 100007, '01', 'A1', '기본 상태로 설정', '신규 등록 후 설정', NOW(), 100000),
+(8, 2, 100007, '02', 'A2', '장비 테스트 완료', '테스트 후 반영', NOW(), 100000),
+(9, 3, 100007, '03', 'A3', '장비 상태 자동 업데이트', '시스템 자동 반영', NOW(), 100000),
+(10, 1, 100007, '02', 'A1', '재부팅 후 정상 작동', '사용자 요청', NOW(), 100000);
