@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.gaea.asset.manager.device.service.DeviceMapper">
-    <select id="getDeviceList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+  <select id="getDeviceList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
           , D.OLD_DEVICE_ID
           , DEVICE_TYPE AS DEVICE_TYPE_CODE
@@ -19,56 +18,54 @@
           ON D.EMP_NUM = U.EMP_NUM
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
-        <where>
-        <if test="loginEmpNum != null">
+    <where>
+      <if test="loginEmpNum != null">
         	AND D.EMP_NUM = #{loginEmpNum}
-        </if>
-        <if test="loginOrgId != null">
+      </if>
+      <if test="loginOrgId != null">
         	AND U.ORG_ID = #{loginOrgId}
-        </if>
-        <if test="searchColumn != null and searchColumn == 'userName'">
-          <if test="searchKeyword != null and searchKeyword != ''">
+      </if>
+      <if test="searchColumn != null and searchColumn == 'userName'">
+        <if test="searchKeyword != null and searchKeyword != ''">
             AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-          </if>
         </if>
-        <if test="searchColumn != null and searchColumn == 'orgName'">
-          <if test="searchKeyword != null and searchKeyword != ''">
+      </if>
+      <if test="searchColumn != null and searchColumn == 'orgName'">
+        <if test="searchKeyword != null and searchKeyword != ''">
             AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-          </if>
         </if>
-        </where>
+      </if>
+    </where>
         ORDER BY D.CREATE_DATETIME DESC
         LIMIT #{size} OFFSET #{page}
-    </select>
-
-    <select id="getDeviceTotalCount" parameterType="Map" resultType="Integer">
+  </select>
+  <select id="getDeviceTotalCount" parameterType="Map" resultType="Integer">
         SELECT COUNT(*)
         FROM DEVICE D
         LEFT JOIN USER U
           ON D.EMP_NUM = U.EMP_NUM
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
-        <where>
-        <if test="loginEmpNum != null">
+    <where>
+      <if test="loginEmpNum != null">
         	AND D.EMP_NUM = #{loginEmpNum}
-        </if>
-        <if test="loginOrgId != null">
+      </if>
+      <if test="loginOrgId != null">
         	AND U.ORG_ID = #{loginOrgId}
-        </if>
-        <if test="searchColumn != null and searchColumn == 'userName'">
-          <if test="searchKeyword != null and searchKeyword != ''">
+      </if>
+      <if test="searchColumn != null and searchColumn == 'userName'">
+        <if test="searchKeyword != null and searchKeyword != ''">
             AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-          </if>
         </if>
-        <if test="searchColumn != null and searchColumn == 'orgName'">
-          <if test="searchKeyword != null and searchKeyword != ''">
+      </if>
+      <if test="searchColumn != null and searchColumn == 'orgName'">
+        <if test="searchKeyword != null and searchKeyword != ''">
             AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
-          </if>
         </if>
-        </where>
-    </select>
-
-    <select id="getDevice" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+      </if>
+    </where>
+  </select>
+  <select id="getDevice" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
           , D.OLD_DEVICE_ID
           , D.USAGE_DIVISION AS USAGE_DIVISION_CODE
@@ -104,15 +101,14 @@
         LEFT JOIN ORGANIZATION O
           ON U.ORG_ID = O.ORG_ID
         WHERE DEVICE_NUM = #{deviceNum}
-        <if test="loginEmpNum != null">
+    <if test="loginEmpNum != null">
         	AND D.EMP_NUM = #{loginEmpNum}
-        </if>
-        <if test="loginOrgId != null">
+    </if>
+    <if test="loginOrgId != null">
         	AND U.ORG_ID = #{loginOrgId}
-        </if>
-    </select>
-
-    <select id="getDeviceTemp" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+    </if>
+  </select>
+  <select id="getDeviceTemp" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
         , D.OLD_DEVICE_ID
         , D.USAGE_DIVISION
@@ -144,9 +140,8 @@
         LEFT JOIN USER U
             ON D.EMP_NUM = U.EMP_NUM
         WHERE DEVICE_NUM = #{deviceNum}
-    </select>
-
-    <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNum" useGeneratedKeys="true">
+  </select>
+  <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNum" useGeneratedKeys="true">
         INSERT INTO DEVICE
         (
             OLD_DEVICE_ID
@@ -193,9 +188,8 @@
           , NOW()
           , #{createUser}
         )
-    </insert>
-
-    <insert id="insertDeviceTemp" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+  </insert>
+  <insert id="insertDeviceTemp" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
         INSERT INTO DEVICE_TEMP
         (
         DEVICE_NUM
@@ -244,9 +238,8 @@
         , #{remarks}
         , #{changeReason}
         )
-    </insert>
-
-    <update id="updateDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+  </insert>
+  <update id="updateDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
         UPDATE DEVICE
         SET
             OLD_DEVICE_ID = #{oldDeviceId}
@@ -272,26 +265,22 @@
           , UPDATE_DATETIME = NOW()
           , UPDATE_USER = #{updateUser}
         WHERE DEVICE_NUM = #{deviceNum};
-    </update>
-
-    <update id="updateApprovalStatusCode" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+  </update>
+  <update id="updateApprovalStatusCode" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
         UPDATE DEVICE
         SET
             APPROVAL_STATUS_CODE = #{approvalStatusCode}
         WHERE
             DEVICE_NUM = #{deviceNum}
-    </update>
-
-    <delete id="deleteDevice" parameterType="Integer">
+  </update>
+  <delete id="deleteDevice" parameterType="Integer">
         DELETE FROM DEVICE
         WHERE DEVICE_NUM = #{deviceNum}
-    </delete>
-
-    <delete id="deleteDeviceTemp" parameterType="Integer">
+  </delete>
+  <delete id="deleteDeviceTemp" parameterType="Integer">
         DELETE FROM DEVICE_TEMP
         WHERE DEVICE_NUM = #{deviceNum}
-    </delete>
-
+  </delete>
   <!-- getDeviceHistoryList: DEVICE_HISTORY 테이블에서 데이터 조회 -->
   <select id="getDeviceHistoryList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
     SELECT
@@ -299,8 +288,10 @@
         DH.DEVICE_NUM,
         DH.EMP_NUM,
         U.USER_NAME,
-        CC1.CODE_NAME AS deviceStatus,  <!-- deviceStatus 추가 -->
-        CC2.CODE_NAME AS approvalStatus,  <!-- approvalStatus 추가 -->
+        CC1.CODE_NAME AS deviceStatus,
+    <!-- deviceStatus 추가 -->
+        CC2.CODE_NAME AS approvalStatus,
+    <!-- approvalStatus 추가 -->
         DH.CHANGE_CONTENTS,
         DH.REASON,
         DH.CREATE_DATETIME,
@@ -310,21 +301,23 @@
         DEVICE_HISTORY DH
     INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
     LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
-    LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'  <!-- deviceStatus JOIN -->
-    LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'  <!-- approvalStatus JOIN -->
+    LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
+    <!-- deviceStatus JOIN -->
+    LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
+    <!-- approvalStatus JOIN -->
     <where>
-        <!-- deviceNum 으로 검색 -->
-        <if test="searchColumn != null and searchColumn == 'deviceNum'">
-            <if test="searchKeyword != null and searchKeyword != ''">
+      <!-- deviceNum 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'deviceNum'">
+        <if test="searchKeyword != null and searchKeyword != ''">
                 AND DH.DEVICE_NUM = #{searchKeyword}
-            </if>
         </if>
-        <!-- approvalStatusCode 으로 검색 -->
-        <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
-            <if test="searchKeyword != null and searchKeyword != ''">
-                AND DH.APPROVAL_STATUS_CODE = #{searchKeyword}
-            </if>
+      </if>
+      <!-- changeContents 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'changeContents'">
+        <if test="searchKeyword != null and searchKeyword != ''">
+                AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
         </if>
+      </if>
     </where>
     ORDER BY
         DH.CREATE_DATETIME DESC
@@ -333,33 +326,50 @@
   <!-- getDeviceHistoryTotalCount: DEVICE_HISTORY 테이블의 총 개수 조회 -->
   <select id="getDeviceHistoryTotalCount" parameterType="Map" resultType="Integer">
     SELECT COUNT(*)
-    FROM DEVICE_HISTORY
+    FROM DEVICE_HISTORY DH
+    INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
+    LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
+    LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
+    LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
     <where>
       <!-- deviceNum 으로 검색 -->
       <if test="searchColumn != null and searchColumn == 'deviceNum'">
         <if test="searchKeyword != null and searchKeyword != ''">
-                AND DEVICE_NUM = #{searchKeyword}
-            </if>
+                AND DH.DEVICE_NUM = #{searchKeyword}
+        </if>
       </if>
-      <!-- approvalStatusCode 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
+      <!-- changeContents 으로 검색 -->
+      <if test="searchColumn != null and searchColumn == 'changeContents'">
         <if test="searchKeyword != null and searchKeyword != ''">
-                AND APPROVAL_STATUS_CODE = #{searchKeyword}
-            </if>
+                AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
+        </if>
       </if>
     </where>
   </select>
   <!-- getDeviceHistory: DEVICE_HISTORY 테이블에서 단일 데이터 조회 -->
   <select id="getDeviceHistory" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
-        SELECT HISTORY_NUM,
-               DEVICE_NUM,
-               DEVICE_STATUS_CODE,
-               APPROVAL_STATUS_CODE,
-               CHANGE_CONTENTS,
-               REASON,
-               CREATE_DATETIME,
-               CREATE_USER
-        FROM DEVICE_HISTORY
-        WHERE HISTORY_NUM = #{historyNum}
-    </select>
+    SELECT
+        DH.HISTORY_NUM,
+        DH.DEVICE_NUM,
+        DH.EMP_NUM,
+        U.USER_NAME,
+        CC1.CODE_NAME AS deviceStatus,
+    <!-- deviceStatus 추가 -->
+        CC2.CODE_NAME AS approvalStatus,
+    <!-- approvalStatus 추가 -->
+        DH.CHANGE_CONTENTS,
+        DH.REASON,
+        DH.CREATE_DATETIME,
+        DH.CREATE_USER,
+        D.DEVICE_TYPE
+    FROM
+        DEVICE_HISTORY DH
+    INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
+    LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
+    LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
+    <!-- deviceStatus JOIN -->
+    LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
+    <!-- approvalStatus JOIN -->
+    WHERE DH.HISTORY_NUM = #{historyNum}
+  </select>
 </mapper>
