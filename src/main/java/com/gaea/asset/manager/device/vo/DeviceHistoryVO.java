@@ -8,10 +8,13 @@ import java.time.LocalDateTime;
 public class DeviceHistoryVO {
     private Integer historyNum;
     private Integer deviceNum;
-    private String deviceStatusCode;
-    private String approvalStatusCode;
+    private Integer empNum;
+    private String userName;
+    private String deviceStatus; // deviceStatus 추가
+    private String approvalStatus; // approvalStatus 추가
     private String changeContents;
     private String reason;
     private String createDatetime;
     private Integer createUser;
+    private String deviceType;
 }

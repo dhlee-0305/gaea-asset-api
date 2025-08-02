@@ -294,30 +294,40 @@
 
   <!-- getDeviceHistoryList: DEVICE_HISTORY 테이블에서 데이터 조회 -->
   <select id="getDeviceHistoryList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
-    SELECT HISTORY_NUM,
-           DEVICE_NUM,
-           DEVICE_STATUS_CODE,
-           APPROVAL_STATUS_CODE,
-           CHANGE_CONTENTS,
-           REASON,
-           CREATE_DATETIME,
-           CREATE_USER
-    FROM DEVICE_HISTORY
+    SELECT
+        DH.HISTORY_NUM,
+        DH.DEVICE_NUM,
+        DH.EMP_NUM,
+        U.USER_NAME,
+        CC1.CODE_NAME AS deviceStatus,  <!-- deviceStatus 추가 -->
+        CC2.CODE_NAME AS approvalStatus,  <!-- approvalStatus 추가 -->
+        DH.CHANGE_CONTENTS,
+        DH.REASON,
+        DH.CREATE_DATETIME,
+        DH.CREATE_USER,
+        D.DEVICE_TYPE
+    FROM
+        DEVICE_HISTORY DH
+    INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
+    LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
+    LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'  <!-- deviceStatus JOIN -->
+    LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'  <!-- approvalStatus JOIN -->
     <where>
-      <!-- deviceNum 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'deviceNum'">
-        <if test="searchKeyword != null and searchKeyword != ''">
-                AND DEVICE_NUM = #{searchKeyword}
+        <!-- deviceNum 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'deviceNum'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND DH.DEVICE_NUM = #{searchKeyword}
             </if>
-      </if>
-      <!-- approvalStatusCode 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
-        <if test="searchKeyword != null and searchKeyword != ''">
-                AND APPROVAL_STATUS_CODE = #{searchKeyword}
+        </if>
+        <!-- approvalStatusCode 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'approvalStatusCode'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND DH.APPROVAL_STATUS_CODE = #{searchKeyword}
             </if>
-      </if>
+        </if>
     </where>
-    ORDER BY CREATE_DATETIME DESC
+    ORDER BY
+        DH.CREATE_DATETIME DESC
     LIMIT #{size} OFFSET #{page}
   </select>
   <!-- getDeviceHistoryTotalCount: DEVICE_HISTORY 테이블의 총 개수 조회 -->
