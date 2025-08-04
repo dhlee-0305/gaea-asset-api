@@ -111,7 +111,8 @@
   <select id="getDeviceTemp" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
         SELECT D.DEVICE_NUM
         , D.OLD_DEVICE_ID
-        , D.USAGE_DIVISION
+        , D.USAGE_DIVISION AS USAGE_DIVISION_CODE
+        , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C007' AND C.CODE = D.USAGE_DIVISION) AS USAGE_DIVISION
         , D.USAGE_PURPOSE
         , D.ARCHIVE_LOCATION
         , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
@@ -371,5 +372,30 @@
     LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
     <!-- approvalStatus JOIN -->
     WHERE DH.HISTORY_NUM = #{historyNum}
+  </select>
+  <!-- 이력 저장 -->
+  <select id="insertDeviceHistory" parameterType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
+      INSERT INTO DEVICE_HISTORY
+      (
+        DEVICE_NUM
+      , EMP_NUM
+      , DEVICE_STATUS_CODE
+      , APPROVAL_STATUS_CODE
+      , CHANGE_CONTENTS
+      , REASON
+      , CREATE_DATETIME
+      , CREATE_USER
+      )
+      VALUES
+      (
+        #{deviceNum}
+      , #{empNum}
+      , #{deviceStatus}
+      , #{approvalStatus}
+      , #{changeContents}
+      , #{reason}
+      , NOW()
+      , #{createUser}
+      )
   </select>
 </mapper>

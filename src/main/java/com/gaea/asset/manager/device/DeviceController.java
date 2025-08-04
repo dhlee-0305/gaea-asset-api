@@ -62,13 +62,13 @@ public class DeviceController {
 
 	@PostMapping("/devices/{deviceNum}/approval")
 	@Operation(summary = "전산 장비 승인", description = "전산 장비 승인 처리 API")
-	public Header<DeviceVO> approveDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
+	public Header<DeviceVO> approveDeviceUpdate(@RequestBody DeviceVO deviceVO) {
 		return deviceService.approveDeviceUpdate(deviceVO);
 	}
 
 	@PostMapping("/devices/{deviceNum}/rejection")
 	@Operation(summary = "전산 장비 반려", description = "전산 장비 반려 처리 API")
-	public Header<DeviceVO> rejectDeviceUpdate(@RequestBody DeviceVO deviceVO, @RequestParam("userRoleCode") String userRoleCode) {
+	public Header<DeviceVO> rejectDeviceUpdate(@RequestBody DeviceVO deviceVO) {
 		return deviceService.rejectDeviceUpdate(deviceVO);
 	}
 

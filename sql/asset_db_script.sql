@@ -47,7 +47,7 @@ CREATE TABLE DEVICE
 
 CREATE TABLE asset_manager.DEVICE_HISTORY
 (
-  HISTORY_NUM       INT          NOT NULL COMMENT '이력 순번',
+  HISTORY_NUM       INT          NOT NULL AUTO_INCREMENT COMMENT '이력 순번',
   DEVICE_NUM        INT          NOT NULL COMMENT '장비 순번',
   EMP_NUM           INT          NULL     COMMENT '사원 번호',
   DEVICE_STATUS_CODE       VARCHAR(2)  NULL     COMMENT '장비 상태 코드',

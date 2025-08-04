@@ -31,10 +31,12 @@ public interface DeviceMapper {
 
     int updateApprovalStatusCode(DeviceVO entity);
 
-        // DeviceHistory 관련 메서드
+    // DeviceHistory 관련 메서드
     List<DeviceHistoryVO> getDeviceHistoryList(HashMap<String, Object> paramMap);
 
     int getDeviceHistoryTotalCount(HashMap<String, Object> paramMap);
 
     DeviceHistoryVO getDeviceHistory(Integer historyNum);
+
+    void insertDeviceHistory(DeviceHistoryVO deviceHistory);
 }

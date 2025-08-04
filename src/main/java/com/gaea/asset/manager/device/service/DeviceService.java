@@ -3,6 +3,7 @@ package com.gaea.asset.manager.device.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.gaea.asset.manager.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +11,12 @@ import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.login.vo.UserInfoVO;
-import com.gaea.asset.manager.util.AuthUtil;
-import com.gaea.asset.manager.util.Header;
-import com.gaea.asset.manager.util.Pagination;
-import com.gaea.asset.manager.util.Search;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.gaea.asset.manager.util.DeviceFieldUtil.*;
 
 @Slf4j
 @Service
@@ -106,6 +105,7 @@ public class DeviceService {
 	 * @param deviceVO
 	 * @return
 	 */
+	@Transactional
 	public Header<DeviceVO> insertDevice(DeviceVO deviceVO) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 
@@ -119,6 +119,7 @@ public class DeviceService {
 
 		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
+			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), CodeConstants.UPDATE);
 			return Header.OK();
 		} else {
 			return Header.ERROR("500", "ERROR");
@@ -161,6 +162,7 @@ public class DeviceService {
                 originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
                     return Header.OK();
                 }
                 break;
@@ -168,12 +170,14 @@ public class DeviceService {
                 originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
                     return Header.OK();
                 }
                 break;
             case CodeConstants.ROLE_ASSET_MANAGER:
             case CodeConstants.ROLE_SYSTEM_MANAGER: // 관리자/시스템 관리자
                 if (deviceMapper.updateDevice(deviceVO) > 0) {
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
                     return Header.OK();
                 }
                 break;
@@ -209,7 +213,6 @@ public class DeviceService {
 	/**
 	 * 전산 장비 승인
 	 * @param deviceVO
-	 * @param userRoleCode
 	 * @return
 	 */
     @Transactional
@@ -252,9 +255,12 @@ public class DeviceService {
             deviceVO.setApprovalStatusCode(nextStatus);
             if (deviceMapper.updateDevice(deviceVO) > 0) {
                 deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
+				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.APPROVE);
                 return Header.OK();
             }
         }
+
+		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.APPROVE);
 
         return Header.OK();
     }
@@ -262,7 +268,6 @@ public class DeviceService {
     /**
      * 전산 장비 반려
      * @param deviceVO
-     * @param userRoleCode
      * @return
      */
     @Transactional
@@ -287,9 +292,11 @@ public class DeviceService {
             return Header.ERROR("403", "반려 권한이 없습니다.");
         }
 
-        originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_REJECTED);
+		String nextStatus = CodeConstants.APPROVAL_STATUS_REJECTED;
+        originDevice.setApprovalStatusCode(nextStatus);
         if (deviceMapper.updateApprovalStatusCode(originDevice) > 0) {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
+			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), CodeConstants.REJECT);
             return Header.OK();
         }
 
@@ -336,5 +343,121 @@ public class DeviceService {
 	 */
 	public Header<DeviceHistoryVO> getDeviceHistory(Integer historyNum) {
 		return Header.OK(deviceMapper.getDeviceHistory(historyNum));
+	}
+
+	/**
+	 * Insert device history with type (REGISTER, UPDATE, APPROVE, REJECT)
+	 * @param origin
+	 * @param updated
+	 * @param empNum
+	 * @param type
+	 */
+	public void insertDeviceHistory(DeviceVO origin, DeviceVO updated, int empNum, String type) {
+		DeviceHistoryVO history = new DeviceHistoryVO();
+		history.setDeviceNum(origin.getDeviceNum());
+		history.setCreateUser(empNum);
+		history.setEmpNum(origin.getEmpNum()); // 최종 승인 시 변경된 장비 담당자 반영
+
+		switch (type) {
+			case CodeConstants.REGISTER: // 등록 장비 정보 요약
+				setRegisterHistory(history, origin);
+				break;
+			case CodeConstants.UPDATE: // 변경 사항 요약
+				setUpdateHistory(history, origin, updated);
+				break;
+			case CodeConstants.APPROVE: // 장비/결재 상태 저장
+				history.setDeviceStatus(updated.getDeviceStatusCode());
+				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_APPROVED);
+				break;
+			case CodeConstants.REJECT: // 장비/결재 상태 저장
+				history.setDeviceStatus(origin.getDeviceStatusCode());
+				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_REJECTED);
+				break;
+		}
+		deviceMapper.insertDeviceHistory(history);
+	}
+
+	private void setRegisterHistory(DeviceHistoryVO history, DeviceVO origin) {
+		StringBuilder sb = new StringBuilder();
+		appendIfPresent(sb, "장비담당자", origin.getUserName());
+		appendIfPresent(sb, "모델명", origin.getModelName());
+		appendIfPresent(sb, "용도구분", origin.getUsageDivision());
+		appendIfPresent(sb, "제조사", origin.getManufacturerCode());
+		appendIfPresent(sb, "제조년도", origin.getManufactureDate());
+		appendIfPresent(sb, "CPU", origin.getCpuSpec());
+		appendIfPresent(sb, "메모리", origin.getMemorySize());
+		appendIfPresent(sb, "SSD/HDD", origin.getStorageInfo());
+		appendIfPresent(sb, "OS", origin.getOperatingSystem());
+		appendIfPresent(sb, "인치", origin.getScreenSize());
+		appendIfPresent(sb, "GPU", origin.getGpuSpec());
+		appendIfPresent(sb, "구매일자", origin.getPurchaseDate());
+		appendIfPresent(sb, "반납일자", origin.getReturnDate());
+		appendIfPresent(sb, "비고", origin.getRemarks());
+		history.setChangeContents(sb.toString());
+		history.setDeviceStatus(origin.getDeviceStatusCode());
+		history.setApprovalStatus(origin.getApprovalStatusCode());
+	}
+
+	private void setUpdateHistory(DeviceHistoryVO history, DeviceVO origin, DeviceVO updated) {
+		StringBuilder sb = new StringBuilder();
+		if (!isEqual(origin.getUserName(), updated.getUserName())) {
+			sb.append("장비담당자: \"").append(updated.getUserName()).append("\" || ");
+		}
+		if (!isEqual(origin.getUsagePurpose(), updated.getUsagePurpose())) {
+			sb.append("사용용도: \"").append(updated.getUsagePurpose()).append("\" || ");
+		}
+		if (!isEqual(origin.getArchiveLocation(), updated.getArchiveLocation())) {
+			sb.append("사용/보관 위치: \"").append(updated.getArchiveLocation()).append("\" || ");
+		}
+		if (!isEqual(origin.getUsageDivisionCode(), updated.getUsageDivisionCode()) || !isEqual(origin.getUsageDivision(), updated.getUsageDivision())) {
+			sb.append("용도구분: \"").append(updated.getUsageDivision()).append("\" || ");
+		}
+		if (!isEqual(origin.getOldDeviceId(), updated.getOldDeviceId())) {
+			sb.append("기존 장비관리번호: \"").append(updated.getOldDeviceId()).append("\" || ");
+		}
+		if (!isEqual(origin.getManufacturerCode(), updated.getManufacturerCode())) {
+			sb.append("제조사: \"").append(updated.getManufacturerCode()).append("\" || ");
+		}
+		if (!isEqual(origin.getModelName(), updated.getModelName())) {
+			sb.append("모델명: \"").append(updated.getModelName()).append("\" || ");
+		}
+		if (!isEqual(origin.getManufactureDate(), updated.getManufactureDate())) {
+			sb.append("제조년도: \"").append(updated.getManufactureDate()).append("\" || ");
+		}
+		if (!isEqual(origin.getCpuSpec(), updated.getCpuSpec())) {
+			sb.append("CPU: \"").append(updated.getCpuSpec()).append("\" || ");
+		}
+		if (!isEqual(origin.getMemorySize(), updated.getMemorySize())) {
+			sb.append("메모리: \"").append(updated.getMemorySize()).append("\" || ");
+		}
+		if (!isEqual(origin.getStorageInfo(), updated.getStorageInfo())) {
+			sb.append("SSD/HDD: \"").append(updated.getStorageInfo()).append("\" || ");
+		}
+		if (!isEqual(origin.getOperatingSystem(), updated.getOperatingSystem())) {
+			sb.append("OS: \"").append(updated.getOperatingSystem()).append("\" || ");
+		}
+		if (!isEqual(origin.getScreenSize(), updated.getScreenSize())) {
+			sb.append("인치: \"").append(updated.getScreenSize()).append("\" || ");
+		}
+		if (!isEqual(origin.getGpuSpec(), updated.getGpuSpec())) {
+			sb.append("GPU: \"").append(updated.getGpuSpec()).append("\" || ");
+		}
+		if (!isEqual(origin.getPurchaseDate(), updated.getPurchaseDate())) {
+			sb.append("구매일자: \"").append(updated.getPurchaseDate()).append("\" || ");
+		}
+		if (!isEqual(origin.getReturnDate(), updated.getReturnDate())) {
+			sb.append("반납일자: \"").append(updated.getReturnDate()).append("\" || ");
+		}
+		if (!isEqual(origin.getRemarks(), updated.getRemarks())) {
+			sb.append("비고: \"").append(updated.getRemarks()).append("\" || ");
+		}
+		String summary = sb.toString();
+		if (summary.endsWith(" || ")) {
+			summary = summary.substring(0, summary.length() - 4);
+		}
+		history.setChangeContents(summary);
+		history.setDeviceStatus(updated.getDeviceStatusCode());
+		history.setApprovalStatus(origin.getApprovalStatusCode());
+		history.setReason(updated.getChangeReason());
 	}
 }
