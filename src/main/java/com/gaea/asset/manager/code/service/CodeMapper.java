@@ -1,0 +1,15 @@
+package com.gaea.asset.manager.code.service;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+
+import com.gaea.asset.manager.code.vo.CodeVO;
+
+@Mapper
+public interface CodeMapper {
+	List<CodeVO> getCodeList();
+	int insertCode(CodeVO entity);
+	int updateCode(CodeVO entity);
+	int updateUseYn(CodeVO entity);
+}

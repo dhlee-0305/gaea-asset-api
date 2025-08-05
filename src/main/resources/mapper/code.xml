@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.code.service.CodeMapper">
+    <select id="getCodeList" resultType="com.gaea.asset.manager.code.vo.CodeVO">
+        SELECT CATEGORY
+          , CATEGORY_NAME
+          , CODE
+          , CODE_NAME
+        FROM COMMON_CODE
+        WHERE USE_YN = 'Y'
+    </select>
+
+    <insert id="insertCode" parameterType="com.gaea.asset.manager.code.vo.CodeVO" keyProperty="deviceNum" useGeneratedKeys="true">
+        INSERT INTO COMMON_CODE
+        (
+            CATEGORY
+          , CATEGORY_NAME
+          , CODE
+          , CODE_NAME
+          , USE_YN
+        ) VALUES (
+          #{category}
+          , #{categoryName}
+          , #{code}
+          , #{codeName}
+          , 'Y'
+        )
+    </insert>
+
+    <update id="updateCode" parameterType="com.gaea.asset.manager.code.vo.CodeVO">
+        UPDATE COMMON_CODE
+        SET
+            CATEGORY_NAME = #{categoryName}
+          , CODE_NAME = #{codeName}
+        WHERE CATEGORY = #{category}
+        AND CODE = #{code}
+    </update>
+
+    <update id="updateUseYn" parameterType="com.gaea.asset.manager.code.vo.CodeVO">
+        UPDATE COMMON_CODE
+        SET
+            USE_YN = 'N'
+        WHERE CATEGORY = #{category}
+        AND CODE = #{code}
+    </update>
+</mapper>
