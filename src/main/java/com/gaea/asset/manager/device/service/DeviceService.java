@@ -3,6 +3,7 @@ package com.gaea.asset.manager.device.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -119,7 +120,7 @@ public class DeviceService {
 
 		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
-			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), CodeConstants.UPDATE);
+			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), Constants.UPDATE);
 			return Header.OK();
 		} else {
 			return Header.ERROR("500", "ERROR");
@@ -162,7 +163,7 @@ public class DeviceService {
                 originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
-					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
                     return Header.OK();
                 }
                 break;
@@ -170,14 +171,14 @@ public class DeviceService {
                 originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
-					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
                     return Header.OK();
                 }
                 break;
             case CodeConstants.ROLE_ASSET_MANAGER:
             case CodeConstants.ROLE_SYSTEM_MANAGER: // 관리자/시스템 관리자
                 if (deviceMapper.updateDevice(deviceVO) > 0) {
-					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.UPDATE);
+					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
                     return Header.OK();
                 }
                 break;
@@ -255,12 +256,12 @@ public class DeviceService {
             deviceVO.setApprovalStatusCode(nextStatus);
             if (deviceMapper.updateDevice(deviceVO) > 0) {
                 deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
-				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.APPROVE);
+				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
                 return Header.OK();
             }
         }
 
-		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), CodeConstants.APPROVE);
+		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
 
         return Header.OK();
     }
@@ -296,7 +297,7 @@ public class DeviceService {
         originDevice.setApprovalStatusCode(nextStatus);
         if (deviceMapper.updateApprovalStatusCode(originDevice) > 0) {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
-			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), CodeConstants.REJECT);
+			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), Constants.REJECT);
             return Header.OK();
         }
 
@@ -359,17 +360,17 @@ public class DeviceService {
 		history.setEmpNum(origin.getEmpNum()); // 최종 승인 시 변경된 장비 담당자 반영
 
 		switch (type) {
-			case CodeConstants.REGISTER: // 등록 장비 정보 요약
+			case Constants.REGISTER: // 등록 장비 정보 요약
 				setRegisterHistory(history, origin);
 				break;
-			case CodeConstants.UPDATE: // 변경 사항 요약
+			case Constants.UPDATE: // 변경 사항 요약
 				setUpdateHistory(history, origin, updated);
 				break;
-			case CodeConstants.APPROVE: // 장비/결재 상태 저장
+			case Constants.APPROVE: // 장비/결재 상태 저장
 				history.setDeviceStatus(updated.getDeviceStatusCode());
 				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_APPROVED);
 				break;
-			case CodeConstants.REJECT: // 장비/결재 상태 저장
+			case Constants.REJECT: // 장비/결재 상태 저장
 				history.setDeviceStatus(origin.getDeviceStatusCode());
 				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_REJECTED);
 				break;

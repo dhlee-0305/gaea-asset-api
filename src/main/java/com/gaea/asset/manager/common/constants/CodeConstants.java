@@ -12,11 +12,4 @@ public class CodeConstants {
 	public static final String APPROVAL_STATUS_ADMIN_PENDING = "A2";						// 관리자 승인대기
 	public static final String APPROVAL_STATUS_APPROVED = "A3";								// 승인완료
 	public static final String APPROVAL_STATUS_REJECTED = "A4";									// 반려
-
-	// 장비 기능
-	public static final String REGISTER = "REGISTER";
-	public static final String UPDATE = "UPDATE";
-	public static final String APPROVE = "APPROVE";
-	public static final String REJECT = "REJECT";
-
 }
