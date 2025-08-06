@@ -4,8 +4,8 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -325,
-    "scrollLeft": -4.551,
+    "scrollTop": -300,
+    "scrollLeft": -0.3587,
     "zoomLevel": 0.82,
     "show": 511,
     "database": 4,
@@ -194,6 +194,7 @@
           "3da37794-ad19-4a06-b158-0d9f304f2b13",
           "fYm2JHsFTB4TforxHp7DH",
           "F8Be7OZEnwPbz-ECZBScG",
+          "6h81qJL1wc-SZ02CIhkAK",
           "6715bc69-d1a5-4c39-b06b-edccd9379781"
         ],
         "seqColumnIds": [
@@ -209,6 +210,7 @@
           "3da37794-ad19-4a06-b158-0d9f304f2b13",
           "fYm2JHsFTB4TforxHp7DH",
           "F8Be7OZEnwPbz-ECZBScG",
+          "6h81qJL1wc-SZ02CIhkAK",
           "6715bc69-d1a5-4c39-b06b-edccd9379781",
           "76089d6c-f08c-48c1-9ca7-8ac10c71c021",
           "3f3ba4bb-e3ff-463d-92d5-5a3a468006c2",
@@ -225,7 +227,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1752035826912,
+          "updateAt": 1754524119108,
           "createAt": 1751938503096
         }
       },
@@ -3119,6 +3121,26 @@
           "updateAt": 1752730410513,
           "createAt": 1752730377943
         }
+      },
+      "6h81qJL1wc-SZ02CIhkAK": {
+        "id": "6h81qJL1wc-SZ02CIhkAK",
+        "tableId": "b7ec318e-0a14-46e3-9edc-ae3fb6c45f44",
+        "name": "PASSWORD_RESET_REQ",
+        "comment": "비밀번호 초기화 요청(초기화요청:Y, 미요청:N)",
+        "dataType": "CHAR",
+        "default": "'N'",
+        "options": 0,
+        "ui": {
+          "keys": 0,
+          "widthName": 128,
+          "widthComment": 247,
+          "widthDataType": 60,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1754524400110,
+          "createAt": 1754523869076
+        }
       }
     },
     "relationshipEntities": {
@@ -3132,8 +3154,8 @@
           "columnIds": [
             "84f3d2a9-21a5-49b1-b112-04491effd52c"
           ],
-          "x": 519.7022,
-          "y": 687.9522,
+          "x": 565.7022,
+          "y": 711.9522,
           "direction": 8
         },
         "end": {
@@ -3169,7 +3191,7 @@
           "columnIds": [
             "E6dH29aZoReySitGPe_Bo"
           ],
-          "x": 519.7022,
+          "x": 565.7022,
           "y": 367.9522,
           "direction": 4
         },
