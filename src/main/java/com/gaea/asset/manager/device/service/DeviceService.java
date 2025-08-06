@@ -120,7 +120,7 @@ public class DeviceService {
 
 		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
-			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), Constants.UPDATE);
+			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), Constants.REGISTER);
 			return Header.OK();
 		} else {
 			return Header.ERROR("500", "ERROR");
@@ -347,7 +347,7 @@ public class DeviceService {
 	}
 
 	/**
-	 * Insert device history with type (REGISTER, UPDATE, APPROVE, REJECT)
+	 * 기능별 장비 이력 추가 (REGISTER, UPDATE, APPROVE, REJECT)
 	 * @param origin
 	 * @param updated
 	 * @param empNum
