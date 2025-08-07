@@ -39,4 +39,6 @@ public interface DeviceMapper {
     DeviceHistoryVO getDeviceHistory(Integer historyNum);
 
     void insertDeviceHistory(DeviceHistoryVO deviceHistory);
+
+    List<DeviceVO> getDeviceExcelList(HashMap<String, Object> paramMap);
 }

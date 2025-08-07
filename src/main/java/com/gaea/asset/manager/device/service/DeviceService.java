@@ -1,11 +1,24 @@
 package com.gaea.asset.manager.device.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 
 import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.util.*;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.common.constants.CodeConstants;
@@ -378,6 +391,61 @@ public class DeviceService {
 		deviceMapper.insertDeviceHistory(history);
 	}
 
+	/**
+	 * 장비 리스트 엑셀 다운로드
+	 * @param response
+	 */
+	public void deviceExcelDownload(HttpServletResponse response) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+		HashMap<String, Object> paramMap = new HashMap<>();
+		switch (userInfo.getRoleCode()) {
+			case CodeConstants.ROLE_USER:
+				paramMap.put("loginEmpNum", userInfo.getEmpNum());
+				break;
+			case CodeConstants.ROLE_TEAM_MANAGER:
+				paramMap.put("loginOrgId", userInfo.getOrgId());
+				break;
+			case CodeConstants.ROLE_ASSET_MANAGER:
+			case CodeConstants.ROLE_SYSTEM_MANAGER:
+				break;
+			default:
+				return;
+		}
+
+		ClassPathResource template = new ClassPathResource("excel/DEVICE.xlsx");
+		try (InputStream is = template.getInputStream();
+			 Workbook wb = new XSSFWorkbook(is)) {
+
+			// 다운로드 날짜 정보
+			LocalDate today = LocalDate.now();
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+			String downloadDate = "다운로드 일: " + today.format(formatter);
+			for (int i = 0; i < wb.getNumberOfSheets(); i++) {
+				Sheet sheet = wb.getSheetAt(i);
+				Row row = sheet.getRow(0);
+				Cell cell = row.getCell(0);
+				cell.setCellValue(downloadDate);
+			}
+
+			// 디바이스 조회
+			List<DeviceVO> deviceList = deviceMapper.getDeviceExcelList(paramMap);
+
+			// 시트별 리스트 추가
+			setDeviceSheet(wb.getSheetAt(0), deviceList, CodeConstants.COMPUTER);
+			setDeviceSheet(wb.getSheetAt(1), deviceList, CodeConstants.MONITOR);
+			setDeviceSheet(wb.getSheetAt(2), deviceList, CodeConstants.PHONE);
+			setDeviceSheet(wb.getSheetAt(3), deviceList, CodeConstants.ETC);
+
+			DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyyMMdd");
+			String fileName = "DeviceList_" + today.format(formatter2) + ".xlsx";
+			response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+			wb.write(response.getOutputStream());
+		} catch (IOException e) {
+			log.error("엑셀 다운로드 중 오류 발생", e);
+		}
+	}
+
 	private void setRegisterHistory(DeviceHistoryVO history, DeviceVO origin) {
 		StringBuilder sb = new StringBuilder();
 		appendIfPresent(sb, "장비담당자", origin.getUserName());
@@ -460,5 +528,92 @@ public class DeviceService {
 		history.setDeviceStatus(updated.getDeviceStatusCode());
 		history.setApprovalStatus(origin.getApprovalStatusCode());
 		history.setReason(updated.getChangeReason());
+	}
+
+	/**
+	 * 장비 타입 별 엑셀 시트 세팅
+	 */
+	private void setDeviceSheet(Sheet sheet, List<DeviceVO> deviceList, String deviceType) {
+		if (sheet == null) return;
+		int rowNum = 2;
+		for (DeviceVO d : deviceList) {
+			if (!deviceType.equals(d.getDeviceTypeCode())) continue;
+			Row row = sheet.createRow(rowNum++);
+			int listIndex = rowNum - 2;
+
+			if (CodeConstants.COMPUTER.equals(deviceType)) {
+				// "PC" 시트
+				row.createCell(0).setCellValue(listIndex); // 구분(순번)
+				row.createCell(1).setCellValue(d.getOrgName());
+				row.createCell(2).setCellValue(d.getUserName());
+				row.createCell(3).setCellValue(d.getUsageDivision());
+				row.createCell(4).setCellValue(d.getUsagePurpose());
+				row.createCell(5).setCellValue(d.getArchiveLocation());
+				row.createCell(6).setCellValue(d.getOldDeviceId());
+				row.createCell(7).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getModelName());
+				row.createCell(9).setCellValue(d.getManufactureDate());
+				row.createCell(10).setCellValue(d.getCpuSpec());
+				row.createCell(11).setCellValue(d.getMemorySize());
+				row.createCell(12).setCellValue(d.getStorageInfo());
+				row.createCell(13).setCellValue(d.getOperatingSystem());
+				row.createCell(14).setCellValue(d.getScreenSize());
+				row.createCell(15).setCellValue(d.getGpuSpec());
+				row.createCell(16).setCellValue(d.getPurchaseDate());
+				row.createCell(17).setCellValue(d.getReturnDate());
+				row.createCell(18).setCellValue(d.getDeviceStatus());
+				row.createCell(19).setCellValue(d.getRemarks());
+			} else if (CodeConstants.MONITOR.equals(deviceType)) {
+				// "모니터" 시트
+				row.createCell(0).setCellValue(listIndex);
+				row.createCell(1).setCellValue(d.getOrgName());
+				row.createCell(2).setCellValue(d.getUserName());
+				row.createCell(3).setCellValue(d.getUsageDivision());
+				row.createCell(4).setCellValue(d.getUsagePurpose());
+				row.createCell(5).setCellValue(d.getArchiveLocation());
+				row.createCell(6).setCellValue(d.getOldDeviceId());
+				row.createCell(7).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getModelName());
+				row.createCell(9).setCellValue(d.getManufactureDate());
+				row.createCell(10).setCellValue(d.getScreenSize());
+				row.createCell(11).setCellValue(d.getPurchaseDate());
+				row.createCell(12).setCellValue(d.getReturnDate());
+				row.createCell(13).setCellValue(d.getDeviceStatus());
+				row.createCell(14).setCellValue(d.getRemarks());
+			} else if (CodeConstants.PHONE.equals(deviceType)) {
+				// "핸드폰" 시트
+				row.createCell(0).setCellValue(listIndex);
+				row.createCell(1).setCellValue(d.getOrgName());
+				row.createCell(2).setCellValue(d.getUserName());
+				row.createCell(3).setCellValue(d.getUsageDivision());
+				row.createCell(4).setCellValue(d.getUsagePurpose());
+				row.createCell(5).setCellValue(d.getArchiveLocation());
+				row.createCell(6).setCellValue(d.getOldDeviceId());
+				row.createCell(7).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getModelName());
+				row.createCell(9).setCellValue(d.getManufactureDate());
+				row.createCell(10).setCellValue(d.getOperatingSystem());
+				row.createCell(11).setCellValue(d.getPurchaseDate());
+				row.createCell(12).setCellValue(d.getReturnDate());
+				row.createCell(13).setCellValue(d.getDeviceStatus());
+				row.createCell(14).setCellValue(d.getRemarks());
+			} else if (CodeConstants.ETC.equals(deviceType)) {
+				// "기타" 시트
+				row.createCell(0).setCellValue(listIndex);
+				row.createCell(1).setCellValue(d.getOrgName());
+				row.createCell(2).setCellValue(d.getUserName());
+				row.createCell(3).setCellValue(d.getUsageDivision());
+				row.createCell(4).setCellValue(d.getUsagePurpose());
+				row.createCell(5).setCellValue(d.getArchiveLocation());
+				row.createCell(6).setCellValue(d.getOldDeviceId());
+				row.createCell(7).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getModelName());
+				row.createCell(9).setCellValue(d.getManufactureDate());
+				row.createCell(10).setCellValue(d.getPurchaseDate());
+				row.createCell(11).setCellValue(d.getReturnDate());
+				row.createCell(12).setCellValue(d.getDeviceStatus());
+				row.createCell(13).setCellValue(d.getRemarks());
+			}
+		}
 	}
 }

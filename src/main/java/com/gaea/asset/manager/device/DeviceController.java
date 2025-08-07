@@ -2,6 +2,7 @@ package com.gaea.asset.manager.device;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,5 +92,11 @@ public class DeviceController {
 	@Operation(summary = "전산 장비 이력 상세 조회", description = "전산 장비 이력 상세 조회 API")
 	Header<DeviceHistoryVO> getDeviceHistory(@PathVariable(name = "historyNum") Integer historyNum) {
 		return deviceService.getDeviceHistory(historyNum);
+	}
+
+	@GetMapping("/devices/download/excel")
+	@Operation(summary = "전산 장비 엑셀 다운로드", description = "전산 장비 엑셀 다운로드 API")
+	public void deviceExcelDownload(HttpServletResponse response) {
+		deviceService.deviceExcelDownload(response);
 	}
 }

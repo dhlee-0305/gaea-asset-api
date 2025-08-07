@@ -142,6 +142,50 @@
             ON D.EMP_NUM = U.EMP_NUM
         WHERE DEVICE_NUM = #{deviceNum}
   </select>
+  <select id="getDeviceExcelList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+      SELECT D.DEVICE_NUM
+      , D.OLD_DEVICE_ID
+      , D.USAGE_DIVISION AS USAGE_DIVISION_CODE
+      , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C007' AND C.CODE = D.USAGE_DIVISION) AS USAGE_DIVISION
+      , D.USAGE_PURPOSE
+      , D.ARCHIVE_LOCATION
+      , D.DEVICE_TYPE AS DEVICE_TYPE_CODE
+      , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C004' AND C.CODE = D.DEVICE_TYPE) AS DEVICE_TYPE
+      , MANUFACTURER_CODE
+      , D.MODEL_NAME
+      , D.MANUFACTURE_DATE
+      , D.CPU_SPEC
+      , D.MEMORY_SIZE
+      , D.STORAGE_INFO
+      , D.OPERATING_SYSTEM
+      , D.SCREEN_SIZE
+      , D.GPU_SPEC
+      , D.DEVICE_STATUS_CODE
+      , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C005' AND C.CODE = D.DEVICE_STATUS_CODE) AS DEVICE_STATUS
+      , D.APPROVAL_STATUS_CODE
+      , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY = 'C006' AND C.CODE = D.APPROVAL_STATUS_CODE) AS APPROVAL_STATUS
+      , D.PURCHASE_DATE
+      , D.RETURN_DATE
+      , D.REMARKS
+      , D.EMP_NUM
+      , U.USER_NAME
+      , O.ORG_NAME
+      , D.MODEL_NAME
+      , D.MANUFACTURE_DATE
+      FROM DEVICE D
+      LEFT JOIN USER U
+      ON D.EMP_NUM = U.EMP_NUM
+      LEFT JOIN ORGANIZATION O
+      ON U.ORG_ID = O.ORG_ID
+      <where>
+          <if test="loginEmpNum != null">
+              AND D.EMP_NUM = #{loginEmpNum}
+          </if>
+          <if test="loginOrgId != null">
+              AND U.ORG_ID = #{loginOrgId}
+          </if>
+      </where>
+  </select>
   <insert id="insertDevice" parameterType="com.gaea.asset.manager.device.vo.DeviceVO" keyProperty="deviceNum" useGeneratedKeys="true">
         INSERT INTO DEVICE
         (
