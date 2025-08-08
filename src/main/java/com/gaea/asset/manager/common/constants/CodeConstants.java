@@ -14,8 +14,8 @@ public class CodeConstants {
 	public static final String APPROVAL_STATUS_REJECTED = "A4";									// 반려
 
 	// 장비 유형 코드
-	public static final String COMPUTER = "PC";
-	public static final String MONITOR = "MO";
-	public static final String PHONE = "HP";
-	public static final String ETC = "ETC";
+	public static final String DEVICE_TYPE_COMPUTER = "PC";
+	public static final String DEVICE_TYPE_MONITOR = "MO";
+	public static final String DEVICE_TYPE_PHONE = "HP";
+	public static final String DEVICE_TYPE_ETC = "ETC";
 }

@@ -96,7 +96,7 @@ public class DeviceController {
 
 	@GetMapping("/devices/download/excel")
 	@Operation(summary = "전산 장비 엑셀 다운로드", description = "전산 장비 엑셀 다운로드 API")
-	public void deviceExcelDownload(HttpServletResponse response) {
-		deviceService.deviceExcelDownload(response);
+	public void downloadDeviceExcel(HttpServletResponse response) {
+		deviceService.downloadDeviceExcel(response);
 	}
 }

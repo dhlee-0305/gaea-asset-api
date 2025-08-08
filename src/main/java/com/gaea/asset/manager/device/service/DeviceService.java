@@ -367,26 +367,31 @@ public class DeviceService {
 	 * @param type
 	 */
 	public void insertDeviceHistory(DeviceVO origin, DeviceVO updated, int empNum, String type) {
-		DeviceHistoryVO history = new DeviceHistoryVO();
-		history.setDeviceNum(origin.getDeviceNum());
-		history.setCreateUser(empNum);
-		history.setEmpNum(origin.getEmpNum()); // 최종 승인 시 변경된 장비 담당자 반영
+		DeviceHistoryVO history = null;
 
 		switch (type) {
 			case Constants.REGISTER: // 등록 장비 정보 요약
-				setRegisterHistory(history, origin);
+				history = setRegisterHistory(origin);
 				break;
 			case Constants.UPDATE: // 변경 사항 요약
-				setUpdateHistory(history, origin, updated);
+				history = setUpdateHistory(origin, updated);
 				break;
 			case Constants.APPROVE: // 장비/결재 상태 저장
+				history = new DeviceHistoryVO();
 				history.setDeviceStatus(updated.getDeviceStatusCode());
 				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_APPROVED);
 				break;
 			case Constants.REJECT: // 장비/결재 상태 저장
+				history = new DeviceHistoryVO();
 				history.setDeviceStatus(origin.getDeviceStatusCode());
 				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_REJECTED);
 				break;
+		}
+
+		if (history != null) {
+			history.setDeviceNum(origin.getDeviceNum());
+			history.setCreateUser(empNum);
+			history.setEmpNum(origin.getEmpNum()); // 최종 승인 시 변경된 장비 담당자 반영
 		}
 		deviceMapper.insertDeviceHistory(history);
 	}
@@ -395,7 +400,7 @@ public class DeviceService {
 	 * 장비 리스트 엑셀 다운로드
 	 * @param response
 	 */
-	public void deviceExcelDownload(HttpServletResponse response) {
+	public void downloadDeviceExcel(HttpServletResponse response) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
 		switch (userInfo.getRoleCode()) {
@@ -431,10 +436,10 @@ public class DeviceService {
 			List<DeviceVO> deviceList = deviceMapper.getDeviceExcelList(paramMap);
 
 			// 시트별 리스트 추가
-			setDeviceSheet(wb.getSheetAt(0), deviceList, CodeConstants.COMPUTER);
-			setDeviceSheet(wb.getSheetAt(1), deviceList, CodeConstants.MONITOR);
-			setDeviceSheet(wb.getSheetAt(2), deviceList, CodeConstants.PHONE);
-			setDeviceSheet(wb.getSheetAt(3), deviceList, CodeConstants.ETC);
+			setDeviceSheet(wb.getSheetAt(0), deviceList, CodeConstants.DEVICE_TYPE_COMPUTER);
+			setDeviceSheet(wb.getSheetAt(1), deviceList, CodeConstants.DEVICE_TYPE_MONITOR);
+			setDeviceSheet(wb.getSheetAt(2), deviceList, CodeConstants.DEVICE_TYPE_PHONE);
+			setDeviceSheet(wb.getSheetAt(3), deviceList, CodeConstants.DEVICE_TYPE_ETC);
 
 			DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyyMMdd");
 			String fileName = "DeviceList_" + today.format(formatter2) + ".xlsx";
@@ -446,7 +451,8 @@ public class DeviceService {
 		}
 	}
 
-	private void setRegisterHistory(DeviceHistoryVO history, DeviceVO origin) {
+	private DeviceHistoryVO setRegisterHistory(DeviceVO origin) {
+		DeviceHistoryVO history = new DeviceHistoryVO();
 		StringBuilder sb = new StringBuilder();
 		appendIfPresent(sb, "장비담당자", origin.getUserName());
 		appendIfPresent(sb, "모델명", origin.getModelName());
@@ -465,9 +471,12 @@ public class DeviceService {
 		history.setChangeContents(sb.toString());
 		history.setDeviceStatus(origin.getDeviceStatusCode());
 		history.setApprovalStatus(origin.getApprovalStatusCode());
+
+		return history;
 	}
 
-	private void setUpdateHistory(DeviceHistoryVO history, DeviceVO origin, DeviceVO updated) {
+	private DeviceHistoryVO setUpdateHistory(DeviceVO origin, DeviceVO updated) {
+		DeviceHistoryVO history = new DeviceHistoryVO();
 		StringBuilder sb = new StringBuilder();
 		if (!isEqual(origin.getUserName(), updated.getUserName())) {
 			sb.append("장비담당자: \"").append(updated.getUserName()).append("\" || ");
@@ -528,6 +537,8 @@ public class DeviceService {
 		history.setDeviceStatus(updated.getDeviceStatusCode());
 		history.setApprovalStatus(origin.getApprovalStatusCode());
 		history.setReason(updated.getChangeReason());
+
+		return history;
 	}
 
 	/**
@@ -541,7 +552,7 @@ public class DeviceService {
 			Row row = sheet.createRow(rowNum++);
 			int listIndex = rowNum - 2;
 
-			if (CodeConstants.COMPUTER.equals(deviceType)) {
+			if (CodeConstants.DEVICE_TYPE_COMPUTER.equals(deviceType)) {
 				// "PC" 시트
 				row.createCell(0).setCellValue(listIndex); // 구분(순번)
 				row.createCell(1).setCellValue(d.getOrgName());
@@ -563,7 +574,7 @@ public class DeviceService {
 				row.createCell(17).setCellValue(d.getReturnDate());
 				row.createCell(18).setCellValue(d.getDeviceStatus());
 				row.createCell(19).setCellValue(d.getRemarks());
-			} else if (CodeConstants.MONITOR.equals(deviceType)) {
+			} else if (CodeConstants.DEVICE_TYPE_MONITOR.equals(deviceType)) {
 				// "모니터" 시트
 				row.createCell(0).setCellValue(listIndex);
 				row.createCell(1).setCellValue(d.getOrgName());
@@ -580,7 +591,7 @@ public class DeviceService {
 				row.createCell(12).setCellValue(d.getReturnDate());
 				row.createCell(13).setCellValue(d.getDeviceStatus());
 				row.createCell(14).setCellValue(d.getRemarks());
-			} else if (CodeConstants.PHONE.equals(deviceType)) {
+			} else if (CodeConstants.DEVICE_TYPE_PHONE.equals(deviceType)) {
 				// "핸드폰" 시트
 				row.createCell(0).setCellValue(listIndex);
 				row.createCell(1).setCellValue(d.getOrgName());
@@ -597,7 +608,7 @@ public class DeviceService {
 				row.createCell(12).setCellValue(d.getReturnDate());
 				row.createCell(13).setCellValue(d.getDeviceStatus());
 				row.createCell(14).setCellValue(d.getRemarks());
-			} else if (CodeConstants.ETC.equals(deviceType)) {
+			} else if (CodeConstants.DEVICE_TYPE_ETC.equals(deviceType)) {
 				// "기타" 시트
 				row.createCell(0).setCellValue(listIndex);
 				row.createCell(1).setCellValue(d.getOrgName());
