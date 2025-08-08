@@ -35,4 +35,7 @@ public class UserInfoVO {
 	
 	@Schema(description = "권한코드", example = "1")
 	private String roleCode;
+	
+	@Schema(description = "비밀번호 변경일자", example = "yyyymmdd")
+	private String passwordChangeDate;
 }
