@@ -11,6 +11,7 @@
              , U.ORG_ID
              , O.ORG_NAME
              , U.ROLE_CODE
+             , U.PASSWORD_CHANGE_DATE
         FROM USER U
         LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
         WHERE U.USER_ID = #{userId}
@@ -22,6 +23,7 @@
         UPDATE USER
         SET
             PASSWORD = #{newPassword}
+            , PASSWORD_CHANGE_DATE = DATE_FORMAT(NOW(), '%Y%m%d')
         WHERE USER_ID = #{userId}
     </update>
     
