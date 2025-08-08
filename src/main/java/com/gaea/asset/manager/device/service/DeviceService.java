@@ -137,6 +137,11 @@ public class DeviceService {
 		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
 			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), Constants.REGISTER);
+			try {
+				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_ASSIGNED, deviceVO.getDeviceNum());
+			} catch (MessagingException e) {
+				log.error(String.valueOf(e));
+			}
 			return Header.OK();
 		} else {
 			return Header.ERROR("500", "ERROR");
