@@ -47,7 +47,7 @@ public class NoticeService {
 		if (noticeMapper.insertNotice(NoticeVO) > 0) {
 			return Header.OK(NoticeVO);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 
@@ -55,7 +55,7 @@ public class NoticeService {
 		if (noticeMapper.updateNotice(NoticeVO) > 0) {
 			return Header.OK(NoticeVO);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 
@@ -63,7 +63,7 @@ public class NoticeService {
 		if (noticeMapper.deleteNotice(noticeNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 }
