@@ -9,4 +9,5 @@ import com.gaea.asset.manager.login.vo.UserInfoVO;
 public interface LoginMapper {
 	UserInfoVO authLogin(LoginVO loginVO);
 	int updatePassword(LoginVO loginVO);
+	int updatePasswordResetReq(LoginVO loginVO);
 }

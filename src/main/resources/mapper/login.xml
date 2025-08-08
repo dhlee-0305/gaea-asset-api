@@ -15,12 +15,20 @@
         LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
         WHERE U.USER_ID = #{userId}
         AND U.IS_EMPLOYED = 'Y'
+        AND U.PASSWORD_RESET_REQ != 'Y'
     </select>
     
     <update id="updatePassword" parameterType="com.gaea.asset.manager.login.vo.LoginVO">
         UPDATE USER
         SET
             PASSWORD = #{newPassword}
+        WHERE USER_ID = #{userId}
+    </update>
+    
+    <update id="updatePasswordResetReq" parameterType="com.gaea.asset.manager.login.vo.LoginVO">
+        UPDATE USER
+        SET
+            PASSWORD_RESET_REQ = 'Y'
         WHERE USER_ID = #{userId}
     </update>
 </mapper>

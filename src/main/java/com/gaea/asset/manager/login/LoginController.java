@@ -30,4 +30,10 @@ public class LoginController {
 	Header<LoginVO> updatePassword(@RequestBody LoginVO loginVO) {
 		return loginService.updatePassword(loginVO);
 	}
+	
+	@PutMapping("/auth/password/reset")
+	@Operation(summary = "비밀번호 초기화 요청", description = "비밀번호 초기화 요청 API")
+	Header<LoginVO> updatePasswordResetReq(@RequestBody LoginVO loginVO) {
+		return loginService.updatePasswordResetReq(loginVO);
+	}
 }

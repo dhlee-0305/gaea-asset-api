@@ -55,6 +55,26 @@ public class LoginService {
 		}
 	}
 	
+	public Header<LoginVO> updatePasswordResetReq(LoginVO loginVO) {
+		if(loginVO == null || loginVO.getUserId().isBlank()) {
+			LOG.info("필수 정보 누락.");
+			return Header.ERROR("9999", "필수 입력 정보가 누락 되었습니다.");
+		}
+		
+		//사용자 정보 조회
+		UserInfoVO userInfoVO = getUserInfo(loginVO);
+		if(userInfoVO == null) {
+			LOG.info("사용자 정보 입력 오류.");
+			return Header.ERROR("9999", "사용자 정보 입력 오류 입니다.");
+		}
+		
+		if (loginMapper.updatePasswordResetReq(loginVO) > 0) {
+			return Header.OK();
+		} else {
+			return Header.ERROR("9999", "초기화 요청 중 오류가 발생했습니다.");
+		}
+	}
+	
 	public UserInfoVO getUserInfo(LoginVO loginVO) {
 		return loginMapper.authLogin(loginVO);
 	}
