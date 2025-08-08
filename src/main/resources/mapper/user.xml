@@ -116,5 +116,13 @@
         DELETE FROM USER
         WHERE EMP_NUM = #{empNum}
     </delete>
+    
+    <select id="getAllUserList" resultType="com.gaea.asset.manager.user.vo.UserVO">
+        SELECT EMP_NUM
+          , USER_ID
+          , USER_NAME
+        FROM USER
+        WHERE IS_EMPLOYED = 'Y'
+    </select>
 
 </mapper>

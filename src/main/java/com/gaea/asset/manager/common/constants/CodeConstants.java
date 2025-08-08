@@ -1,17 +1,21 @@
 package com.gaea.asset.manager.common.constants;
 
 public class CodeConstants {
+	public static final String CATEGORY_DEVICE_TYPE = "C004";		// 장비 유형
+	public static final String CATEGORY_DEVICE_STATUS = "C005";		// 장비 상태
+	public static final String CATEGORY_APPROVAL_STATUS = "C006";	// 결재 상태
+	public static final String CATEGORY_USAGE_DIVISION = "C007";	// 용도구분
 	// 권한
-	public static final String ROLE_USER = "00";							// User
+	public static final String ROLE_USER = "00";					// User
 	public static final String ROLE_TEAM_MANAGER = "01";			// Team-Manager
-	public static final String ROLE_ASSET_MANAGER = "02";		// Asset-Manager
-	public static final String ROLE_SYSTEM_MANAGER = "03";		// System-Manager
+	public static final String ROLE_ASSET_MANAGER = "02";			// Asset-Manager
+	public static final String ROLE_SYSTEM_MANAGER = "03";			// System-Manager
 
 	// 결재 상태 코드
 	public static final String APPROVAL_STATUS_TEAM_MANAGER_PENDING = "A1";		// 부서장 승인대기
-	public static final String APPROVAL_STATUS_ADMIN_PENDING = "A2";						// 관리자 승인대기
-	public static final String APPROVAL_STATUS_APPROVED = "A3";								// 승인완료
-	public static final String APPROVAL_STATUS_REJECTED = "A4";									// 반려
+	public static final String APPROVAL_STATUS_ADMIN_PENDING = "A2";			// 관리자 승인대기
+	public static final String APPROVAL_STATUS_APPROVED = "A3";					// 승인완료
+	public static final String APPROVAL_STATUS_REJECTED = "A4";					// 반려
 
 	// 장비 유형 코드
 	public static final String DEVICE_TYPE_COMPUTER = "PC";

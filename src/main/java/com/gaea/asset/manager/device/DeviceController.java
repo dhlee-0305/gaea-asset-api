@@ -2,7 +2,6 @@ package com.gaea.asset.manager.device;
 
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.gaea.asset.manager.device.service.DeviceService;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
@@ -20,6 +20,7 @@ import com.gaea.asset.manager.util.Search;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -98,5 +99,11 @@ public class DeviceController {
 	@Operation(summary = "전산 장비 엑셀 다운로드", description = "전산 장비 엑셀 다운로드 API")
 	public void downloadDeviceExcel(HttpServletResponse response) {
 		deviceService.downloadDeviceExcel(response);
+	}
+	
+	@PostMapping("/devices/upload/excel")
+	@Operation(summary = "전산 장비 엑셀 업로드", description = "전산 장비 엑셀 업로드 API")
+	public Header<DeviceVO> uploadDeviceExcel(@RequestParam("file") MultipartFile file) throws Exception {
+		return deviceService.uploadDeviceExcel(file);
 	}
 }

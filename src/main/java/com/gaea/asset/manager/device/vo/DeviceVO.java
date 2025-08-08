@@ -6,12 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 @Schema(description = "전산 장비 정보")
 public class DeviceVO {
 
@@ -70,10 +72,10 @@ public class DeviceVO {
 	private String operatingSystem;
 
 	@Schema(description = "화면크기", example = "")
-	private Integer screenSize;
+	private Double screenSize;
 
 	@Schema(description = "GPU", example = "")
-	private Integer gpuSpec;
+	private String gpuSpec;
 
 	@Schema(description = "장비상태 코드", example = "")
 	private String deviceStatusCode;

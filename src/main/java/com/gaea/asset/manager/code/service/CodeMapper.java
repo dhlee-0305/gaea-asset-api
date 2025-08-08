@@ -3,6 +3,7 @@ package com.gaea.asset.manager.code.service;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.gaea.asset.manager.code.vo.CodeVO;
 
@@ -12,4 +13,5 @@ public interface CodeMapper {
 	int insertCode(CodeVO entity);
 	int updateCode(CodeVO entity);
 	int updateUseYn(CodeVO entity);
+	List<CodeVO> getCodeListByCodes(@Param("codes") List<String> codes);
 }

@@ -3,7 +3,6 @@ package com.gaea.asset.manager.user.service;
 import java.util.HashMap;
 import java.util.List;
 
-import com.gaea.asset.manager.notice.vo.NoticeVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.gaea.asset.manager.user.vo.UserVO;
@@ -23,4 +22,6 @@ public interface UserMapper {
 	int updateUser(UserVO entity);
 
 	int deleteUser(Integer empNum);
+	
+	List<UserVO> getAllUserList();
 }

@@ -442,4 +442,56 @@
       , #{createUser}
       )
   </select>
+  
+  <insert id="insertDeviceList" parameterType="com.gaea.asset.manager.device.vo.DeviceVO">
+      INSERT INTO DEVICE
+      (
+	        OLD_DEVICE_ID
+	      , EMP_NUM
+	      , USAGE_DIVISION
+	      , USAGE_PURPOSE
+	      , ARCHIVE_LOCATION
+	      , DEVICE_TYPE
+	      , MODEL_NAME
+	      , MANUFACTURER_CODE
+	      , MANUFACTURE_DATE
+	      , CPU_SPEC
+	      , MEMORY_SIZE
+	      , STORAGE_INFO
+	      , OPERATING_SYSTEM
+	      , SCREEN_SIZE
+	      , GPU_SPEC
+	      , DEVICE_STATUS_CODE
+	      , PURCHASE_DATE
+	      , RETURN_DATE
+	      , REMARKS
+	      , CREATE_DATETIME
+	      , CREATE_USER
+	    ) VALUES
+      <foreach collection="list" item="device" separator=",">
+	    (   
+	        #{device.oldDeviceId}
+	      , #{device.empNum}
+	      , #{device.usageDivisionCode}
+	      , #{device.usagePurpose}
+	      , #{device.archiveLocation}
+	      , #{device.deviceTypeCode}
+	      , #{device.modelName}
+	      , #{device.manufacturerCode}
+	      , #{device.manufactureDate}
+	      , #{device.cpuSpec}
+	      , #{device.memorySize}
+	      , #{device.storageInfo}
+	      , #{device.operatingSystem}
+	      , #{device.screenSize}
+	      , #{device.gpuSpec}
+	      , #{device.deviceStatusCode}
+	      , #{device.purchaseDate}
+	      , #{device.returnDate}
+	      , #{device.remarks}
+	      , NOW()
+	      , #{device.createUser}
+	    )
+      </foreach>
+  </insert>
 </mapper>

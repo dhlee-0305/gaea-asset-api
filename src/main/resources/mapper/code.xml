@@ -45,4 +45,17 @@
         WHERE CATEGORY = #{category}
         AND CODE = #{code}
     </update>
+    
+    <select id="getCodeListByCodes" resultType="com.gaea.asset.manager.code.vo.CodeVO">
+  	SELECT CATEGORY
+  		, CATEGORY_NAME
+  		, CODE
+  		, CODE_NAME
+	FROM COMMON_CODE
+	WHERE USE_YN = 'Y'
+	  AND CATEGORY IN 
+		<foreach item="code" collection="codes" open="(" separator="," close=")">
+	    	#{code}
+	  	</foreach>
+  	</select>
 </mapper>

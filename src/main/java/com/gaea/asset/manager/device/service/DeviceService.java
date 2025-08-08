@@ -1,44 +1,61 @@
 package com.gaea.asset.manager.device.service;
 
+import static com.gaea.asset.manager.util.DeviceFieldUtil.appendIfPresent;
+import static com.gaea.asset.manager.util.DeviceFieldUtil.isEqual;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import com.gaea.asset.manager.common.constants.Constants;
-import com.gaea.asset.manager.message.service.MessageService;
-import com.gaea.asset.manager.util.*;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.mail.MessagingException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.gaea.asset.manager.code.service.CodeMapper;
+import com.gaea.asset.manager.code.vo.CodeVO;
 import com.gaea.asset.manager.common.constants.CodeConstants;
+import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.login.vo.UserInfoVO;
+import com.gaea.asset.manager.message.service.MessageService;
+import com.gaea.asset.manager.user.service.UserMapper;
+import com.gaea.asset.manager.user.vo.UserVO;
+import com.gaea.asset.manager.util.AuthUtil;
+import com.gaea.asset.manager.util.Header;
+import com.gaea.asset.manager.util.Pagination;
+import com.gaea.asset.manager.util.Search;
 
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.gaea.asset.manager.util.DeviceFieldUtil.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
 	private final DeviceMapper deviceMapper;
+	private final UserMapper userMapper;
+	private final CodeMapper codeMapper;
 	private final MessageService messageService;
 
 	/**
@@ -663,5 +680,118 @@ public class DeviceService {
 				row.createCell(14).setCellValue(d.getRemarks());
 			}
 		}
+	}
+	
+	/**
+     * 전산 장비 엑셀 업로드
+     * @param excelFile
+     * @return
+     * @throws IOException
+     * @throws EncryptedDocumentException
+     */
+    public Header<DeviceVO> uploadDeviceExcel(MultipartFile file) throws Exception {
+		log.info("upload excelFilename : {}", file.getOriginalFilename());
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+
+		// 파일 확장자 검증
+		String filename = file.getOriginalFilename();
+        if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
+            return Header.ERROR("400", "Excel 파일만 업로드 가능합니다.");
+        }
+        
+        // 전체 사용자 목록 조회 
+        List<UserVO> userList = userMapper.getAllUserList();
+        // 코드 목록 조회
+        List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
+        		CodeConstants.CATEGORY_DEVICE_TYPE,
+        		CodeConstants.CATEGORY_DEVICE_STATUS,
+        		CodeConstants.CATEGORY_USAGE_DIVISION));
+        // 장비 유형 코드 목록
+        List<CodeVO> deviceTypeList = codeList.stream()
+        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+        		.collect(Collectors.toList());
+        // 장비 상태 코드 목록
+        List<CodeVO> deviceStatusList = codeList.stream()
+        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_STATUS))
+        		.collect(Collectors.toList());
+        // 사용 용도 코드 목록
+        List<CodeVO> usageDivisionList = codeList.stream()
+        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+        		.collect(Collectors.toList());
+
+        // Excel 파일 처리
+        int startRow = 2;
+        Workbook workbook = null;
+        DataFormatter formatter = new DataFormatter();
+		try {
+			workbook = WorkbookFactory.create(file.getInputStream());
+			Sheet sheet = workbook.getSheetAt(0);
+			
+			List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
+	        for(int i = startRow; i <= sheet.getLastRowNum(); i++) {
+	        	Row row = sheet.getRow(i);
+	        	
+	        	DeviceVO deviceVO = new DeviceVO();
+	        	
+	        	String userName = formatter.formatCellValue(row.getCell(2));			// 사용자
+	        	deviceVO.setEmpNum(userList.stream()
+	            		.filter(user -> user.getUserName().equals(userName))
+	            		.map(user -> user.getEmpNum())
+	            		.findFirst()
+	            		.orElse(null));
+	        	String usageDivision = formatter.formatCellValue(row.getCell(3));			// 용도구분		
+	        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
+	            		.filter(code -> code.getCodeName().equals(usageDivision))
+	            		.map(code -> code.getCode())
+	            		.findFirst()
+	            		.orElse(null));
+	        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));		// 사용용도
+	        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(5)));		// 보관위치
+	        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(6)));			// 관리번호
+	        	String deviceType = formatter.formatCellValue(row.getCell(7));				// 장비유형
+	        	deviceVO.setDeviceTypeCode(deviceTypeList.stream()
+	            		.filter(code -> code.getCodeName().equals(deviceType))
+	            		.map(code -> code.getCode())
+	            		.findFirst()
+	            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
+	        	deviceVO.setManufacturerCode(formatter.formatCellValue(row.getCell(8)));	// 제조사
+	        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));			// 모델명
+	        	deviceVO.setManufactureDate(formatter.formatCellValue(row.getCell(10)));	// 제조일
+	        	deviceVO.setCpuSpec(formatter.formatCellValue(row.getCell(11)));			// CPU
+	        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(12)))) {
+	        		deviceVO.setMemorySize(Integer.valueOf(formatter.formatCellValue(row.getCell(12))));	// 메모리
+	        	}
+	        	deviceVO.setStorageInfo(formatter.formatCellValue(row.getCell(13)));						// 스토리지 정보
+	        	deviceVO.setOperatingSystem(formatter.formatCellValue(row.getCell(14)));					// OS
+	        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(15)))) {
+	        		deviceVO.setScreenSize(Double.valueOf(formatter.formatCellValue(row.getCell(15))));		// 화면크기
+	        	}
+	        	deviceVO.setGpuSpec(formatter.formatCellValue(row.getCell(16)));							// GPU
+	        	deviceVO.setPurchaseDate(formatter.formatCellValue(row.getCell(17)));						// 구매일자
+	        	deviceVO.setReturnDate(formatter.formatCellValue(row.getCell(18)));							// 반납일자
+	        	String deviceStatus = formatter.formatCellValue(row.getCell(19));							// 장비상태
+	        	deviceVO.setDeviceStatusCode(deviceStatusList.stream()
+	            		.filter(code -> code.getCodeName().equals(deviceStatus))
+	            		.map(code -> code.getCode())
+	            		.findFirst()
+	            		.orElse(null));
+	        	deviceVO.setRemarks(formatter.formatCellValue(row.getCell(20)));							// 비고
+	        	deviceVO.setCreateUser(userInfo.getEmpNum());
+	        	
+	        	deviceList.add(deviceVO);
+	        	log.info("##### Row {} : {}", i, deviceVO.toString());
+	        }
+	        // DB 저장
+	        deviceMapper.insertDeviceList(deviceList);
+		} catch (Exception e) {
+			log.error("excel upload error : ", e);
+			return Header.ERROR("500", "ERROR");
+		}finally {
+			if(workbook != null) {
+				workbook.close();
+			}
+		}
+
+		return Header.OK();
 	}
 }
