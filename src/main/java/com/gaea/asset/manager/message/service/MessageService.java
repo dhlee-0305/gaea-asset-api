@@ -1,7 +1,8 @@
 package com.gaea.asset.manager.message.service;
 
+import com.gaea.asset.manager.message.vo.MessageTemplate;
 import com.gaea.asset.manager.message.vo.MessageVO;
-import com.gaea.asset.manager.util.Header;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,28 +13,49 @@ import org.springframework.stereotype.Service;
 public class MessageService {
     @Value("${spring.mail.username}")
     private String from;
-
     private final JavaMailSender mailSender;
+    private final MessageMapper messageMapper;
 
-    public MessageService(JavaMailSender mailSender) {
+    public MessageService(JavaMailSender mailSender, MessageMapper messageMapper) {
         this.mailSender = mailSender;
+        this.messageMapper = messageMapper;
     }
 
-    public Header<MessageVO> sendEmail(MessageVO messageVO) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true,"UTF-8");
+    public void sendToDeviceOwner(String messageCode, Integer deviceNum) throws MessagingException {
+        MessageTemplate template = MessageTemplate.fromCode(messageCode);
+        String userId = messageMapper.getDeviceOwner(deviceNum);
+        Integer empNum = messageMapper.getEmpNum(userId);
+        insertMessage(template, empNum);
+    }
 
-            helper.setFrom(from);
-            helper.setTo(messageVO.getTo());
-            helper.setSubject(messageVO.getSubject());
-            helper.setText(messageVO.getText(), true);
+    public void sendToManager(String messageCode, String roleCode) throws MessagingException {
+        MessageTemplate template = MessageTemplate.fromCode(messageCode);
+        Integer empNum = messageMapper.getManagerEmpNum(roleCode);
+        insertMessage(template, empNum);
+    }
 
-            mailSender.send(message);
+    public void insertMessage(MessageTemplate template, Integer recipient) throws MessagingException {
+        String to = messageMapper.getUserID(recipient) + "@gaeasoft.co.kr";
+        String userId = from.split("@")[0];
+        Integer sender = messageMapper.getEmpNum(userId);
 
-        } catch (Exception e) {
-            return Header.ERROR("500", "등록 중 예외 발생: " + e.getMessage());
-        }
-        return Header.OK(messageVO);
+        MessageVO messageVO = MessageVO.builder()
+                .recipient(recipient)
+                .sender(sender)
+                .title(template.getSubject())
+                .content(template.formatBody())
+                .messageStatusCode(template.getMessageCode())
+                .build();
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true,"UTF-8");
+
+        helper.setFrom(from);
+        helper.setTo(to);
+        helper.setSubject(messageVO.getTitle());
+        helper.setText(messageVO.getContent(), true);
+
+        mailSender.send(message);
+        messageMapper.insertMessage(messageVO);
     }
 }

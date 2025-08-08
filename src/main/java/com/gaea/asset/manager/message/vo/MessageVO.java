@@ -14,12 +14,24 @@ import lombok.Setter;
 @Builder
 @Schema(description = "메세지 정보")
 public class MessageVO {
-    @Schema(description = "수신자", example = "user@gaeasoft.co.kr")
-    private String to;
+    @Schema(description = "메세지 순번", example = "1")
+    private Integer messageNum;
+
+    @Schema(description = "수신자", example = "100000")
+    private Integer recipient;
+
+    @Schema(description = "발신자", example = "100000")
+    private Integer sender;
 
     @Schema(description = "제목", example = "[메세지] 메세지")
-    private String subject;
+    private String title;
 
     @Schema(description = "내용", example = "메세지입니다")
-    private String text;
+    private String content;
+
+    @Schema(description = "메세지 상태 코드", example = "")
+    private String messageStatusCode;
+
+    @Schema(description = "생성일시", example = "")
+    private String createDatetime;
 }

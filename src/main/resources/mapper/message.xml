@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.message.service.MessageMapper">
+    <select id="getEmpNum" parameterType="String" resultType="Integer">
+        SELECT EMP_NUM
+        FROM USER
+        WHERE USER_ID = #{userId}
+    </select>
+
+    <select id="getUserID" parameterType="Integer" resultType="String">
+        SELECT USER_ID
+        FROM USER
+        WHERE EMP_NUM = #{empNum}
+    </select>
+
+    <select id="getDeviceOwner" parameterType="Integer" resultType="String">
+        SELECT U.USER_ID
+        FROM USER U
+        JOIN DEVICE D ON U.EMP_NUM = D.EMP_NUM
+        WHERE D.DEVICE_NUM = #{deviceNum}
+    </select>
+
+    <select id="getManagerEmpNum" parameterType="String" resultType="Integer">
+        SELECT EMP_NUM
+        FROM USER
+        WHERE ROLE_CODE = #{roleCode}
+    </select>
+
+    <insert id="insertMessage" parameterType="com.gaea.asset.manager.message.vo.MessageVO" keyProperty="messageNum" useGeneratedKeys="true">
+        INSERT INTO MESSAGE
+        (
+            RECIPIENT
+            , SENDER
+            , TITLE
+            , CONTENT
+            , MESSAGE_STATUS_CODE
+            , CREATE_DATETIME
+        ) VALUES (
+            #{recipient}
+            , #{sender}
+            , #{title}
+            , #{content}
+            , #{messageStatusCode}
+            , NOW()
+        )
+    </insert>
+</mapper>

@@ -18,4 +18,10 @@ public class CodeConstants {
 	public static final String DEVICE_TYPE_MONITOR = "MO";
 	public static final String DEVICE_TYPE_PHONE = "HP";
 	public static final String DEVICE_TYPE_ETC = "ETC";
+
+	// 메세지 상태 코드
+	public static final String MESSAGE_DEVICE_ASSIGNED = "A1";				// 장비 할당
+	public static final String MESSAGE_STATUS_CHANGE_REQUESTED = "A2";		// 장비 상태 변경 요청
+	public static final String MESSAGE_STATUS_CHANGE_APPROVED = "A3";		// 장비 상태 변경 승인
+	public static final String MESSAGE_STATUS_CHANGE_REJECTED = "A4";		// 장비 상태 변경 반려
 }

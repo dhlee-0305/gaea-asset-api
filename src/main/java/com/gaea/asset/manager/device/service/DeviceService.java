@@ -10,8 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.gaea.asset.manager.common.constants.Constants;
+import com.gaea.asset.manager.message.service.MessageService;
 import com.gaea.asset.manager.util.*;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.mail.MessagingException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -37,9 +39,10 @@ import static com.gaea.asset.manager.util.DeviceFieldUtil.*;
 @RequiredArgsConstructor
 public class DeviceService {
 	private final DeviceMapper deviceMapper;
+	private final MessageService messageService;
 
 	/**
-	 * 전상 장비 목록 조회
+	 * 전산 장비 목록 조회
 	 * @param currentPage
 	 * @param pageSize
 	 * @param search
@@ -177,7 +180,13 @@ public class DeviceService {
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
-                    return Header.OK();
+					try {
+						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "01");
+						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "02");
+					} catch (MessagingException e) {
+						log.error(String.valueOf(e));
+					}
+					return Header.OK();
                 }
                 break;
             case CodeConstants.ROLE_TEAM_MANAGER: // 부서장
@@ -185,7 +194,12 @@ public class DeviceService {
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
-                    return Header.OK();
+					try {
+						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "02");
+					} catch (MessagingException e) {
+						log.error(String.valueOf(e));
+					}
+					return Header.OK();
                 }
                 break;
             case CodeConstants.ROLE_ASSET_MANAGER:
@@ -270,12 +284,21 @@ public class DeviceService {
             if (deviceMapper.updateDevice(deviceVO) > 0) {
                 deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
-                return Header.OK();
+				try {
+					messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_APPROVED, deviceVO.getDeviceNum());
+				} catch (MessagingException e) {
+					log.error(String.valueOf(e));
+				}
+				return Header.OK();
             }
         }
 
 		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
-
+		try {
+			messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_APPROVED, deviceVO.getDeviceNum());
+		} catch (MessagingException e) {
+			log.error(String.valueOf(e));
+		}
         return Header.OK();
     }
 
@@ -311,7 +334,12 @@ public class DeviceService {
         if (deviceMapper.updateApprovalStatusCode(originDevice) > 0) {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), Constants.REJECT);
-            return Header.OK();
+			try {
+				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_REJECTED, deviceVO.getDeviceNum());
+			} catch (MessagingException e) {
+				log.error(String.valueOf(e));
+			}
+			return Header.OK();
         }
 
 		return Header.ERROR("500", "ERROR");
