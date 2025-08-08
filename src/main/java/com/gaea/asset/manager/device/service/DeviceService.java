@@ -588,75 +588,79 @@ public class DeviceService {
 			if (CodeConstants.DEVICE_TYPE_COMPUTER.equals(deviceType)) {
 				// "PC" 시트
 				row.createCell(0).setCellValue(listIndex); // 구분(순번)
-				row.createCell(1).setCellValue(d.getOrgName());
-				row.createCell(2).setCellValue(d.getUserName());
-				row.createCell(3).setCellValue(d.getUsageDivision());
-				row.createCell(4).setCellValue(d.getUsagePurpose());
-				row.createCell(5).setCellValue(d.getArchiveLocation());
-				row.createCell(6).setCellValue(d.getOldDeviceId());
-				row.createCell(7).setCellValue(d.getManufacturerCode());
-				row.createCell(8).setCellValue(d.getModelName());
-				row.createCell(9).setCellValue(d.getManufactureDate());
-				row.createCell(10).setCellValue(d.getCpuSpec());
-				row.createCell(11).setCellValue(d.getMemorySize());
-				row.createCell(12).setCellValue(d.getStorageInfo());
-				row.createCell(13).setCellValue(d.getOperatingSystem());
-				row.createCell(14).setCellValue(d.getScreenSize());
-				row.createCell(15).setCellValue(d.getGpuSpec());
-				row.createCell(16).setCellValue(d.getPurchaseDate());
-				row.createCell(17).setCellValue(d.getReturnDate());
-				row.createCell(18).setCellValue(d.getDeviceStatus());
-				row.createCell(19).setCellValue(d.getRemarks());
+				row.createCell(1).setCellValue(d.getDeviceType());
+				row.createCell(2).setCellValue(d.getOrgName());
+				row.createCell(3).setCellValue(d.getUserName());
+				row.createCell(4).setCellValue(d.getUsageDivision());
+				row.createCell(5).setCellValue(d.getUsagePurpose());
+				row.createCell(6).setCellValue(d.getArchiveLocation());
+				row.createCell(7).setCellValue(d.getOldDeviceId());
+				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(9).setCellValue(d.getModelName());
+				row.createCell(10).setCellValue(d.getManufactureDate());
+				row.createCell(11).setCellValue(d.getCpuSpec());
+				row.createCell(12).setCellValue(d.getMemorySize());
+				row.createCell(13).setCellValue(d.getStorageInfo());
+				row.createCell(14).setCellValue(d.getOperatingSystem());
+				row.createCell(15).setCellValue(d.getScreenSize());
+				row.createCell(16).setCellValue(d.getGpuSpec());
+				row.createCell(17).setCellValue(d.getPurchaseDate());
+				row.createCell(18).setCellValue(d.getReturnDate());
+				row.createCell(19).setCellValue(d.getDeviceStatus());
+				row.createCell(20).setCellValue(d.getRemarks());
 			} else if (CodeConstants.DEVICE_TYPE_MONITOR.equals(deviceType)) {
 				// "모니터" 시트
 				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getOrgName());
-				row.createCell(2).setCellValue(d.getUserName());
-				row.createCell(3).setCellValue(d.getUsageDivision());
-				row.createCell(4).setCellValue(d.getUsagePurpose());
-				row.createCell(5).setCellValue(d.getArchiveLocation());
-				row.createCell(6).setCellValue(d.getOldDeviceId());
-				row.createCell(7).setCellValue(d.getManufacturerCode());
-				row.createCell(8).setCellValue(d.getModelName());
-				row.createCell(9).setCellValue(d.getManufactureDate());
-				row.createCell(10).setCellValue(d.getScreenSize());
-				row.createCell(11).setCellValue(d.getPurchaseDate());
-				row.createCell(12).setCellValue(d.getReturnDate());
-				row.createCell(13).setCellValue(d.getDeviceStatus());
-				row.createCell(14).setCellValue(d.getRemarks());
+				row.createCell(1).setCellValue(d.getDeviceType());
+				row.createCell(2).setCellValue(d.getOrgName());
+				row.createCell(3).setCellValue(d.getUserName());
+				row.createCell(4).setCellValue(d.getUsageDivision());
+				row.createCell(5).setCellValue(d.getUsagePurpose());
+				row.createCell(6).setCellValue(d.getArchiveLocation());
+				row.createCell(7).setCellValue(d.getOldDeviceId());
+				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(9).setCellValue(d.getModelName());
+				row.createCell(10).setCellValue(d.getManufactureDate());
+				row.createCell(11).setCellValue(d.getScreenSize());
+				row.createCell(12).setCellValue(d.getPurchaseDate());
+				row.createCell(13).setCellValue(d.getReturnDate());
+				row.createCell(14).setCellValue(d.getDeviceStatus());
+				row.createCell(15).setCellValue(d.getRemarks());
 			} else if (CodeConstants.DEVICE_TYPE_PHONE.equals(deviceType)) {
 				// "핸드폰" 시트
 				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getOrgName());
-				row.createCell(2).setCellValue(d.getUserName());
-				row.createCell(3).setCellValue(d.getUsageDivision());
-				row.createCell(4).setCellValue(d.getUsagePurpose());
-				row.createCell(5).setCellValue(d.getArchiveLocation());
-				row.createCell(6).setCellValue(d.getOldDeviceId());
-				row.createCell(7).setCellValue(d.getManufacturerCode());
-				row.createCell(8).setCellValue(d.getModelName());
-				row.createCell(9).setCellValue(d.getManufactureDate());
-				row.createCell(10).setCellValue(d.getOperatingSystem());
+				row.createCell(1).setCellValue(d.getDeviceType());
+				row.createCell(2).setCellValue(d.getOrgName());
+				row.createCell(3).setCellValue(d.getUserName());
+				row.createCell(4).setCellValue(d.getUsageDivision());
+				row.createCell(5).setCellValue(d.getUsagePurpose());
+				row.createCell(6).setCellValue(d.getArchiveLocation());
+				row.createCell(7).setCellValue(d.getOldDeviceId());
+				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(9).setCellValue(d.getModelName());
+				row.createCell(10).setCellValue(d.getManufactureDate());
+				row.createCell(11).setCellValue(d.getOperatingSystem());
+				row.createCell(12).setCellValue(d.getPurchaseDate());
+				row.createCell(13).setCellValue(d.getReturnDate());
+				row.createCell(14).setCellValue(d.getDeviceStatus());
+				row.createCell(15).setCellValue(d.getRemarks());
+			} else if (CodeConstants.DEVICE_TYPE_ETC.equals(deviceType)) {
+				// "기타" 시트
+				row.createCell(0).setCellValue(listIndex);
+				row.createCell(1).setCellValue(d.getDeviceType());
+				row.createCell(2).setCellValue(d.getOrgName());
+				row.createCell(3).setCellValue(d.getUserName());
+				row.createCell(4).setCellValue(d.getUsageDivision());
+				row.createCell(5).setCellValue(d.getUsagePurpose());
+				row.createCell(6).setCellValue(d.getArchiveLocation());
+				row.createCell(7).setCellValue(d.getOldDeviceId());
+				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(9).setCellValue(d.getModelName());
+				row.createCell(10).setCellValue(d.getManufactureDate());
 				row.createCell(11).setCellValue(d.getPurchaseDate());
 				row.createCell(12).setCellValue(d.getReturnDate());
 				row.createCell(13).setCellValue(d.getDeviceStatus());
 				row.createCell(14).setCellValue(d.getRemarks());
-			} else if (CodeConstants.DEVICE_TYPE_ETC.equals(deviceType)) {
-				// "기타" 시트
-				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getOrgName());
-				row.createCell(2).setCellValue(d.getUserName());
-				row.createCell(3).setCellValue(d.getUsageDivision());
-				row.createCell(4).setCellValue(d.getUsagePurpose());
-				row.createCell(5).setCellValue(d.getArchiveLocation());
-				row.createCell(6).setCellValue(d.getOldDeviceId());
-				row.createCell(7).setCellValue(d.getManufacturerCode());
-				row.createCell(8).setCellValue(d.getModelName());
-				row.createCell(9).setCellValue(d.getManufactureDate());
-				row.createCell(10).setCellValue(d.getPurchaseDate());
-				row.createCell(11).setCellValue(d.getReturnDate());
-				row.createCell(12).setCellValue(d.getDeviceStatus());
-				row.createCell(13).setCellValue(d.getRemarks());
 			}
 		}
 	}
