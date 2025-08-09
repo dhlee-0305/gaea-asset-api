@@ -4,7 +4,6 @@ import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
-import org.apache.catalina.User;
 import org.springframework.web.bind.annotation.*;
 
 import com.gaea.asset.manager.user.service.UserService;
@@ -53,6 +52,12 @@ public class UserController {
 	@Operation(summary = "사용자 삭제", description = "사용자 삭제 API")
 	Header<String> deleteUser(@PathVariable(name = "empNum") Integer empNum) {
 		return userService.deleteUser(empNum);
+	}
+
+	@PutMapping("/users/initPassword")
+	@Operation(summary = "패스워드초기화", description = "패스워드 초기화 API")
+	Header<String> initPassword(@RequestBody UserVO userVO){
+		return userService.initPassword(userVO);
 	}
 
 }

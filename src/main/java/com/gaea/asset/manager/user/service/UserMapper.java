@@ -24,4 +24,6 @@ public interface UserMapper {
 	int deleteUser(Integer empNum);
 	
 	List<UserVO> getAllUserList();
+
+	int initPassword(UserVO entity);
 }

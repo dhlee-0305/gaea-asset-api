@@ -54,4 +54,7 @@ public class UserVO {
 
 	@Schema(description = "생성일시", example = "20250101100000")
 	String createDatetime;
+
+	@Schema(description = "비밀번호초기화요청", example = "N")
+	String passwordResetReq;
 }

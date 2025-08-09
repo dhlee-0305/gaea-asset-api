@@ -60,6 +60,7 @@
           , U.USER_GRADE_CD
           , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C001' AND U.USER_POSITION_CD = C.CODE) AS USER_POSITION_Name
           , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C002' AND U.USER_GRADE_CD = C.CODE) AS USER_GRADE_Name
+          , PASSWORD_RESET_REQ
         FROM USER U
         JOIN ORGANIZATION O
             ON U.ORG_ID = O.ORG_ID
@@ -124,5 +125,14 @@
         FROM USER
         WHERE IS_EMPLOYED = 'Y'
     </select>
+
+    <update id="initPassword" parameterType="com.gaea.asset.manager.user.vo.UserVO">
+        UPDATE USER
+        SET
+        PASSWORD = SHA2('1111', 256),
+        password_change_date = '',
+        PASSWORD_RESET_REQ = 'N'
+        WHERE EMP_NUM = #{empNum}
+    </update>
 
 </mapper>

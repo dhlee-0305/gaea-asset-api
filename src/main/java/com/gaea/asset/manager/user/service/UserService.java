@@ -3,7 +3,6 @@ package com.gaea.asset.manager.user.service;
 import java.util.HashMap;
 import java.util.List;
 
-import com.gaea.asset.manager.notice.vo.NoticeVO;
 import com.gaea.asset.manager.util.Pagination;
 import org.springframework.stereotype.Service;
 
@@ -73,6 +72,17 @@ public class UserService {
 			return Header.OK();
 		} else {
 			return Header.ERROR("9999", "ERROR");
+		}
+	}
+
+	public Header<String> initPassword(UserVO userVO ){
+		if(userVO == null || userVO.getUserId().isBlank()){
+			return Header.ERROR("400", "필수입력 정보가 누락 되었습니다.");
+		}
+		if(userMapper.initPassword(userVO) > 0){
+			return Header.OK();
+		} else {
+			return  Header.ERROR("500", "패스워드 초기화 중 오류가 발생했습니다.");
 		}
 	}
 }
