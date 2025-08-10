@@ -14,7 +14,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @Schema(description = "전산 장비 이력 정보")
-@Data
 public class DeviceHistoryVO {
 
     @Schema(description = "이력 순번", example = "1")
@@ -49,4 +48,7 @@ public class DeviceHistoryVO {
 
     @Schema(description = "장비 유형", example = "PC")
     private String deviceType;
+
+    @Schema(description = "모델명", example = "LG-2025")
+    private String modelName;
 }

@@ -53,12 +53,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
-	private final DeviceMapper deviceMapper;
-	private final UserMapper userMapper;
-	private final CodeMapper codeMapper;
-	private final MessageService messageService;
+    private final DeviceMapper deviceMapper;
+    private final UserMapper userMapper;
+    private final CodeMapper codeMapper;
+    private final MessageService messageService;
 
-	/**
+    /**
 	 * 전산 장비 목록 조회
 	 * @param currentPage
 	 * @param pageSize
@@ -402,12 +402,13 @@ public class DeviceService {
 
 	/**
 	 * 전산 장비 이력 상세 조회
-	 * @param historyNum
+	 * @param deviceNum
 	 * @return
 	 */
-	public Header<DeviceHistoryVO> getDeviceHistory(Integer historyNum) {
-		return Header.OK(deviceMapper.getDeviceHistory(historyNum));
-	}
+    public Header<List<DeviceHistoryVO>> getDeviceHistory(Integer deviceNum) {
+        List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistory(deviceNum);
+        return Header.OK(historyList);
+    }
 
 	/**
 	 * 기능별 장비 이력 추가 (REGISTER, UPDATE, APPROVE, REJECT)

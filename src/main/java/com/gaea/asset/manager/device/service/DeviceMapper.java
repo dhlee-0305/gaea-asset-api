@@ -36,7 +36,7 @@ public interface DeviceMapper {
 
     int getDeviceHistoryTotalCount(HashMap<String, Object> paramMap);
 
-    DeviceHistoryVO getDeviceHistory(Integer historyNum);
+    List<DeviceHistoryVO> getDeviceHistory(Integer deviceNum);
 
     void insertDeviceHistory(DeviceHistoryVO deviceHistory);
 

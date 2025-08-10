@@ -391,7 +391,7 @@
       </if>
     </where>
   </select>
-  <!-- getDeviceHistory: DEVICE_HISTORY 테이블에서 단일 데이터 조회 -->
+  <!-- getDeviceHistory: DEVICE_HISTORY 테이블에서 복수 데이터 조회 -->
   <select id="getDeviceHistory" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
     SELECT
         DH.HISTORY_NUM,
@@ -401,7 +401,6 @@
         CC1.CODE_NAME AS deviceStatus,
     <!-- deviceStatus 추가 -->
         CC2.CODE_NAME AS approvalStatus,
-    <!-- approvalStatus 추가 -->
         DH.CHANGE_CONTENTS,
         DH.REASON,
         DH.CREATE_DATETIME,
@@ -412,10 +411,8 @@
     INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
     LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
     LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
-    <!-- deviceStatus JOIN -->
     LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
-    <!-- approvalStatus JOIN -->
-    WHERE DH.HISTORY_NUM = #{historyNum}
+    WHERE DH.DEVICE_NUM = #{deviceNum}
   </select>
   <!-- 이력 저장 -->
   <select id="insertDeviceHistory" parameterType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
