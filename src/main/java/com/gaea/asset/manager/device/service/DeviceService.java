@@ -690,7 +690,7 @@ public class DeviceService {
      * @throws IOException
      * @throws EncryptedDocumentException
      */
-    public Header<DeviceVO> uploadDeviceExcel(MultipartFile file) throws Exception {
+	public Header<DeviceVO> uploadDeviceExcel(MultipartFile file) throws Exception {
 		log.info("upload excelFilename : {}", file.getOriginalFilename());
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 
@@ -726,64 +726,71 @@ public class DeviceService {
         DataFormatter formatter = new DataFormatter();
 		try {
 			workbook = WorkbookFactory.create(file.getInputStream());
-			Sheet sheet = workbook.getSheetAt(0);
 			
-			List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
-	        for(int i = startRow; i <= sheet.getLastRowNum(); i++) {
-	        	Row row = sheet.getRow(i);
-	        	
-	        	DeviceVO deviceVO = new DeviceVO();
-	        	
-	        	String userName = formatter.formatCellValue(row.getCell(2));			// 사용자
-	        	deviceVO.setEmpNum(userList.stream()
-	            		.filter(user -> user.getUserName().equals(userName))
-	            		.map(user -> user.getEmpNum())
-	            		.findFirst()
-	            		.orElse(null));
-	        	String usageDivision = formatter.formatCellValue(row.getCell(3));			// 용도구분		
-	        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
-	            		.filter(code -> code.getCodeName().equals(usageDivision))
-	            		.map(code -> code.getCode())
-	            		.findFirst()
-	            		.orElse(null));
-	        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));		// 사용용도
-	        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(5)));		// 보관위치
-	        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(6)));			// 관리번호
-	        	String deviceType = formatter.formatCellValue(row.getCell(7));				// 장비유형
-	        	deviceVO.setDeviceTypeCode(deviceTypeList.stream()
-	            		.filter(code -> code.getCodeName().equals(deviceType))
-	            		.map(code -> code.getCode())
-	            		.findFirst()
-	            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
-	        	deviceVO.setManufacturerCode(formatter.formatCellValue(row.getCell(8)));	// 제조사
-	        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));			// 모델명
-	        	deviceVO.setManufactureDate(formatter.formatCellValue(row.getCell(10)));	// 제조일
-	        	deviceVO.setCpuSpec(formatter.formatCellValue(row.getCell(11)));			// CPU
-	        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(12)))) {
-	        		deviceVO.setMemorySize(Integer.valueOf(formatter.formatCellValue(row.getCell(12))));	// 메모리
-	        	}
-	        	deviceVO.setStorageInfo(formatter.formatCellValue(row.getCell(13)));						// 스토리지 정보
-	        	deviceVO.setOperatingSystem(formatter.formatCellValue(row.getCell(14)));					// OS
-	        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(15)))) {
-	        		deviceVO.setScreenSize(Double.valueOf(formatter.formatCellValue(row.getCell(15))));		// 화면크기
-	        	}
-	        	deviceVO.setGpuSpec(formatter.formatCellValue(row.getCell(16)));							// GPU
-	        	deviceVO.setPurchaseDate(formatter.formatCellValue(row.getCell(17)));						// 구매일자
-	        	deviceVO.setReturnDate(formatter.formatCellValue(row.getCell(18)));							// 반납일자
-	        	String deviceStatus = formatter.formatCellValue(row.getCell(19));							// 장비상태
-	        	deviceVO.setDeviceStatusCode(deviceStatusList.stream()
-	            		.filter(code -> code.getCodeName().equals(deviceStatus))
-	            		.map(code -> code.getCode())
-	            		.findFirst()
-	            		.orElse(null));
-	        	deviceVO.setRemarks(formatter.formatCellValue(row.getCell(20)));							// 비고
-	        	deviceVO.setCreateUser(userInfo.getEmpNum());
-	        	
-	        	deviceList.add(deviceVO);
-	        	log.info("##### Row {} : {}", i, deviceVO.toString());
-	        }
-	        // DB 저장
-	        deviceMapper.insertDeviceList(deviceList);
+			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+				Sheet sheet = workbook.getSheetAt(i);
+				
+				List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
+				for (Row row : sheet) {
+					if (row.getRowNum() < startRow) continue;
+		        	
+					DeviceVO deviceVO = new DeviceVO();
+		        	
+		        	String userName = formatter.formatCellValue(row.getCell(2));			// 사용자
+		        	deviceVO.setEmpNum(userList.stream()
+		            		.filter(user -> user.getUserName().equals(userName))
+		            		.map(user -> user.getEmpNum())
+		            		.findFirst()
+		            		.orElse(null));
+		        	String usageDivision = formatter.formatCellValue(row.getCell(3));			// 용도구분		
+		        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
+		            		.filter(code -> code.getCodeName().equals(usageDivision))
+		            		.map(code -> code.getCode())
+		            		.findFirst()
+		            		.orElse(null));
+		        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));		// 사용용도
+		        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(5)));		// 보관위치
+		        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(6)));			// 관리번호
+		        	String deviceType = formatter.formatCellValue(row.getCell(7));				// 장비유형
+		        	deviceVO.setDeviceTypeCode(deviceTypeList.stream()
+		            		.filter(code -> code.getCodeName().equals(deviceType))
+		            		.map(code -> code.getCode())
+		            		.findFirst()
+		            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
+		        	deviceVO.setManufacturerCode(formatter.formatCellValue(row.getCell(8)));	// 제조사
+		        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));			// 모델명
+		        	deviceVO.setManufactureDate(formatter.formatCellValue(row.getCell(10)));	// 제조일
+		        	deviceVO.setCpuSpec(formatter.formatCellValue(row.getCell(11)));			// CPU
+		        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(12)))) {
+		        		deviceVO.setMemorySize(Integer.valueOf(formatter.formatCellValue(row.getCell(12))));	// 메모리
+		        	}
+		        	deviceVO.setStorageInfo(formatter.formatCellValue(row.getCell(13)));						// 스토리지 정보
+		        	deviceVO.setOperatingSystem(formatter.formatCellValue(row.getCell(14)));					// OS
+		        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(15)))) {
+		        		deviceVO.setScreenSize(Double.valueOf(formatter.formatCellValue(row.getCell(15))));		// 화면크기
+		        	}
+		        	deviceVO.setGpuSpec(formatter.formatCellValue(row.getCell(16)));							// GPU
+		        	deviceVO.setPurchaseDate(formatter.formatCellValue(row.getCell(17)));						// 구매일자
+		        	deviceVO.setReturnDate(formatter.formatCellValue(row.getCell(18)));							// 반납일자
+		        	String deviceStatus = formatter.formatCellValue(row.getCell(19));							// 장비상태
+		        	deviceVO.setDeviceStatusCode(deviceStatusList.stream()
+		            		.filter(code -> code.getCodeName().equals(deviceStatus))
+		            		.map(code -> code.getCode())
+		            		.findFirst()
+		            		.orElse(null));
+		        	deviceVO.setRemarks(formatter.formatCellValue(row.getCell(20)));							// 비고
+		        	deviceVO.setCreateUser(userInfo.getEmpNum());
+		        	
+		        	deviceList.add(deviceVO);
+		        	log.info("##### Row {} : {}", i, deviceVO.toString());
+		        }
+				
+		        // DB 저장
+				if(deviceList.size() > 0) {
+					deviceMapper.insertDeviceList(deviceList);
+				}
+			}
+			
 		} catch (Exception e) {
 			log.error("excel upload error : ", e);
 			return Header.ERROR("500", "ERROR");
