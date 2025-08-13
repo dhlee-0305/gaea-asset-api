@@ -198,9 +198,13 @@ INSERT INTO COMMON_CODE (CATEGORY, CATEGORY_NAME, CODE, CODE_NAME, USE_YN) VALUE
 
 
 /* NOTICE */
-INSERT INTO NOTICE (TITLE, CONTENT, CREATE_DATETIME, CREATE_USER, UPDATE_DATETIME, UPDATE_USER) VALUES
+INSERT INTO NOTICE (TITLE, CONTENT, CREATE_DATETIME, CREATE_USER, UPDATE_DATETIME, UPDATE_USER) VALUES 
 ('공지사항', 'IT서비스부문 공지사항입니다.', NOW(), 100000, NOW(), 100000),
-('공지사항', '오픈서비스사업팀 공지사항입니다.', NOW(), 100008, NOW(), 100000);
+('공지사항', '오픈서비스사업팀 공지사항입니다.', NOW(), 100008, NOW(), 100000),
+('지어소프트 전산장비 모델 확정 안내', '지어소프트 전산장비 구매 관련하여 공지드립니다. 1.개요: 전산장비 구매 모델을 확정함에 따라 자산관리 제고와 수급의 안정을 도모하기 위함.2.내용: 구매요청서 작성시 해당 PDF 파일을 첨부해주시고 원하는 모델을 선택해 결재 진행 → 결재 종결 후 권혁성대리에게 요청시 발주 진행 3.적용시기: 2025년 06월 17일 이 외 문의사항은 재무팀 권혁성(02-2155-5114)에게 연락주시기 바랍니다.', NOW(), 100000, NOW(), 100000),
+('전산장비 현행화 및 보안 강화를 위해 협조 요청의 건', '구매요청서 작성시 해당 PDF 파일을 첨부해주시고 원하는 모델을 선택해 결재 진행 → 결재 종결 후 권혁성대리에게 요청시 발주 진행3.적용시기: 2025년 06월 17일이 외 문의사항은 재무팀 권혁성(02-2155-5114)에게 연락주시기 바랍니다.', NOW(), 100008, NOW(), 100000),
+('전산장비 자산 및 IP 조사 관련 협조 요청의 건', '현재 전사에서 사용 중인 전산 장비들을 현행화하여 관리하고자 합니다. 각 팀원들은 첨부 양식에 현재 사용 중이거나 별도 관리 중인 내부 장비 사양 작성하시어 아래 기한까지 부서장에게 전달 바랍니다.', NOW(), 100008, NOW(), 100008);
+
 
 /* DEVICE */
 INSERT INTO ASSET_MANAGER.DEVICE (OLD_DEVICE_ID,EMP_NUM,USAGE_DIVISION,USAGE_PURPOSE,ARCHIVE_LOCATION,DEVICE_TYPE,MANUFACTURER_CODE,MODEL_NAME,MANUFACTURE_DATE,CPU_SPEC,MEMORY_SIZE,STORAGE_INFO,OPERATING_SYSTEM,SCREEN_SIZE,GPU_SPEC,DEVICE_STATUS_CODE,APPROVAL_STATUS_CODE,PURCHASE_DATE,RETURN_DATE,REMARKS,CREATE_DATETIME,CREATE_USER,UPDATE_DATETIME,UPDATE_USER) VALUES

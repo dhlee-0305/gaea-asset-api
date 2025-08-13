@@ -6,6 +6,7 @@
     <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
         SELECT N.NOTICE_NUM
              , N.TITLE
+             , N.CONTENT
              , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
              , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
         FROM NOTICE N
