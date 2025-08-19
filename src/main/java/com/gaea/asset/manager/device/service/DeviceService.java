@@ -377,6 +377,7 @@ public class DeviceService {
      */
 	@Transactional
 	public Header<List<DeviceHistoryVO>> getDeviceHistoryList(int currentPage, int pageSize, Search search) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
 
 		// 페이징
@@ -387,17 +388,32 @@ public class DeviceService {
 		paramMap.put("searchColumn", search.getSearchColumn());
 		paramMap.put("searchKeyword", search.getSearchKeyword());
 
-		// 데이터 조회
-		List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
+		// 권한에 따른 조건 추가
+		switch (userInfo.getRoleCode()) {
+	        case CodeConstants.ROLE_USER:
+	            paramMap.put("loginEmpNum", userInfo.getEmpNum());
+	            break;
+	        case CodeConstants.ROLE_TEAM_MANAGER:
+	            paramMap.put("loginOrgId", userInfo.getOrgId());
+	            break;
+	        case CodeConstants.ROLE_ASSET_MANAGER:
+	        case CodeConstants.ROLE_SYSTEM_MANAGER:
+	            break;
+	        default:
+	            return Header.ERROR("403", "조회 권한이 없습니다.");
+	    }
 
-		// 총 건수로 Pagination 생성
-		Pagination pagination = new Pagination(
-				deviceMapper.getDeviceHistoryTotalCount(paramMap),
-				currentPage,
-				pageSize,
-				10);
+	    // 데이터 조회
+	    List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
 
-		return Header.OK(historyList, pagination);
+	    // 총 건수로 Pagination 생성
+	    Pagination pagination = new Pagination(
+	            deviceMapper.getDeviceHistoryTotalCount(paramMap),
+	            currentPage,
+	            pageSize,
+	            10);
+
+	    return Header.OK(historyList, pagination);
 	}
 
 	/**

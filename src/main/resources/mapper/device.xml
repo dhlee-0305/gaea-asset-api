@@ -334,9 +334,7 @@
         DH.EMP_NUM,
         U.USER_NAME,
         CC1.CODE_NAME AS deviceStatus,
-    <!-- deviceStatus 추가 -->
         CC2.CODE_NAME AS approvalStatus,
-    <!-- approvalStatus 추가 -->
         DH.CHANGE_CONTENTS,
         DH.REASON,
         DH.CREATE_DATETIME,
@@ -347,22 +345,27 @@
     INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
     LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
     LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
-    <!-- deviceStatus JOIN -->
     LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
-    <!-- approvalStatus JOIN -->
     <where>
-      <!-- deviceNum 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'deviceNum'">
-        <if test="searchKeyword != null and searchKeyword != ''">
+        <!-- deviceNum 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'deviceNum'">
+            <if test="searchKeyword != null and searchKeyword != ''">
                 AND DH.DEVICE_NUM = #{searchKeyword}
+            </if>
         </if>
-      </if>
-      <!-- changeContents 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'changeContents'">
-        <if test="searchKeyword != null and searchKeyword != ''">
+        <!-- changeContents 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'changeContents'">
+            <if test="searchKeyword != null and searchKeyword != ''">
                 AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
+            </if>
         </if>
-      </if>
+        <!-- 권한에 따른 조건 추가 -->
+        <if test="loginEmpNum != null">
+            AND DH.EMP_NUM = #{loginEmpNum}
+        </if>
+        <if test="loginOrgId != null">
+            AND U.ORG_ID = #{loginOrgId}
+        </if>
     </where>
     ORDER BY
         DH.CREATE_DATETIME DESC
@@ -377,18 +380,25 @@
     LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
     LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
     <where>
-      <!-- deviceNum 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'deviceNum'">
-        <if test="searchKeyword != null and searchKeyword != ''">
+        <!-- deviceNum 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'deviceNum'">
+            <if test="searchKeyword != null and searchKeyword != ''">
                 AND DH.DEVICE_NUM = #{searchKeyword}
+            </if>
         </if>
-      </if>
-      <!-- changeContents 으로 검색 -->
-      <if test="searchColumn != null and searchColumn == 'changeContents'">
-        <if test="searchKeyword != null and searchKeyword != ''">
+        <!-- changeContents 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'changeContents'">
+            <if test="searchKeyword != null and searchKeyword != ''">
                 AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
+            </if>
         </if>
-      </if>
+        <!-- 권한에 따른 조건 추가 -->
+        <if test="loginEmpNum != null">
+            AND DH.EMP_NUM = #{loginEmpNum}
+        </if>
+        <if test="loginOrgId != null">
+            AND U.ORG_ID = #{loginOrgId}
+        </if>
     </where>
   </select>
   <!-- getDeviceHistory: DEVICE_HISTORY 테이블에서 복수 데이터 조회 -->
@@ -399,7 +409,6 @@
         DH.EMP_NUM,
         U.USER_NAME,
         CC1.CODE_NAME AS deviceStatus,
-    <!-- deviceStatus 추가 -->
         CC2.CODE_NAME AS approvalStatus,
         DH.CHANGE_CONTENTS,
         DH.REASON,
