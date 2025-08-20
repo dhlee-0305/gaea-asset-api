@@ -109,7 +109,14 @@
             USER_NAME = #{userName},
             ORG_ID = #{orgId},
             USER_GRADE_CD = #{userGradeCd},
-            USER_POSITION_CD = #{userPositionCd}
+            USER_POSITION_CD = #{userPositionCd},
+            ROLE_CODE =
+                <if test="userPositionCd != null and userPositionCd == '04'">
+                    '00'
+                </if>
+                <if test="userPositionCd != null and userPositionCd == '03'">
+                    '01'
+                </if>
         WHERE EMP_NUM = #{empNum}
     </update>
 
