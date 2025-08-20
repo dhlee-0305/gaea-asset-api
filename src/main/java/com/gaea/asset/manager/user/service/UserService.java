@@ -39,7 +39,11 @@ public class UserService {
 	}
 
 	public Header<UserVO> getUser(Integer empNum) {
-		return Header.OK(userMapper.getUser(empNum));
+		UserVO userVO = userMapper.getUser(empNum);
+		if(userVO == null){
+			return Header.ERROR("204", "조회된 정보가 없습니다.");
+		}
+		return Header.OK(userVO);
 	}
 
 	public Header<UserVO> insertNotice(UserVO userVO) {
