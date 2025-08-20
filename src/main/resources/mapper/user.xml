@@ -73,7 +73,7 @@
         SELECT COUNT(*)
         FROM USER
         WHERE EMP_NUM <![CDATA[<>]]> #{empNum}
-            AND USER_POSITION_CD = '03'
+            AND USER_POSITION_CD = ${@com.gaea.asset.manager.common.constants.CodeConstants@TEAM_LEADER}
             AND IS_EMPLOYED = 'Y'
     </select>
 

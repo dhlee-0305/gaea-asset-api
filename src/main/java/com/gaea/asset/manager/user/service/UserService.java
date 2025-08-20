@@ -3,6 +3,7 @@ package com.gaea.asset.manager.user.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.util.Pagination;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +43,7 @@ public class UserService {
 	}
 
 	public Header<UserVO> insertNotice(UserVO userVO) {
-		if("03".equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
 			// 팀장 선택 가능여부 체크
 			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
@@ -55,7 +56,7 @@ public class UserService {
 	}
 
 	public Header<UserVO> updateUser(UserVO userVO) {
-		if("03".equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
 			// 팀장 선택 가능여부 체크
 			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
