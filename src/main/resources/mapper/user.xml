@@ -137,7 +137,7 @@
         UPDATE USER
         SET
         PASSWORD = SHA2('1111', 256),
-        password_change_date = '',
+        PASSWORD_CHANGE_DATE = '',
         PASSWORD_RESET_REQ = 'N'
         WHERE EMP_NUM = #{empNum}
     </update>
