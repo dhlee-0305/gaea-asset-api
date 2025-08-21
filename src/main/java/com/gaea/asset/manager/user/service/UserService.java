@@ -46,7 +46,7 @@ public class UserService {
 		return Header.OK(userVO);
 	}
 
-	public Header<UserVO> insertNotice(UserVO userVO) {
+	public Header<UserVO> insertUser(UserVO userVO) {
 		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
 			// 팀장 선택 가능여부 체크
 			return Header.ERROR("409", "이미 팀장이 존재합니다.");
