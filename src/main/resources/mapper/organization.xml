@@ -17,7 +17,7 @@
     <!-- 부서 목록 조회 -->
     <select id="selectOrganizationList" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
         SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
-               ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
+               ORG_LEVEL as orgLevel, SORT_ORDER as sortOrder,
                IS_ACTIVE as isActive, CREATE_DATETIME as createDatetime
         FROM ORGANIZATION
         WHERE IS_ACTIVE = 'Y'
@@ -27,7 +27,7 @@
     <!-- 부서 상세 조회 -->
     <select id="selectOrganization" resultType="com.gaea.asset.manager.organization.vo.OrganizationVO">
         SELECT ORG_ID as orgId, ORG_NAME as orgName, ORG_TYPE as orgType, PARENT_ORG_ID as parentOrgId,
-               ORG_LEVEL as orgLevel, ORG_PATH as orgPath, SORT_ORDER as sortOrder,
+               ORG_LEVEL as orgLevel, SORT_ORDER as sortOrder,
                IS_ACTIVE as isActive, CREATE_DATETIME as createDatetime
         FROM ORGANIZATION
         WHERE ORG_ID = #{orgId} AND IS_ACTIVE = 'Y'
@@ -35,8 +35,8 @@
 
     <!-- 부서 등록 -->
     <insert id="insertOrganization">
-        INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE)
-        VALUES (#{orgId}, #{orgName}, #{orgType}, #{parentOrgId}, #{orgLevel}, #{orgPath}, #{sortOrder}, 'Y')
+        INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, SORT_ORDER, IS_ACTIVE)
+        VALUES (#{orgId}, #{orgName}, #{orgType}, #{parentOrgId}, #{orgLevel}, #{sortOrder}, 'Y')
     </insert>
 
     <!-- 부서 정보 수정 -->
@@ -45,7 +45,6 @@
         SET ORG_NAME = #{orgName},
             PARENT_ORG_ID = #{parentOrgId},
             ORG_LEVEL = #{orgLevel},
-            ORG_PATH = #{orgPath},
             SORT_ORDER = #{sortOrder}
         WHERE ORG_ID = #{orgId}
     </update>

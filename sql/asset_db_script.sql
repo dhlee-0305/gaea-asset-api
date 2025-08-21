@@ -105,7 +105,6 @@ CREATE TABLE ORGANIZATION
   ORG_TYPE        ENUM('COMPANY', 'DIVISION', 'TEAM')  NOT NULL COMMENT '조직 유형 (COMPANY:회사, DIVISION:본부, TEAM:팀)',
   PARENT_ORG_ID   INT                                  NULL     DEFAULT 1 COMMENT '상위 조직 ID (자기 참조, 최상위는 NULL)',
   ORG_LEVEL       INT                                  NULL     COMMENT '조직 레벨 (1:회사, 2:본부, 3:팀)',
-  ORG_PATH        VARCHAR(20)                          NULL     COMMENT '조직 경로 (1/2/3/4 형태로 계층 구조 표현)',
   SORT_ORDER      INT                                  NULL     DEFAULT 0 COMMENT '정렬 순서 (같은 레벨 내에서의 표시 순서)',
   IS_ACTIVE       CHAR(1)                              NULL     COMMENT '활성 여부 (Y:활성, N:비활성)',
   CREATE_DATETIME DATETIME                             NULL     DEFAULT CURRENT_TIMESTAMP,
@@ -143,16 +142,16 @@ CREATE TABLE MESSAGE
 
 /******** INSERT DATA ********/
 /* ORGANIZATION */
-INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE, CREATE_DATETIME) VALUES 
-(1, '지어소프트', 'COMPANY', NULL, 1, '1', 1, 'Y', NOW()),
-(12, 'IT서비스부문', 'DIVISION', 1, 2, '1/2', 1, 'Y', NOW()),
-(121, '지능형플랫폼사업팀', 'TEAM', 12, 3, '1/2/3', 1, 'Y', NOW()),
-(122, '전략사업팀', 'TEAM', 12, 3, '1/2/3', 2, 'Y', NOW()),
-(123, 'D-Inno 개발팀', 'TEAM', 12, 3, '1/2/3', 3, 'Y', NOW()),
-(124, '플랫폼개발팀', 'TEAM', 12, 3, '1/2/3', 4, 'Y', NOW()),
-(125, '오픈서비스사업팀', 'TEAM', 12, 3, '1/2/3', 5, 'Y', NOW()),
-(126, '비즈니스 기술연구소', 'TEAM', 12, 3, '1/2/3', 6, 'Y', NOW()),
-(127, 'SD본부', 'TEAM', 12, 3, '1/2/3', 7, 'Y', NOW());
+INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, SORT_ORDER, IS_ACTIVE, CREATE_DATETIME) VALUES 
+(1, '지어소프트', 'COMPANY', NULL, 1, 1, 'Y', NOW()),
+(12, 'IT서비스부문', 'DIVISION', 1, 2, 1, 'Y', NOW()),
+(121, '지능형플랫폼사업팀', 'TEAM', 12, 3, 1, 'Y', NOW()),
+(122, '전략사업팀', 'TEAM', 12, 3, 2, 'Y', NOW()),
+(123, 'D-Inno 개발팀', 'TEAM', 12, 3, 3, 'Y', NOW()),
+(124, '플랫폼개발팀', 'TEAM', 12, 3, 4, 'Y', NOW()),
+(125, '오픈서비스사업팀', 'TEAM', 12, 3, 5, 'Y', NOW()),
+(126, '비즈니스 기술연구소', 'TEAM', 12, 3, 6, 'Y', NOW()),
+(127, 'SD본부', 'TEAM', 12, 3, 7, 'Y', NOW());
 
 INSERT INTO ORGANIZATION (ORG_ID, ORG_NAME, ORG_TYPE, PARENT_ORG_ID, ORG_LEVEL, ORG_PATH, SORT_ORDER, IS_ACTIVE, CREATE_DATETIME) VALUES 
 (13, '광고사업부문', 'DIVISION', 1, 2, '1/2', 3, 'Y', NOW()),
@@ -230,8 +229,7 @@ INSERT INTO USER(EMP_NUM, USER_ID, USER_NAME, ORG_ID, USER_POSITION_CD, USER_GRA
 (100008, 'ksyang7', '양승은', 125, '04', '03', '03', 'Y', '', NOW()),
 (100009, 'hslee', '이효성', 125, '04', '04', '00', 'Y', '', NOW()),
 (100010, 'cglee', '이창구', 125, '04', '04', '00', 'Y', '', NOW()),
-(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', '', NOW()),
-(0, 'admin', '관리자', 1, '04', '07', '03', 'Y', '', NOW());;
+(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', '', NOW());
 
 INSERT INTO DEVICE_HISTORY (
   HISTORY_NUM, DEVICE_NUM, EMP_NUM, DEVICE_STATUS_CODE, APPROVAL_STATUS_CODE,
@@ -247,3 +245,6 @@ INSERT INTO DEVICE_HISTORY (
 (8, 2, 100007, '02', 'A2', '장비 테스트 완료', '테스트 후 반영', NOW(), 100000),
 (9, 3, 100007, '03', 'A3', '장비 상태 자동 업데이트', '시스템 자동 반영', NOW(), 100000),
 (10, 1, 100007, '02', 'A1', '재부팅 후 정상 작동', '사용자 요청', NOW(), 100000);
+
+
+select * from ORGANIZATION;

@@ -62,7 +62,6 @@ public class OrganizationService {
             vo.setOrgType("COMPANY");
             vo.setParentOrgId(null);
             vo.setOrgLevel(1);
-            vo.setOrgPath("1");
             int result = organizationMapper.insertOrganization(vo);
             if (result > 0) {
                 return Header.OK(CODE_OK, "등록되었습니다.", null);
@@ -123,7 +122,6 @@ public class OrganizationService {
             }
             vo.setOrgType(childType);
             vo.setOrgLevel(childLevel);
-            vo.setOrgPath(parent.getOrgPath() + "/" + childLevel);
 
             // 신규 orgId 및 sortOrder 계산
             int newOrgId = organizationMapper.selectMaxOrgIdByParent(parentOrgId) + 1;
