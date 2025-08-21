@@ -27,7 +27,7 @@
                 AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
         </if>
-        ORDER BY U.USER_POSITION_CD, U.USER_GRADE_CD, U.CREATE_DATETIME ASC
+        ORDER BY U.ORG_ID, U.USER_POSITION_CD, U.USER_GRADE_CD, U.CREATE_DATETIME ASC
         LIMIT #{size} OFFSET #{page}
     </select>
 

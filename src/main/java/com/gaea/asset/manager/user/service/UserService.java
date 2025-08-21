@@ -47,7 +47,7 @@ public class UserService {
 	}
 
 	public Header<UserVO> insertUser(UserVO userVO) {
-		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
 			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
@@ -60,7 +60,7 @@ public class UserService {
 	}
 
 	public Header<UserVO> updateUser(UserVO userVO) {
-		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
 			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
@@ -89,5 +89,18 @@ public class UserService {
 		} else {
 			return  Header.ERROR("500", "패스워드 초기화 중 오류가 발생했습니다.");
 		}
+	}
+
+	/**
+	 * 사용자 정보 유효성 체크
+	 * @param userVO
+	 * @return
+	 */
+	public boolean chkUserData(UserVO userVO){
+		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+			// 팀장 선택 가능여부 체크
+			return false;
+		}
+		return true;
 	}
 }
