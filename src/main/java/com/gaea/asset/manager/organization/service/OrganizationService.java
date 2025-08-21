@@ -12,39 +12,48 @@ import java.util.List;
 public class OrganizationService {
     private final OrganizationMapper organizationMapper;
 
+    private static final String TYPE_COMPANY = "COMPANY";
+    private static final String TYPE_DIVISION = "DIVISION";
+    private static final String TYPE_TEAM = "TEAM";
+    private static final String STATUS_INACTIVE = "N";
+    private static final String CODE_OK = "200";
+    private static final String CODE_NO_CONTENT = "204";
+    private static final String CODE_BAD_REQUEST = "400";
+    private static final String CODE_ERROR = "500";
+
     // 부서 목록 조회
     public Header<List<OrganizationVO>> getOrganizationList() {
         try {
             List<OrganizationVO> list = organizationMapper.selectOrganizationList();
             if (list == null || list.isEmpty()) {
-                return Header.OK("204", "등록된 부서정보가 없습니다.", list);
+                return Header.OK(CODE_NO_CONTENT, "등록된 부서정보가 없습니다.", list);
             }
             return Header.OK(list);
         } catch (Exception e) {
-            return Header.ERROR("500", "부서 목록 조회 중 오류가 발생했습니다: ");
+            return Header.ERROR(CODE_ERROR, "부서 목록 조회 중 오류가 발생했습니다: ");
         }
     }
 
     // 부서 상세 조회
     public Header<OrganizationVO> getOrganization(Integer orgId) {
         if (orgId == null) {
-            return Header.ERROR("400", "필수 파라미터(orgId)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(orgId)가 없습니다.");
         }
         try {
             OrganizationVO vo = organizationMapper.selectOrganization(orgId);
             if (vo == null) {
-                return Header.OK("204", "해당 부서 정보가 없습니다.", null);
+                return Header.OK(CODE_NO_CONTENT, "해당 부서 정보가 없습니다.", null);
             }
             return Header.OK(vo);
         } catch (Exception e) {
-            return Header.ERROR("500", "부서 상세 조회 중 오류가 발생했습니다: ");
+            return Header.ERROR(CODE_ERROR, "부서 상세 조회 중 오류가 발생했습니다: ");
         }
     }
 
     // 신규등록 부서(최상위 COMPANY)
     public Header<String> createOrganization(OrganizationVO vo) {
         if (vo == null || vo.getOrgName() == null || vo.getOrgName().isBlank()) {
-            return Header.ERROR("400", "필수 파라미터(orgName)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(orgName)가 없습니다.");
         }
         try {
             int newOrgId = (organizationMapper.selectMaxOrgIdByType("COMPANY") == null ? 0 : organizationMapper.selectMaxOrgIdByType("COMPANY")) + 1;
@@ -56,29 +65,29 @@ public class OrganizationService {
             vo.setOrgPath("1");
             int result = organizationMapper.insertOrganization(vo);
             if (result > 0) {
-                return Header.OK("200", "등록되었습니다.", null);
+                return Header.OK(CODE_OK, "등록되었습니다.", null);
             } else {
-                return Header.OK("204", "부서 등록에 실패했습니다.", null);
+                return Header.OK(CODE_NO_CONTENT, "부서 등록에 실패했습니다.", null);
             }
         } catch (Exception e) {
-            return Header.ERROR("500", "부서 등록 중 오류가 발생했습니다.");
+            return Header.ERROR(CODE_ERROR, "부서 등록 중 오류가 발생했습니다.");
         }
     }
 
     // 부서 정보 수정
     public Header<String> updateOrganization(OrganizationVO vo) {
         if (vo == null || vo.getOrgId() == null || vo.getOrgName() == null || vo.getOrgName().isBlank()) {
-            return Header.ERROR("400", "필수 파라미터(orgId, orgName)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(orgId, orgName)가 없습니다.");
         }
         try {
             int result = organizationMapper.updateOrganization(vo);
             if (result > 0) {
-                return Header.OK("200", "수정되었습니다.", null);
+                return Header.OK(CODE_OK, "수정되었습니다.", null);
             } else {
-                return Header.OK("204", "수정 대상 부서 정보가 없습니다.", null);
+                return Header.OK(CODE_NO_CONTENT, "수정 대상 부서 정보가 없습니다.", null);
             }
         } catch (Exception e) {
-            return Header.ERROR("500", "부서 정보 수정 중 오류가 발생했습니다.");
+            return Header.ERROR(CODE_ERROR, "부서 정보 수정 중 오류가 발생했습니다.");
         }
     }
 
@@ -86,31 +95,31 @@ public class OrganizationService {
     public Header<String> createChildOrganization(Integer parentOrgId, OrganizationVO vo) {
         // 파라미터 검증
         if (parentOrgId == null)
-            return Header.ERROR("400", "필수 파라미터(parentOrgId)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(parentOrgId)가 없습니다.");
         if (vo == null || vo.getOrgName() == null || vo.getOrgName().isBlank())
-            return Header.ERROR("400", "필수 파라미터(orgName)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(orgName)가 없습니다.");
 
         try {
             // 상위 조직 정보 조회
             Header<OrganizationVO> parentResult = getOrganization(parentOrgId);
             OrganizationVO parent = parentResult.getData();
             if (parent == null)
-                return Header.ERROR("404", "상위 부서 정보가 존재하지 않습니다.");
+                return Header.ERROR(CODE_NO_CONTENT, "상위 부서 정보가 존재하지 않습니다.");
 
             // 하위 조직 유형 및 레벨 결정
             String childType;
             int childLevel;
             switch (parent.getOrgType()) {
-                case "COMPANY":
-                    childType = "DIVISION";
+                case TYPE_COMPANY:
+                    childType = TYPE_DIVISION;
                     childLevel = 2;
                     break;
-                case "DIVISION":
-                    childType = "TEAM";
+                case TYPE_DIVISION:
+                    childType = TYPE_TEAM;
                     childLevel = 3;
                     break;
                 default:
-                    return Header.ERROR("400", "TEAM 하위에는 부서를 생성할 수 없습니다.");
+                    return Header.ERROR(CODE_BAD_REQUEST, "TEAM 하위에는 부서를 생성할 수 없습니다.");
             }
             vo.setOrgType(childType);
             vo.setOrgLevel(childLevel);
@@ -128,11 +137,11 @@ public class OrganizationService {
             // DB 등록
             int insertResult = organizationMapper.insertOrganization(vo);
             if (insertResult > 0)
-                return Header.OK("200", "하위부서가 등록되었습니다.", null);
+                return Header.OK(CODE_OK, "하위부서가 등록되었습니다.", null);
             else
-                return Header.OK("204", "하위부서 등록에 실패했습니다.", null);
+                return Header.OK(CODE_NO_CONTENT, "하위부서 등록에 실패했습니다.", null);
         } catch (Exception e) {
-            return Header.ERROR("500", "하위부서 등록 중 오류가 발생했습니다");
+            return Header.ERROR(CODE_ERROR, "하위부서 등록 중 오류가 발생했습니다");
         }
     }
 
@@ -140,17 +149,17 @@ public class OrganizationService {
     @Transactional
     public Header<String> deactivateOrganizationWithChildren(Integer orgId) {
         if (orgId == null) {
-            return Header.ERROR("400", "필수 파라미터(orgId)가 없습니다.");
+            return Header.ERROR(CODE_BAD_REQUEST, "필수 파라미터(orgId)가 없습니다.");
         }
         try {
             List<Integer> allOrgIds = organizationMapper.selectAllChildOrgIds(orgId);
             if (allOrgIds == null || allOrgIds.isEmpty()) {
-                return Header.OK("204", "삭제 대상 부서가 없습니다.", null);
+                return Header.OK(CODE_NO_CONTENT, "삭제 대상 부서가 없습니다.", null);
             }
-            allOrgIds.forEach(id -> organizationMapper.updateIsActive(id, "N"));
-            return Header.OK("200", "부서 및 하위 부서가 모두 삭제 되었습니다.", null);
+            allOrgIds.forEach(id -> organizationMapper.updateIsActive(id, STATUS_INACTIVE));
+            return Header.OK(CODE_OK, "부서 및 하위 부서가 모두 삭제 되었습니다.", null);
         } catch (Exception e) {
-            return Header.ERROR("500", "부서 삭제 처리 중 오류가 발생했습니다.");
+            return Header.ERROR(CODE_ERROR, "부서 삭제 처리 중 오류가 발생했습니다.");
         }
     }
 }
