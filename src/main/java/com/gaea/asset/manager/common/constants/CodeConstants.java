@@ -28,4 +28,15 @@ public class CodeConstants {
 	public static final String MESSAGE_STATUS_CHANGE_REQUESTED = "A2";		// 장비 상태 변경 요청
 	public static final String MESSAGE_STATUS_CHANGE_APPROVED = "A3";		// 장비 상태 변경 승인
 	public static final String MESSAGE_STATUS_CHANGE_REJECTED = "A4";		// 장비 상태 변경 반려
+
+	// 직책 코드
+	public static final String TEAM_LEADER = "03";		// 팀장
+	public static final String TEAM_MEMBER = "04";		// 팀원
+
+	// 직위 코드
+	public static final String MANAGER = "03";				// 부장
+	public static final String CONDUCTOR = "04";			// 차장
+	public static final String EXAGGERATION = "05";			// 과장
+	public static final String Assistant_Manager = "06";	// 대리
+	public static final String EMPLOYEE = "07";				// 사원
 }

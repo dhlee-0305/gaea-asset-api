@@ -27,7 +27,7 @@
                 AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
         </if>
-        ORDER BY U.USER_POSITION_CD, U.USER_GRADE_CD, U.CREATE_DATETIME ASC
+        ORDER BY U.ORG_ID, U.USER_POSITION_CD, U.USER_GRADE_CD, U.CREATE_DATETIME ASC
         LIMIT #{size} OFFSET #{page}
     </select>
 
@@ -73,7 +73,8 @@
         SELECT COUNT(*)
         FROM USER
         WHERE EMP_NUM <![CDATA[<>]]> #{empNum}
-            AND USER_POSITION_CD = '03'
+            AND USER_POSITION_CD = ${@com.gaea.asset.manager.common.constants.CodeConstants@TEAM_LEADER}
+            AND ORG_ID = #{orgId}
             AND IS_EMPLOYED = 'Y'
     </select>
 
@@ -109,7 +110,14 @@
             USER_NAME = #{userName},
             ORG_ID = #{orgId},
             USER_GRADE_CD = #{userGradeCd},
-            USER_POSITION_CD = #{userPositionCd}
+            USER_POSITION_CD = #{userPositionCd},
+            ROLE_CODE =
+                <if test="userPositionCd != null and userPositionCd == '04'">
+                    '00'
+                </if>
+                <if test="userPositionCd != null and userPositionCd == '03'">
+                    '01'
+                </if>
         WHERE EMP_NUM = #{empNum}
     </update>
 
@@ -130,7 +138,7 @@
         UPDATE USER
         SET
         PASSWORD = SHA2('1111', 256),
-        password_change_date = '',
+        PASSWORD_CHANGE_DATE = '',
         PASSWORD_RESET_REQ = 'N'
         WHERE EMP_NUM = #{empNum}
     </update>

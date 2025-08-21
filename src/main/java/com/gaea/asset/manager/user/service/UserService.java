@@ -3,6 +3,7 @@ package com.gaea.asset.manager.user.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.util.Pagination;
 import org.springframework.stereotype.Service;
 
@@ -38,32 +39,36 @@ public class UserService {
 	}
 
 	public Header<UserVO> getUser(Integer empNum) {
-		return Header.OK(userMapper.getUser(empNum));
+		UserVO userVO = userMapper.getUser(empNum);
+		if(userVO == null){
+			return Header.ERROR("204", "조회된 정보가 없습니다.");
+		}
+		return Header.OK(userVO);
 	}
 
-	public Header<UserVO> insertNotice(UserVO userVO) {
-		if("03".equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+	public Header<UserVO> insertUser(UserVO userVO) {
+		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR("2001", "이미 팀장이 존재합니다.");
+			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.insertUser(userVO) > 0) {
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 
 	public Header<UserVO> updateUser(UserVO userVO) {
-		if("03".equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR("2001", "이미 팀장이 존재합니다.");
+			return Header.ERROR("409", "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.updateUser(userVO) > 0){
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 
@@ -71,7 +76,7 @@ public class UserService {
 		if(userMapper.deleteUser(empNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR("500", "ERROR");
 		}
 	}
 
@@ -84,5 +89,18 @@ public class UserService {
 		} else {
 			return  Header.ERROR("500", "패스워드 초기화 중 오류가 발생했습니다.");
 		}
+	}
+
+	/**
+	 * 사용자 정보 유효성 체크
+	 * @param userVO
+	 * @return
+	 */
+	public boolean chkUserData(UserVO userVO){
+		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+			// 팀장 선택 가능여부 체크
+			return false;
+		}
+		return true;
 	}
 }

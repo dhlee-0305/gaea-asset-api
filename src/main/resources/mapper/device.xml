@@ -339,11 +339,13 @@
         DH.REASON,
         DH.CREATE_DATETIME,
         DH.CREATE_USER,
-        D.DEVICE_TYPE
+        D.DEVICE_TYPE,
+        O.ORG_NAME
     FROM
         DEVICE_HISTORY DH
     INNER JOIN DEVICE D ON DH.DEVICE_NUM = D.DEVICE_NUM
     LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
+    LEFT JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
     LEFT JOIN COMMON_CODE CC1 ON DH.DEVICE_STATUS_CODE = CC1.CODE AND CC1.CATEGORY = 'C005'
     LEFT JOIN COMMON_CODE CC2 ON DH.APPROVAL_STATUS_CODE = CC2.CODE AND CC2.CATEGORY = 'C006'
     <where>
@@ -353,10 +355,16 @@
                 AND DH.DEVICE_NUM = #{searchKeyword}
             </if>
         </if>
-        <!-- changeContents 으로 검색 -->
-        <if test="searchColumn != null and searchColumn == 'changeContents'">
+        <!-- userName 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
-                AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
+                AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </if>
+        <!-- orgName 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
         </if>
         <!-- 권한에 따른 조건 추가 -->
@@ -367,8 +375,7 @@
             AND U.ORG_ID = #{loginOrgId}
         </if>
     </where>
-    ORDER BY
-        DH.CREATE_DATETIME DESC
+    ORDER BY DH.CREATE_DATETIME DESC
     LIMIT #{size} OFFSET #{page}
   </select>
   <!-- getDeviceHistoryTotalCount: DEVICE_HISTORY 테이블의 총 개수 조회 -->
@@ -386,10 +393,16 @@
                 AND DH.DEVICE_NUM = #{searchKeyword}
             </if>
         </if>
-        <!-- changeContents 으로 검색 -->
-        <if test="searchColumn != null and searchColumn == 'changeContents'">
+        <!-- userName 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
-                AND DH.CHANGE_CONTENTS LIKE #{searchKeyword}
+                AND U.USER_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
+            </if>
+        </if>
+        <!-- orgName 으로 검색 -->
+        <if test="searchColumn != null and searchColumn == 'orgName'">
+            <if test="searchKeyword != null and searchKeyword != ''">
+                AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
             </if>
         </if>
         <!-- 권한에 따른 조건 추가 -->

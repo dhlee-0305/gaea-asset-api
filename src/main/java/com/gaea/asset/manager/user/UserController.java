@@ -36,7 +36,7 @@ public class UserController {
 	@PostMapping("/users")
 	@Operation(summary = "사용자 등록", description = "사용자 등록 API")
 	Header<UserVO> insertUser(@RequestBody UserVO userVO) {
-		return  userService.insertNotice(userVO);
+		return  userService.insertUser(userVO);
 	}
 
 	@PutMapping("users/{empNum}")
