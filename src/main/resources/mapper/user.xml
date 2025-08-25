@@ -15,7 +15,7 @@
           , (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY= 'C002' AND U.USER_GRADE_CD = C.CODE) AS USER_GRADE_Name
         FROM USER U
         JOIN ORGANIZATION O
-          ON U.ORG_ID = O.ORG_ID
+          ON U.ORG_ID = O.ORG_ID AND O.IS_ACTIVE = 'Y'
         WHERE IS_EMPLOYED = 'Y'
         <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
@@ -35,7 +35,7 @@
         SELECT COUNT(*)
         FROM USER U
         JOIN ORGANIZATION O
-          ON U.ORG_ID = O.ORG_ID
+          ON U.ORG_ID = O.ORG_ID AND O.IS_ACTIVE = 'Y'
         WHERE IS_EMPLOYED = 'Y'
         <if test="searchColumn != null and searchColumn == 'userName'">
             <if test="searchKeyword != null and searchKeyword != ''">
