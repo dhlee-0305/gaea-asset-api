@@ -137,7 +137,7 @@
     <update id="initPassword" parameterType="com.gaea.asset.manager.user.vo.UserVO">
         UPDATE USER
         SET
-        PASSWORD = SHA2('1111', 256),
+        PASSWORD = #{password},
         PASSWORD_CHANGE_DATE = '',
         PASSWORD_RESET_REQ = 'N'
         WHERE EMP_NUM = #{empNum}

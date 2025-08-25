@@ -1,5 +1,6 @@
 package com.gaea.asset.manager.user.vo;
 
+import com.gaea.asset.manager.util.SHA256Util;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,4 +58,8 @@ public class UserVO {
 
 	@Schema(description = "비밀번호초기화요청", example = "N")
 	String passwordResetReq;
+
+	public void setInitPassword(String password) {
+		this.password = SHA256Util.encrypt(password);
+	}
 }

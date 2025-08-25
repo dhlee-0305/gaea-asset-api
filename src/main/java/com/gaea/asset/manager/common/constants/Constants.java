@@ -7,4 +7,7 @@ public class Constants {
     public static final String UPDATE = "UPDATE";
     public static final String APPROVE = "APPROVE";
     public static final String REJECT = "REJECT";
+    
+    // 초기 비밀번호
+    public static final String INIT_PASSWORD = "1111";
 }

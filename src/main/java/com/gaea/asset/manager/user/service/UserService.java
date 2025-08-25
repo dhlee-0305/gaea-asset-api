@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.gaea.asset.manager.common.constants.CodeConstants;
+import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.util.Pagination;
 import org.springframework.stereotype.Service;
 
@@ -84,6 +85,7 @@ public class UserService {
 		if(userVO == null || userVO.getUserId().isBlank()){
 			return Header.ERROR("400", "필수입력 정보가 누락 되었습니다.");
 		}
+		userVO.setInitPassword(Constants.INIT_PASSWORD);
 		if(userMapper.initPassword(userVO) > 0){
 			return Header.OK();
 		} else {
