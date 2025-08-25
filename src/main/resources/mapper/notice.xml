@@ -14,7 +14,14 @@
         LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
         <where>
             <if test="searchKeyword != null and searchKeyword != ''">
-                N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                <choose>
+                    <when test="searchColumn == 'title'">
+                        N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                    <when test="searchColumn == 'content'">
+                        N.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                    </when>
+                </choose>
             </if>
         </where>
         ORDER BY NOTICE_NUM DESC
