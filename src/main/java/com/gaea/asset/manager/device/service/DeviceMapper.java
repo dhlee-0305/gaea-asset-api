@@ -43,4 +43,6 @@ public interface DeviceMapper {
     List<DeviceVO> getDeviceExcelList(HashMap<String, Object> paramMap);
     
     int insertDeviceList(List<DeviceVO> deviceList);
+
+    List<DeviceVO> getDevicePendingList(HashMap<String, Object> paramMap);
 }

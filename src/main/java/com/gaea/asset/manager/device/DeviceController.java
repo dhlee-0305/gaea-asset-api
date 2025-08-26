@@ -95,6 +95,14 @@ public class DeviceController {
 		return deviceService.getDeviceHistory(deviceNum);
 	}
 
+	@GetMapping("/devices/pending")
+	@Operation(summary = "전산 장비 승인 요청 조회", description = "전산 장비 승인 요청 건 조회 API")
+	public Header<List<DeviceVO>> getDevicePendingList(
+			@RequestParam(value = "currentPage", defaultValue = "1") int currentPage,
+			@RequestParam(value = "pageSize", defaultValue = "5") int pageSize) {
+		return deviceService.getDevicePendingList(currentPage, pageSize);
+	}
+
 	@GetMapping("/devices/download/excel")
 	@Operation(summary = "전산 장비 엑셀 다운로드", description = "전산 장비 엑셀 다운로드 API")
 	public void downloadDeviceExcel(HttpServletResponse response) {

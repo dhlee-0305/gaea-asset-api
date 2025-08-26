@@ -224,8 +224,10 @@ public class DeviceService {
 					return Header.OK();
                 }
                 break;
-            case CodeConstants.ROLE_ASSET_MANAGER:
-            case CodeConstants.ROLE_SYSTEM_MANAGER: // 관리자/시스템 관리자
+            case CodeConstants.ROLE_ASSET_MANAGER: // 관리자
+            case CodeConstants.ROLE_SYSTEM_MANAGER: // 시스템 관리자
+				originDevice.setApprovalStatusCode(null); // 장비 결재 상태 초기화
+				deviceVO.setApprovalStatusCode(null); // 장비 이력 결재 상태 초기화
                 if (deviceMapper.updateDevice(deviceVO) > 0) {
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
                     return Header.OK();
@@ -416,6 +418,40 @@ public class DeviceService {
 	    return Header.OK(historyList, pagination);
 	}
 
+	public Header<List<DeviceVO>> getDevicePendingList(int currentPage, int pageSize) {
+		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
+		HashMap<String, Object> paramMap = new HashMap<>();
+
+		// 페이징
+		paramMap.put("page", (currentPage - 1) * pageSize);
+		paramMap.put("size", pageSize);
+
+		switch (userInfo.getRoleCode()) {
+			case CodeConstants.ROLE_USER:
+				paramMap.put("loginEmpNum", userInfo.getEmpNum());
+				break;
+			case CodeConstants.ROLE_TEAM_MANAGER:
+				paramMap.put("loginOrgId", userInfo.getOrgId());
+				break;
+			case CodeConstants.ROLE_ASSET_MANAGER:
+			case CodeConstants.ROLE_SYSTEM_MANAGER:
+				break;
+			default:
+				return Header.ERROR("403", "조회 권한이 없습니다.");
+		}
+
+		String userRoleCode = AuthUtil.getLoginUserInfo().getRoleCode();
+		if (CodeConstants.ROLE_TEAM_MANAGER.equals(userRoleCode)) {
+			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
+		} else if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode) || CodeConstants.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
+			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
+		}
+
+		List<DeviceVO> historyList = deviceMapper.getDevicePendingList(paramMap);
+
+		return Header.OK(historyList);
+	}
+
 	/**
 	 * 전산 장비 이력 상세 조회
 	 * @param deviceNum
@@ -446,7 +482,7 @@ public class DeviceService {
 			case Constants.APPROVE: // 장비/결재 상태 저장
 				history = new DeviceHistoryVO();
 				history.setDeviceStatus(updated.getDeviceStatusCode());
-				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_APPROVED);
+				history.setApprovalStatus(origin.getApprovalStatusCode());
 				break;
 			case Constants.REJECT: // 장비/결재 상태 저장
 				history = new DeviceHistoryVO();

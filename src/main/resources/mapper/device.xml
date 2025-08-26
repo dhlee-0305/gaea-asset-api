@@ -378,6 +378,39 @@
     ORDER BY DH.CREATE_DATETIME DESC
     LIMIT #{size} OFFSET #{page}
   </select>
+
+  <!-- 권한별 승인 요청 목록 -->
+  <select id="getDevicePendingList" parameterType="Map" resultType="com.gaea.asset.manager.device.vo.DeviceVO">
+    SELECT
+      DH.DEVICE_NUM,
+      (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY='C005' AND C.CODE = DH.DEVICE_STATUS_CODE) AS deviceStatus,
+      (SELECT CODE_NAME FROM COMMON_CODE C WHERE C.CATEGORY='C006' AND C.CODE = DH.APPROVAL_STATUS_CODE) AS approvalStatus,
+      DH.CREATE_DATETIME
+    FROM (
+      SELECT
+        DEVICE_NUM,
+        DEVICE_STATUS_CODE,
+        APPROVAL_STATUS_CODE,
+        CREATE_DATETIME,
+        EMP_NUM,
+        ROW_NUMBER() OVER (PARTITION BY DEVICE_NUM ORDER BY HISTORY_NUM DESC) AS rn
+      FROM DEVICE_HISTORY
+    ) DH
+    LEFT JOIN USER U ON DH.EMP_NUM = U.EMP_NUM
+    WHERE DH.rn = 1
+    <if test="loginEmpNum != null">
+      AND DH.EMP_NUM = #{loginEmpNum}
+    </if>
+    <if test="loginOrgId != null">
+      AND U.ORG_ID = #{loginOrgId}
+    </if>
+    <if test="approvalStatusCode != null">
+      AND DH.APPROVAL_STATUS_CODE = #{approvalStatusCode}
+    </if>
+    ORDER BY DH.CREATE_DATETIME DESC
+    LIMIT #{size} OFFSET #{page}
+  </select>
+
   <!-- getDeviceHistoryTotalCount: DEVICE_HISTORY 테이블의 총 개수 조회 -->
   <select id="getDeviceHistoryTotalCount" parameterType="Map" resultType="Integer">
     SELECT COUNT(*)
