@@ -69,20 +69,7 @@ public class DeviceService {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
 
-		switch (userInfo.getRoleCode()) {
-        	case CodeConstants.ROLE_USER:
-        		paramMap.put("loginEmpNum", userInfo.getEmpNum());
-        		break;
-        	case CodeConstants.ROLE_TEAM_MANAGER:
-        		paramMap.put("loginOrgId", userInfo.getOrgId());
-        		break;
-        	case CodeConstants.ROLE_ASSET_MANAGER:
-            case CodeConstants.ROLE_SYSTEM_MANAGER:
-            	break;
-            default:
-                return Header.ERROR("403", "조회 권한이 없습니다.");
-		}
-
+		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 		paramMap.put("page", (currentPage - 1) * pageSize);
 		paramMap.put("size", pageSize);
 		paramMap.put("searchColumn", search.getSearchColumn());
@@ -108,19 +95,7 @@ public class DeviceService {
 		HashMap<String, Object> paramMap = new HashMap<>();
 
 		paramMap.put("deviceNum", deviceNum);
-		switch (userInfo.getRoleCode()) {
-        	case CodeConstants.ROLE_USER:
-        		paramMap.put("loginEmpNum", userInfo.getEmpNum());
-        		break;
-        	case CodeConstants.ROLE_TEAM_MANAGER:
-        		paramMap.put("loginOrgId", userInfo.getOrgId());
-        		break;
-        	case CodeConstants.ROLE_ASSET_MANAGER:
-            case CodeConstants.ROLE_SYSTEM_MANAGER:
-            	break;
-            default:
-                return Header.ERROR("403", "조회 권한이 없습니다.");
-		}
+		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		return Header.OK(deviceMapper.getDevice(paramMap));
 	}
@@ -390,20 +365,7 @@ public class DeviceService {
 		paramMap.put("searchColumn", search.getSearchColumn());
 		paramMap.put("searchKeyword", search.getSearchKeyword());
 
-		// 권한에 따른 조건 추가
-		switch (userInfo.getRoleCode()) {
-	        case CodeConstants.ROLE_USER:
-	            paramMap.put("loginEmpNum", userInfo.getEmpNum());
-	            break;
-	        case CodeConstants.ROLE_TEAM_MANAGER:
-	            paramMap.put("loginOrgId", userInfo.getOrgId());
-	            break;
-	        case CodeConstants.ROLE_ASSET_MANAGER:
-	        case CodeConstants.ROLE_SYSTEM_MANAGER:
-	            break;
-	        default:
-	            return Header.ERROR("403", "조회 권한이 없습니다.");
-	    }
+		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 	    // 데이터 조회
 	    List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
@@ -426,26 +388,14 @@ public class DeviceService {
 		paramMap.put("page", (currentPage - 1) * pageSize);
 		paramMap.put("size", pageSize);
 
-		switch (userInfo.getRoleCode()) {
-			case CodeConstants.ROLE_USER:
-				paramMap.put("loginEmpNum", userInfo.getEmpNum());
-				break;
-			case CodeConstants.ROLE_TEAM_MANAGER:
-				paramMap.put("loginOrgId", userInfo.getOrgId());
-				break;
-			case CodeConstants.ROLE_ASSET_MANAGER:
-			case CodeConstants.ROLE_SYSTEM_MANAGER:
-				break;
-			default:
-				return Header.ERROR("403", "조회 권한이 없습니다.");
-		}
-
+		// 조회 조건 세팅
 		String userRoleCode = AuthUtil.getLoginUserInfo().getRoleCode();
 		if (CodeConstants.ROLE_TEAM_MANAGER.equals(userRoleCode)) {
 			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
 		} else if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode) || CodeConstants.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
 			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
 		}
+		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		List<DeviceVO> historyList = deviceMapper.getDevicePendingList(paramMap);
 
@@ -853,5 +803,23 @@ public class DeviceService {
 		}
 
 		return Header.OK();
+	}
+
+	/* 권한에 따른 조건 추가 */
+	public boolean setRoleParams(UserInfoVO userInfo, HashMap<String, Object> paramMap) {
+		switch (userInfo.getRoleCode()) {
+			case CodeConstants.ROLE_USER:
+				paramMap.put("loginEmpNum", userInfo.getEmpNum());
+				break;
+			case CodeConstants.ROLE_TEAM_MANAGER:
+				paramMap.put("loginOrgId", userInfo.getOrgId());
+				break;
+			case CodeConstants.ROLE_ASSET_MANAGER:
+			case CodeConstants.ROLE_SYSTEM_MANAGER:
+				break;
+			default:
+				return true;
+		}
+		return false;
 	}
 }
