@@ -69,7 +69,7 @@ public class DeviceService {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
 
-		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
+		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 		paramMap.put("page", (currentPage - 1) * pageSize);
 		paramMap.put("size", pageSize);
 		paramMap.put("searchColumn", search.getSearchColumn());
@@ -95,7 +95,7 @@ public class DeviceService {
 		HashMap<String, Object> paramMap = new HashMap<>();
 
 		paramMap.put("deviceNum", deviceNum);
-		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
+		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		return Header.OK(deviceMapper.getDevice(paramMap));
 	}
@@ -173,7 +173,10 @@ public class DeviceService {
 
         switch (userInfo.getRoleCode()) {
             case CodeConstants.ROLE_USER: // 일반 사용자
-                originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
+				// 부서장이 없는 조직일 경우, 관리자 승인 대기로 설정
+				String approvalStatusCode = (userMapper.getTeamManagerCount(userInfo.getOrgId()) > 0) ? CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING : CodeConstants.APPROVAL_STATUS_ADMIN_PENDING;
+                originDevice.setApprovalStatusCode(approvalStatusCode);
+
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
@@ -365,7 +368,7 @@ public class DeviceService {
 		paramMap.put("searchColumn", search.getSearchColumn());
 		paramMap.put("searchKeyword", search.getSearchKeyword());
 
-		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
+		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 	    // 데이터 조회
 	    List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
@@ -380,6 +383,12 @@ public class DeviceService {
 	    return Header.OK(historyList, pagination);
 	}
 
+	/**
+	 * 관리자에게 요청된 승인 목록 조회
+	 * @param currentPage
+	 * @param pageSize
+	 * @return
+	 */
 	public Header<List<DeviceVO>> getDevicePendingList(int currentPage, int pageSize) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = new HashMap<>();
@@ -395,7 +404,7 @@ public class DeviceService {
 		} else if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode) || CodeConstants.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
 			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
 		}
-		if (setRoleParams(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
+		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		List<DeviceVO> historyList = deviceMapper.getDevicePendingList(paramMap);
 
@@ -806,7 +815,7 @@ public class DeviceService {
 	}
 
 	/* 권한에 따른 조건 추가 */
-	public boolean setRoleParams(UserInfoVO userInfo, HashMap<String, Object> paramMap) {
+	public boolean setParamsByUserRole(UserInfoVO userInfo, HashMap<String, Object> paramMap) {
 		switch (userInfo.getRoleCode()) {
 			case CodeConstants.ROLE_USER:
 				paramMap.put("loginEmpNum", userInfo.getEmpNum());

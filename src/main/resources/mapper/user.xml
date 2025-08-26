@@ -143,4 +143,11 @@
         WHERE EMP_NUM = #{empNum}
     </update>
 
+    <select id="getTeamManagerCount" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*) cnt
+        FROM USER
+        WHERE ORG_ID = #{orgId}
+        AND ROLE_CODE = ${@com.gaea.asset.manager.common.constants.CodeConstants@ROLE_TEAM_MANAGER}
+    </select>
+
 </mapper>

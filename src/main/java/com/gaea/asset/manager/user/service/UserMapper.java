@@ -26,4 +26,6 @@ public interface UserMapper {
 	List<UserVO> getAllUserList();
 
 	int initPassword(UserVO entity);
+
+    int getTeamManagerCount(Integer orgId);
 }
