@@ -36,7 +36,14 @@
         </if>
       </if>
     </where>
-        ORDER BY D.CREATE_DATETIME DESC
+        ORDER BY
+        <if test="roleCode != null and roleCode == '01'">
+        	CASE WHEN APPROVAL_STATUS_CODE = 'A1' THEN 0 ELSE 1 END,
+        </if>
+        <if test="roleCode != null and roleCode == '02'">
+        	CASE WHEN APPROVAL_STATUS_CODE = 'A2' THEN 0 ELSE 1 END,
+        </if>
+        D.DEVICE_NUM DESC
         LIMIT #{size} OFFSET #{page}
   </select>
   <select id="getDeviceTotalCount" parameterType="Map" resultType="Integer">

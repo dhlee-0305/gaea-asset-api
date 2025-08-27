@@ -812,6 +812,7 @@ public class DeviceService {
 
 	/* 권한에 따른 조건 추가 */
 	public boolean setParamsByUserRole(UserInfoVO userInfo, HashMap<String, Object> paramMap) {
+		paramMap.put("roleCode", userInfo.getRoleCode());
 		switch (userInfo.getRoleCode()) {
 			case CodeConstants.ROLE_USER:
 				paramMap.put("loginEmpNum", userInfo.getEmpNum());
