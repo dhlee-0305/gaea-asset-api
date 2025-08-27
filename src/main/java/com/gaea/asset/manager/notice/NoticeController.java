@@ -2,6 +2,7 @@ package com.gaea.asset.manager.notice;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,12 +24,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @Tag(name = "공지사항 관리 API", description = "공지사항 관리 API 입니다.")
+@RequiredArgsConstructor
 public class NoticeController {
 	private final NoticeService noticeService;
-
-	public NoticeController(NoticeService noticeService) {
-		this.noticeService = noticeService;
-	}
 
 	@GetMapping("/notices")
 	@Operation(summary = "공지사항 목록 조회", description = "공지사항 목록 조회 API")

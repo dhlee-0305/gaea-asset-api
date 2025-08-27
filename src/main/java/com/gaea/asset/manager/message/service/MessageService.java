@@ -4,22 +4,21 @@ import com.gaea.asset.manager.message.vo.MessageTemplate;
 import com.gaea.asset.manager.message.vo.MessageVO;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class MessageService {
     @Value("${spring.mail.username}")
     private String from;
     private final JavaMailSender mailSender;
     private final MessageMapper messageMapper;
-
-    public MessageService(JavaMailSender mailSender, MessageMapper messageMapper) {
-        this.mailSender = mailSender;
-        this.messageMapper = messageMapper;
-    }
 
     public void sendToDeviceOwner(String messageCode, Integer deviceNum) throws MessagingException {
         MessageTemplate template = MessageTemplate.fromCode(messageCode);

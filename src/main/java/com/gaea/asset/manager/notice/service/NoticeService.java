@@ -3,7 +3,8 @@ package com.gaea.asset.manager.notice.service;
 import java.util.HashMap;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.notice.vo.NoticeVO;
@@ -11,14 +12,11 @@ import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Pagination;
 import com.gaea.asset.manager.util.Search;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class NoticeService {
 	private final NoticeMapper noticeMapper;
-
-	@Autowired
-	public NoticeService(NoticeMapper noticeMapper) {
-		this.noticeMapper = noticeMapper;
-	}
 
     public static final String OK = "200";
     public static final String NO_CONTENT = "204";
