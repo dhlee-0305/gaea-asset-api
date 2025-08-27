@@ -51,4 +51,10 @@ public class DeviceHistoryVO {
 
     @Schema(description = "모델명", example = "LG-2025")
     private String modelName;
+
+    @Schema(description = "장비 상태 코드", example = "A1")
+    private String deviceStatusCode;
+
+    @Schema(description = "결재 상태 코드", example = "A2")
+    private String approvalStatusCode;
 }

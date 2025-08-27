@@ -413,14 +413,14 @@ public class DeviceService {
 	}
 
 	/**
-	 * 전산 장비 이력 상세 조회
-	 * @param deviceNum
+	 * 전산 장비 이력 상세 조회 (단일 이력)
+	 * @param historyNum
 	 * @return
 	 */
-    public Header<List<DeviceHistoryVO>> getDeviceHistory(Integer deviceNum) {
-        List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistory(deviceNum);
-        return Header.OK(historyList);
-    }
+	public Header<DeviceHistoryVO> getDeviceHistory(Integer historyNum) {
+    DeviceHistoryVO history = deviceMapper.getDeviceHistoryByHistoryNum(historyNum);
+    return Header.OK(history);
+	}
 
 	/**
 	 * 기능별 장비 이력 추가 (REGISTER, UPDATE, APPROVE, REJECT)

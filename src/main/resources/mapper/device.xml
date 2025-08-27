@@ -553,4 +553,28 @@
 	    )
       </foreach>
   </insert>
+  <!-- 단일 이력 상세 조회 쿼리 추가 -->
+  <select id="getDeviceHistoryByHistoryNum" parameterType="Integer" resultType="com.gaea.asset.manager.device.vo.DeviceHistoryVO">
+SELECT
+    A.HISTORY_NUM,
+    A.DEVICE_NUM,
+    A.EMP_NUM,
+    B.USER_NAME,
+    A.CHANGE_CONTENTS,
+    A.REASON,
+    A.CREATE_DATETIME,
+    A.CREATE_USER,
+    C.DEVICE_TYPE,
+    C.MODEL_NAME,
+    A.DEVICE_STATUS_CODE,
+    A.APPROVAL_STATUS_CODE
+FROM
+    DEVICE_HISTORY A
+JOIN
+    USER B ON A.EMP_NUM = B.EMP_NUM
+JOIN
+    DEVICE C ON A.DEVICE_NUM = C.DEVICE_NUM
+WHERE
+    A.HISTORY_NUM = #{historyNum}
+</select>
 </mapper>

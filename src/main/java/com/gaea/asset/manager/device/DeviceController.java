@@ -89,10 +89,10 @@ public class DeviceController {
 		return deviceService.getDeviceHistoryList(currentPage, pageSize, search);
 	}
 
-	@GetMapping("/histories/{deviceNum}")
+	@GetMapping("/histories/{historyNum}")
 	@Operation(summary = "전산 장비 이력 상세 조회", description = "전산 장비 이력 상세 조회 API")
-	Header<List<DeviceHistoryVO>> getDeviceHistory(@PathVariable(name = "deviceNum") Integer deviceNum) {
-		return deviceService.getDeviceHistory(deviceNum);
+	public Header<DeviceHistoryVO> getDeviceHistory(@PathVariable(name = "historyNum") Integer historyNum) {
+		return deviceService.getDeviceHistory(historyNum);
 	}
 
 	@GetMapping("/devices/pending")

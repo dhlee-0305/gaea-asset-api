@@ -45,4 +45,6 @@ public interface DeviceMapper {
     int insertDeviceList(List<DeviceVO> deviceList);
 
     List<DeviceVO> getDevicePendingList(HashMap<String, Object> paramMap);
+
+    DeviceHistoryVO getDeviceHistoryByHistoryNum(Integer historyNum);
 }
