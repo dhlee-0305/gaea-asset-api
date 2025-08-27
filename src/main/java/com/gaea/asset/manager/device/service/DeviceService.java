@@ -519,7 +519,7 @@ public class DeviceService {
 		appendIfPresent(sb, "장비담당자", origin.getUserName());
 		appendIfPresent(sb, "모델명", origin.getModelName());
 		appendIfPresent(sb, "용도구분", origin.getUsageDivision());
-		appendIfPresent(sb, "제조사", origin.getManufacturerCode());
+		appendIfPresent(sb, "제조사", origin.getManufacturer());
 		appendIfPresent(sb, "제조년도", origin.getManufactureDate());
 		appendIfPresent(sb, "CPU", origin.getCpuSpec());
 		appendIfPresent(sb, "메모리", origin.getMemorySize());
@@ -555,8 +555,8 @@ public class DeviceService {
 		if (!isEqual(origin.getOldDeviceId(), updated.getOldDeviceId())) {
 			sb.append("기존 장비관리번호: \"").append(updated.getOldDeviceId()).append("\" || ");
 		}
-		if (!isEqual(origin.getManufacturerCode(), updated.getManufacturerCode())) {
-			sb.append("제조사: \"").append(updated.getManufacturerCode()).append("\" || ");
+		if (!isEqual(origin.getManufacturer(), updated.getManufacturer())) {
+			sb.append("제조사: \"").append(updated.getManufacturer()).append("\" || ");
 		}
 		if (!isEqual(origin.getModelName(), updated.getModelName())) {
 			sb.append("모델명: \"").append(updated.getModelName()).append("\" || ");
@@ -624,7 +624,7 @@ public class DeviceService {
 				row.createCell(5).setCellValue(d.getUsagePurpose());
 				row.createCell(6).setCellValue(d.getArchiveLocation());
 				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getManufacturer());
 				row.createCell(9).setCellValue(d.getModelName());
 				row.createCell(10).setCellValue(d.getManufactureDate());
 				row.createCell(11).setCellValue(d.getCpuSpec());
@@ -647,7 +647,7 @@ public class DeviceService {
 				row.createCell(5).setCellValue(d.getUsagePurpose());
 				row.createCell(6).setCellValue(d.getArchiveLocation());
 				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getManufacturer());
 				row.createCell(9).setCellValue(d.getModelName());
 				row.createCell(10).setCellValue(d.getManufactureDate());
 				row.createCell(11).setCellValue(d.getScreenSize());
@@ -665,7 +665,7 @@ public class DeviceService {
 				row.createCell(5).setCellValue(d.getUsagePurpose());
 				row.createCell(6).setCellValue(d.getArchiveLocation());
 				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getManufacturer());
 				row.createCell(9).setCellValue(d.getModelName());
 				row.createCell(10).setCellValue(d.getManufactureDate());
 				row.createCell(11).setCellValue(d.getOperatingSystem());
@@ -683,7 +683,7 @@ public class DeviceService {
 				row.createCell(5).setCellValue(d.getUsagePurpose());
 				row.createCell(6).setCellValue(d.getArchiveLocation());
 				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturerCode());
+				row.createCell(8).setCellValue(d.getManufacturer());
 				row.createCell(9).setCellValue(d.getModelName());
 				row.createCell(10).setCellValue(d.getManufactureDate());
 				row.createCell(11).setCellValue(d.getPurchaseDate());
@@ -693,7 +693,7 @@ public class DeviceService {
 			}
 		}
 	}
-	
+
 	/**
      * 전산 장비 엑셀 업로드
      * @param excelFile
@@ -710,8 +710,8 @@ public class DeviceService {
         if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
             return Header.ERROR("400", "Excel 파일만 업로드 가능합니다.");
         }
-        
-        // 전체 사용자 목록 조회 
+
+        // 전체 사용자 목록 조회
         List<UserVO> userList = userMapper.getAllUserList();
         // 코드 목록 조회
         List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
@@ -737,53 +737,49 @@ public class DeviceService {
         DataFormatter formatter = new DataFormatter();
 		try {
 			workbook = WorkbookFactory.create(file.getInputStream());
-			
+
 			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
 				Sheet sheet = workbook.getSheetAt(i);
-				
+
 				List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
 				for (Row row : sheet) {
 					if (row.getRowNum() < startRow) continue;
-		        	
+
 					DeviceVO deviceVO = new DeviceVO();
-		        	
+
 		        	String userName = formatter.formatCellValue(row.getCell(2));			// 사용자
 		        	deviceVO.setEmpNum(userList.stream()
 		            		.filter(user -> user.getUserName().equals(userName))
 		            		.map(user -> user.getEmpNum())
 		            		.findFirst()
 		            		.orElse(null));
-		        	String usageDivision = formatter.formatCellValue(row.getCell(3));			// 용도구분		
+		        	String usageDivision = formatter.formatCellValue(row.getCell(3));					// 용도구분
 		        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
 		            		.filter(code -> code.getCodeName().equals(usageDivision))
 		            		.map(code -> code.getCode())
 		            		.findFirst()
 		            		.orElse(null));
-		        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));		// 사용용도
+		        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));			// 사용용도
 		        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(5)));		// 보관위치
 		        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(6)));			// 관리번호
-		        	String deviceType = formatter.formatCellValue(row.getCell(7));				// 장비유형
+		        	String deviceType = formatter.formatCellValue(row.getCell(7));						// 장비유형
 		        	deviceVO.setDeviceTypeCode(deviceTypeList.stream()
 		            		.filter(code -> code.getCodeName().equals(deviceType))
 		            		.map(code -> code.getCode())
 		            		.findFirst()
 		            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
-		        	deviceVO.setManufacturerCode(formatter.formatCellValue(row.getCell(8)));	// 제조사
-		        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));			// 모델명
+		        	deviceVO.setManufacturer(formatter.formatCellValue(row.getCell(8)));			// 제조사
+		        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));				// 모델명
 		        	deviceVO.setManufactureDate(formatter.formatCellValue(row.getCell(10)));	// 제조일
-		        	deviceVO.setCpuSpec(formatter.formatCellValue(row.getCell(11)));			// CPU
-		        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(12)))) {
-		        		deviceVO.setMemorySize(Integer.valueOf(formatter.formatCellValue(row.getCell(12))));	// 메모리
-		        	}
-		        	deviceVO.setStorageInfo(formatter.formatCellValue(row.getCell(13)));						// 스토리지 정보
-		        	deviceVO.setOperatingSystem(formatter.formatCellValue(row.getCell(14)));					// OS
-		        	if(StringUtils.isNotEmpty(formatter.formatCellValue(row.getCell(15)))) {
-		        		deviceVO.setScreenSize(Double.valueOf(formatter.formatCellValue(row.getCell(15))));		// 화면크기
-		        	}
-		        	deviceVO.setGpuSpec(formatter.formatCellValue(row.getCell(16)));							// GPU
-		        	deviceVO.setPurchaseDate(formatter.formatCellValue(row.getCell(17)));						// 구매일자
-		        	deviceVO.setReturnDate(formatter.formatCellValue(row.getCell(18)));							// 반납일자
-		        	String deviceStatus = formatter.formatCellValue(row.getCell(19));							// 장비상태
+		        	deviceVO.setCpuSpec(formatter.formatCellValue(row.getCell(11)));				// CPU
+		        	deviceVO.setMemorySize(formatter.formatCellValue(row.getCell(12)));			// 메모리
+		        	deviceVO.setStorageInfo(formatter.formatCellValue(row.getCell(13)));			// 스토리지 정보
+		        	deviceVO.setOperatingSystem(formatter.formatCellValue(row.getCell(14)));	// OS
+		        	deviceVO.setScreenSize(formatter.formatCellValue(row.getCell(15)));			// 화면크기
+		        	deviceVO.setGpuSpec(formatter.formatCellValue(row.getCell(16)));				// GPU
+		        	deviceVO.setPurchaseDate(formatter.formatCellValue(row.getCell(17)));		// 구매일자
+		        	deviceVO.setReturnDate(formatter.formatCellValue(row.getCell(18)));			// 반납일자
+		        	String deviceStatus = formatter.formatCellValue(row.getCell(19));				// 장비상태
 		        	deviceVO.setDeviceStatusCode(deviceStatusList.stream()
 		            		.filter(code -> code.getCodeName().equals(deviceStatus))
 		            		.map(code -> code.getCode())
@@ -791,17 +787,17 @@ public class DeviceService {
 		            		.orElse(null));
 		        	deviceVO.setRemarks(formatter.formatCellValue(row.getCell(20)));							// 비고
 		        	deviceVO.setCreateUser(userInfo.getEmpNum());
-		        	
+
 		        	deviceList.add(deviceVO);
 		        	log.info("##### Row {} : {}", i, deviceVO.toString());
 		        }
-				
+
 		        // DB 저장
 				if(deviceList.size() > 0) {
 					deviceMapper.insertDeviceList(deviceList);
 				}
 			}
-			
+
 		} catch (Exception e) {
 			log.error("excel upload error : ", e);
 			return Header.ERROR("500", "ERROR");

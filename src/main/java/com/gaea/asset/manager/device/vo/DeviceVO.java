@@ -50,8 +50,8 @@ public class DeviceVO {
 	@Schema(description = "장비유형", example = "")
 	private String deviceType;
 
-	@Schema(description = "제조사 코드", example = "")
-	private String manufacturerCode;
+	@Schema(description = "제조사", example = "")
+	private String manufacturer;
 
 	@Schema(description = "모델명", example = "")
 	private String modelName;
@@ -63,7 +63,7 @@ public class DeviceVO {
 	private String cpuSpec;
 
 	@Schema(description = "메모리", example = "")
-	private Integer memorySize;
+	private String memorySize;
 
 	@Schema(description = "스토리지 정보", example = "")
 	private String storageInfo;
@@ -72,7 +72,7 @@ public class DeviceVO {
 	private String operatingSystem;
 
 	@Schema(description = "화면크기", example = "")
-	private Double screenSize;
+	private String screenSize;
 
 	@Schema(description = "GPU", example = "")
 	private String gpuSpec;
