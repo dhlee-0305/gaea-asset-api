@@ -4,27 +4,32 @@
 
 <mapper namespace="com.gaea.asset.manager.notice.service.NoticeMapper">
     <select id="getNoticeList" parameterType="Map" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
-        SELECT N.NOTICE_NUM
-             , N.TITLE
-             , N.CONTENT
-             , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
-             , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
-        FROM NOTICE N
-        JOIN USER U ON N.CREATE_USER = U.EMP_NUM
-        LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
-        <where>
-            <if test="searchKeyword != null and searchKeyword != ''">
-                <choose>
-                    <when test="searchColumn == 'title'">
-                        N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
-                    </when>
-                    <when test="searchColumn == 'content'">
-                        N.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
-                    </when>
-                </choose>
-            </if>
-        </where>
-        ORDER BY NOTICE_NUM DESC
+        SELECT *
+        FROM (
+            SELECT
+                ROW_NUMBER() OVER (ORDER BY N.NOTICE_NUM) AS ROW_NUM,
+                N.NOTICE_NUM,
+                N.TITLE,
+                N.CONTENT,
+                CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER,
+                DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
+            FROM NOTICE N
+            JOIN USER U ON N.CREATE_USER = U.EMP_NUM
+            LEFT OUTER JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
+            <where>
+                <if test="searchKeyword != null and searchKeyword != ''">
+                    <choose>
+                        <when test="searchColumn == 'title'">
+                            N.TITLE LIKE CONCAT('%', #{searchKeyword}, '%')
+                        </when>
+                        <when test="searchColumn == 'content'">
+                            N.CONTENT LIKE CONCAT('%', #{searchKeyword}, '%')
+                        </when>
+                    </choose>
+                </if>
+            </where>
+        ) AS NOTICE
+        ORDER BY NOTICE.ROW_NUM DESC
         LIMIT #{size} OFFSET #{page}
     </select>
 
