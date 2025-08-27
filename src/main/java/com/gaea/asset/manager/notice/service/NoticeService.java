@@ -20,50 +20,91 @@ public class NoticeService {
 		this.noticeMapper = noticeMapper;
 	}
 
+    public static final String OK = "200";
+    public static final String NO_CONTENT = "204";
+    public static final String BAD_REQUEST = "400";
+    public static final String INTERNAL_SERVER_ERROR = "500";
+
+    // 공지사항 목록 조회
 	public Header<List<NoticeVO>> getNoticeList(int currentPage, int pageSize, Search search) {
-		HashMap<String, Object> paramMap = new HashMap<>();
+        try {
+            HashMap<String, Object> paramMap = new HashMap<>();
 
-		paramMap.put("page", (currentPage - 1) * pageSize);
-		paramMap.put("size", pageSize);
-		paramMap.put("searchColumn", search.getSearchColumn());
-		paramMap.put("searchKeyword", search.getSearchKeyword());
+            paramMap.put("page", (currentPage - 1) * pageSize);
+            paramMap.put("size", pageSize);
+            paramMap.put("searchColumn", search.getSearchColumn());
+            paramMap.put("searchKeyword", search.getSearchKeyword());
 
-		List<NoticeVO> boardList = noticeMapper.getNoticeList(paramMap);
-		Pagination pagination = new Pagination(
-				noticeMapper.getNoticeTotalCount(paramMap),
-				currentPage,
-				pageSize,
-				10
-		);
+            List<NoticeVO> boardList = noticeMapper.getNoticeList(paramMap);
+            Pagination pagination = new Pagination(
+                    noticeMapper.getNoticeTotalCount(paramMap),
+                    currentPage,
+                    pageSize,
+                    10
+            );
 
-		return Header.OK(boardList, pagination);
+            if (boardList == null || boardList.isEmpty()) {
+                return Header.OK(NO_CONTENT, "등록된 공지사항이 없습니다.", boardList);
+            }
+            return Header.OK(boardList, pagination);
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 목록 조회 중 오류가 발생했습니다.");
+        }
+
 	}
 
+    // 공지사항 상세 조회
 	public Header<NoticeVO> getNoticeInfo(Long noticeNum) {
-		return Header.OK(noticeMapper.getNoticeInfo(noticeNum));
+        if (noticeNum == null) {
+            return Header.ERROR(BAD_REQUEST, "공지사항 번호가 누락되었습니다.");
+        }
+        try {
+            NoticeVO NoticeVO = noticeMapper.getNoticeInfo(noticeNum);
+            if (NoticeVO == null) {
+                return Header.OK(NO_CONTENT, "해당 공지사항을 찾을 수 없습니다.", null);
+            }
+            return Header.OK(NoticeVO);
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 상세 조회 중 오류가 발생했습니다.");
+        }
 	}
 
+    // 공지사항 등록
 	public Header<NoticeVO> insertNotice(NoticeVO NoticeVO) {
-		if (noticeMapper.insertNotice(NoticeVO) > 0) {
-			return Header.OK(NoticeVO);
-		} else {
-			return Header.ERROR("500", "ERROR");
-		}
-	}
+        try {
+            if (noticeMapper.insertNotice(NoticeVO) > 0) {
+                return Header.OK(OK, "공지사항이 등록되었습니다.", NoticeVO);
+            } else {
+                return Header.ERROR(BAD_REQUEST, "공지사항 등록에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 등록 중 오류가 발생했습니다.");
+        }
+    }
 
+    // 공지사항 정보 수정
 	public Header<NoticeVO> updateNotice(NoticeVO NoticeVO) {
-		if (noticeMapper.updateNotice(NoticeVO) > 0) {
-			return Header.OK(NoticeVO);
-		} else {
-			return Header.ERROR("500", "ERROR");
-		}
+        try {
+            if (noticeMapper.updateNotice(NoticeVO) > 0) {
+                return Header.OK(OK, "공지사항이 수정되었습니다.", NoticeVO);
+            } else {
+                return Header.ERROR(BAD_REQUEST, "공지사항 수정에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 수정 중 오류가 발생했습니다.");
+        }
 	}
 
+    // 공지사항 삭제
 	public Header<String> deleteNotice(Long noticeNum) {
-		if (noticeMapper.deleteNotice(noticeNum) > 0) {
-			return Header.OK();
-		} else {
-			return Header.ERROR("500", "ERROR");
-		}
-	}
+        try {
+            if (noticeMapper.deleteNotice(noticeNum) > 0) {
+                return Header.OK(OK, "공지사항이 삭제되었습니다.", String.valueOf(noticeNum));
+            } else {
+                return Header.ERROR(BAD_REQUEST, "공지사항 삭제에 실패했습니다.");
+            }
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 삭제 중 오류가 발생했습니다.");
+        }
+    }
 }
