@@ -333,6 +333,7 @@ public class DeviceService {
 
 		String nextStatus = CodeConstants.APPROVAL_STATUS_REJECTED;
         originDevice.setApprovalStatusCode(nextStatus);
+		originDevice.setRejectReason(deviceVO.getRejectReason());
         if (deviceMapper.updateApprovalStatusCode(originDevice) > 0) {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), Constants.REJECT);
@@ -447,6 +448,7 @@ public class DeviceService {
 				history = new DeviceHistoryVO();
 				history.setDeviceStatus(origin.getDeviceStatusCode());
 				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_REJECTED);
+				history.setReason(origin.getRejectReason());
 				break;
 		}
 

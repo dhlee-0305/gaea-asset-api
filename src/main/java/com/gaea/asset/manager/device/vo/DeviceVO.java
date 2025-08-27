@@ -112,4 +112,7 @@ public class DeviceVO {
 
 	@Schema(description = "장비 변경 요청 사유", example = "")
 	private String changeReason;
+
+	@Schema(description = "장비 반려 사유", example = "")
+	private String rejectReason;
 }
