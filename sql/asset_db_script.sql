@@ -228,7 +228,7 @@ INSERT INTO USER(EMP_NUM, USER_ID, USER_NAME, ORG_ID, USER_POSITION_CD, USER_GRA
 (100008, 'ksyang7', '양승은', 125, '04', '03', '03', 'Y', null, NOW()),
 (100009, 'hslee', '이효성', 125, '04', '04', '00', 'Y', null, NOW()),
 (100010, 'cglee', '이창구', 125, '04', '04', '00', 'Y', null, NOW()),
-(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', null, NOW());
+(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', '', NOW()),
 (0, 'admin', '관리자', 1, '03', '03', '03', 'Y', null, NOW()),
 (1, 'user', '관리자', 1, '04', '07', '00', 'Y', null, NOW());
 
