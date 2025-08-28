@@ -67,9 +67,8 @@ public class DeviceService {
 	 */
 	public Header<List<DeviceVO>> getDeviceList(int currentPage, int pageSize, Search search) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
-		HashMap<String, Object> paramMap = new HashMap<>();
+		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
 
-		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 		paramMap.put("page", (currentPage - 1) * pageSize);
 		paramMap.put("size", pageSize);
 		paramMap.put("searchColumn", search.getSearchColumn());
@@ -92,10 +91,8 @@ public class DeviceService {
 	 */
 	public Header<DeviceVO> getDevice(Integer deviceNum) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
-		HashMap<String, Object> paramMap = new HashMap<>();
-
+		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
 		paramMap.put("deviceNum", deviceNum);
-		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		return Header.OK(deviceMapper.getDevice(paramMap));
 	}
@@ -359,7 +356,7 @@ public class DeviceService {
 	@Transactional
 	public Header<List<DeviceHistoryVO>> getDeviceHistoryList(int currentPage, int pageSize, Search search) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
-		HashMap<String, Object> paramMap = new HashMap<>();
+		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
 
 		// 페이징
 		paramMap.put("page", (currentPage - 1) * pageSize);
@@ -368,8 +365,6 @@ public class DeviceService {
 		// 검색
 		paramMap.put("searchColumn", search.getSearchColumn());
 		paramMap.put("searchKeyword", search.getSearchKeyword());
-
-		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 	    // 데이터 조회
 	    List<DeviceHistoryVO> historyList = deviceMapper.getDeviceHistoryList(paramMap);
@@ -392,7 +387,7 @@ public class DeviceService {
 	 */
 	public Header<List<DeviceVO>> getDevicePendingList(int currentPage, int pageSize) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
-		HashMap<String, Object> paramMap = new HashMap<>();
+		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
 
 		// 페이징
 		paramMap.put("page", (currentPage - 1) * pageSize);
@@ -405,7 +400,6 @@ public class DeviceService {
 		} else if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode) || CodeConstants.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
 			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
 		}
-		if (setParamsByUserRole(userInfo, paramMap)) return Header.ERROR("403", "조회 권한이 없습니다.");
 
 		List<DeviceVO> historyList = deviceMapper.getDevicePendingList(paramMap);
 
@@ -812,8 +806,9 @@ public class DeviceService {
 		return Header.OK();
 	}
 
-	/* 권한에 따른 조건 추가 */
-	public boolean setParamsByUserRole(UserInfoVO userInfo, HashMap<String, Object> paramMap) {
+	/* 권한에 따른 조회용 필터 파라미터 생성 */
+	public HashMap<String, Object> getRoleFilterParams(UserInfoVO userInfo) {
+		HashMap<String, Object> paramMap = new HashMap<>();
 		paramMap.put("roleCode", userInfo.getRoleCode());
 		switch (userInfo.getRoleCode()) {
 			case CodeConstants.ROLE_USER:
@@ -825,9 +820,7 @@ public class DeviceService {
 			case CodeConstants.ROLE_ASSET_MANAGER:
 			case CodeConstants.ROLE_SYSTEM_MANAGER:
 				break;
-			default:
-				return true;
 		}
-		return false;
+		return paramMap;
 	}
 }
