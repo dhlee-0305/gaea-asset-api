@@ -10,6 +10,7 @@ import com.gaea.asset.manager.code.vo.CodeVO;
 import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.util.Pagination;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.user.vo.UserVO;
@@ -47,7 +48,7 @@ public class UserService {
 	public Header<HashMap<String, Object>> getUser(Integer empNum) {
 		UserVO userVO = userMapper.getUser(empNum);
 		if(userVO == null){
-			return Header.ERROR("204", "조회된 정보가 없습니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_NO_CONTENT), "조회된 정보가 없습니다.");
 		}
 		// 공통 코드 목록 조회 (직책, 직위)
 		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
@@ -74,26 +75,26 @@ public class UserService {
 	public Header<UserVO> insertUser(UserVO userVO) {
 		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR("409", "이미 팀장이 존재합니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_CONFLICT), "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.insertUser(userVO) > 0) {
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}
 	}
 
 	public Header<UserVO> updateUser(UserVO userVO) {
 		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR("409", "이미 팀장이 존재합니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_CONFLICT), "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.updateUser(userVO) > 0){
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}
 	}
 
@@ -101,19 +102,19 @@ public class UserService {
 		if(userMapper.deleteUser(empNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}
 	}
 
 	public Header<String> initPassword(UserVO userVO ){
 		if(userVO == null || userVO.getUserId().isBlank()){
-			return Header.ERROR("400", "필수입력 정보가 누락 되었습니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "필수입력 정보가 누락 되었습니다.");
 		}
 		userVO.setInitPassword(Constants.INIT_PASSWORD);
 		if(userMapper.initPassword(userVO) > 0){
 			return Header.OK();
 		} else {
-			return  Header.ERROR("500", "패스워드 초기화 중 오류가 발생했습니다.");
+			return  Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "패스워드 초기화 중 오류가 발생했습니다.");
 		}
 	}
 
