@@ -120,7 +120,7 @@ public class DeviceService {
 				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
 				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
 
-			return Header.ERROR("403", "등록 권한이 없습니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "등록 권한이 없습니다.");
 		}
 
 		deviceVO.setCreateUser(userInfo.getEmpNum());
@@ -133,7 +133,7 @@ public class DeviceService {
 			}
 			return Header.OK();
 		} else {
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}
 	}
 
@@ -156,7 +156,7 @@ public class DeviceService {
 
         DeviceVO originDevice = deviceMapper.getDevice(paramMap);
         if(originDevice == null || StringUtils.isEmpty(userInfo.getRoleCode())) {
-    		return Header.ERROR("403", "수정 권한이 없습니다.");
+    		return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "수정 권한이 없습니다.");
     	}
 
         String currentStatus = originDevice.getApprovalStatusCode();
@@ -165,7 +165,7 @@ public class DeviceService {
         // 결재 대기 상태(부서장 승인대기, 관리자 승인대기)면 수정 불가
         if (CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)
         		|| CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-            return Header.ERROR("403", "승인 대기 중인 장비는 수정할 수 없습니다.");
+            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 대기 중인 장비는 수정할 수 없습니다.");
         }
 
         switch (userInfo.getRoleCode()) {
@@ -209,9 +209,9 @@ public class DeviceService {
                 }
                 break;
             default:
-                return Header.ERROR("403", "수정 권한이 없습니다.");
+                return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "수정 권한이 없습니다.");
         }
-        return Header.ERROR("500", "ERROR");
+        return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
     }
 
     /**
@@ -227,13 +227,13 @@ public class DeviceService {
 				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
 				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
 
-			return Header.ERROR("403", "삭제 권한이 없습니다.");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "삭제 권한이 없습니다.");
 		}
 
 		if (deviceMapper.deleteDevice(deviceNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}
 	}
 
@@ -256,13 +256,13 @@ public class DeviceService {
         switch (userInfo.getRoleCode()) {
             case CodeConstants.ROLE_TEAM_MANAGER: // 부서장
                 if (!CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
-                    return Header.ERROR("403", "승인 권한이 없습니다.");
+                    return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
                 }
                 nextStatus = CodeConstants.APPROVAL_STATUS_ADMIN_PENDING;
                 break;
             case CodeConstants.ROLE_ASSET_MANAGER: // 관리자
                 if (!CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-                    return Header.ERROR("403", "승인 권한이 없습니다.");
+                    return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
                 }
                 nextStatus = CodeConstants.APPROVAL_STATUS_APPROVED;
                 break;
@@ -270,7 +270,7 @@ public class DeviceService {
                 nextStatus = CodeConstants.APPROVAL_STATUS_APPROVED;
                 break;
             default:
-                return Header.ERROR("403", "승인 권한이 없습니다.");
+                return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
         }
 
         // 결재 상태 업데이트
@@ -317,15 +317,15 @@ public class DeviceService {
 
         // 권한 확인
         if (userInfo.getRoleCode() == null || CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())) {
-            return Header.ERROR("403", "반려 권한이 없습니다.");
+            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
         }
         if (CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())
         		&& !CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
-            return Header.ERROR("403", "반려 권한이 없습니다.");
+            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
         }
         if (CodeConstants.ROLE_ASSET_MANAGER.equals(userInfo.getRoleCode())
         		&& !CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-            return Header.ERROR("403", "반려 권한이 없습니다.");
+            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
         }
 
 		String nextStatus = CodeConstants.APPROVAL_STATUS_REJECTED;
@@ -342,7 +342,7 @@ public class DeviceService {
 			return Header.OK();
         }
 
-		return Header.ERROR("500", "ERROR");
+		return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 	}
 
 	// DeviceHistory 관련 메서드
@@ -704,7 +704,7 @@ public class DeviceService {
 		// 파일 확장자 검증
 		String filename = file.getOriginalFilename();
         if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
-            return Header.ERROR("400", "Excel 파일만 업로드 가능합니다.");
+            return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "Excel 파일만 업로드 가능합니다.");
         }
 
         // 전체 사용자 목록 조회
@@ -796,7 +796,7 @@ public class DeviceService {
 
 		} catch (Exception e) {
 			log.error("excel upload error : ", e);
-			return Header.ERROR("500", "ERROR");
+			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
 		}finally {
 			if(workbook != null) {
 				workbook.close();
