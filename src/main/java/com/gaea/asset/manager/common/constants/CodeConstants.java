@@ -1,6 +1,8 @@
 package com.gaea.asset.manager.common.constants;
 
 public class CodeConstants {
+	public static final String CATEGORY_POSITION = "C001";			// 직책
+	public static final String CATEGORY_GRADE = "C002";				// 직위
 	public static final String CATEGORY_DEVICE_TYPE = "C004";		// 장비 유형
 	public static final String CATEGORY_DEVICE_STATUS = "C005";		// 장비 상태
 	public static final String CATEGORY_APPROVAL_STATUS = "C006";	// 결재 상태

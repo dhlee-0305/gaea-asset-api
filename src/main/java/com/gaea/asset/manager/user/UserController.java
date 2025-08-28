@@ -1,5 +1,6 @@
 package com.gaea.asset.manager.user;
 
+import java.util.HashMap;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,7 +30,7 @@ public class UserController {
 
 	@GetMapping("/users/{empNum}")
 	@Operation(summary = "사용자 상세 조회", description = "사용자 상세 조회 API")
-	Header<UserVO> getUser(@PathVariable(name="empNum") Integer empNum) {
+	Header<HashMap<String, Object>> getUser(@PathVariable(name="empNum") Integer empNum) {
 		return userService.getUser(empNum);
 	}
 

@@ -1,8 +1,12 @@
 package com.gaea.asset.manager.user.service;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.gaea.asset.manager.code.service.CodeMapper;
+import com.gaea.asset.manager.code.vo.CodeVO;
 import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.common.constants.Constants;
 import com.gaea.asset.manager.util.Pagination;
@@ -18,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
 	private final UserMapper userMapper;
+	private final CodeMapper codeMapper;
 
 	public Header<List<UserVO>> getUserList(Integer currentPage, Integer pageSize, Search search) {
 		HashMap<String, Object> paramMap = new HashMap<>();
@@ -39,12 +44,31 @@ public class UserService {
 		return Header.OK(userList, pagination);
 	}
 
-	public Header<UserVO> getUser(Integer empNum) {
+	public Header<HashMap<String, Object>> getUser(Integer empNum) {
 		UserVO userVO = userMapper.getUser(empNum);
 		if(userVO == null){
 			return Header.ERROR("204", "조회된 정보가 없습니다.");
 		}
-		return Header.OK(userVO);
+		// 공통 코드 목록 조회 (직책, 직위)
+		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
+				CodeConstants.CATEGORY_POSITION,
+				CodeConstants.CATEGORY_GRADE
+		));
+		// 직책 목록
+		List<CodeVO> positionList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_POSITION))
+				.collect(Collectors.toList());
+		// 직위 목록
+		List<CodeVO> gradeList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_GRADE))
+				.collect(Collectors.toList());
+
+		HashMap<String, Object> resData = new HashMap<>();
+		resData.put("userInfo", userVO);
+		resData.put("positionList", positionList);
+		resData.put("gradeList", gradeList);
+
+		return Header.OK(resData);
 	}
 
 	public Header<UserVO> insertUser(UserVO userVO) {
