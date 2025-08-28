@@ -138,7 +138,7 @@
         UPDATE USER
         SET
         PASSWORD = #{password},
-        PASSWORD_CHANGE_DATE = '',
+        PASSWORD_CHANGE_DATE = null,
         PASSWORD_RESET_REQ = 'N'
         WHERE EMP_NUM = #{empNum}
     </update>

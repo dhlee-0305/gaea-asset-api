@@ -28,7 +28,7 @@ public class LoginService {
 		UserInfoVO userInfoVO = getUserInfo(loginVO);
 		
 		if (userInfoVO != null && loginVO.getPassword().equals(userInfoVO.getPassword())) {
-			if(userInfoVO.getPasswordChangeDate().isBlank() ) {
+			if(userInfoVO.getPasswordChangeDate() == null || userInfoVO.getPasswordChangeDate().isBlank() ) {
 				return Header.ERROR("204", "초기 비밀번호를 사용 중입니다. 비밀번호를 변경해 주세요.");
 			}
 			String token = jwtUtil.generateToken(userInfoVO);

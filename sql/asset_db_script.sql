@@ -122,7 +122,7 @@ CREATE TABLE USER
   USER_GRADE_CD        VARCHAR(10)  NOT NULL COMMENT '직위 코드',
   ROLE_CODE            VARCHAR(10)  NOT NULL COMMENT '권한 코드 (COMMON_CODE)',
   IS_EMPLOYED          CHAR(1)      NOT NULL DEFAULT 'Y' COMMENT '재직여부 (재직중:Y, 퇴사:N)',
-  PASSWORD_CHANGE_DATE VARCHAR(8)   NULL     COMMENT '비밀번호 변경일자',
+  PASSWORD_CHANGE_DATE DATETIME     NULL     COMMENT '비밀번호 변경일자',
   PASSWORD_RESET_REQ   CHAR         NULL     DEFAULT 'N' COMMENT '비밀번호 초기화 요청(초기화요청:Y, 미요청:N)',
   CREATE_DATETIME      DATETIME     NULL     DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   PRIMARY KEY (EMP_NUM)
@@ -217,20 +217,20 @@ INSERT INTO DEVICE (OLD_DEVICE_ID,EMP_NUM,USAGE_DIVISION,USAGE_PURPOSE,ARCHIVE_L
 
 /* USER */
 INSERT INTO USER(EMP_NUM, USER_ID, USER_NAME, ORG_ID, USER_POSITION_CD, USER_GRADE_CD, ROLE_CODE, IS_EMPLOYED, PASSWORD_CHANGE_DATE, CREATE_DATETIME)VALUES
-(100000, 'dhlee', '이대현', 125, '03', '03', '01', 'Y', '', NOW()),
-(100001, 'nile', '이한나', 125, '04', '07', '00', 'Y', '', NOW()),
-(100002, 'hwheo', '허희원', 125, '04', '07', '00', 'Y', '', NOW()),
-(100003, 'hsjeong', '정화수', 125, '04', '04', '00', 'Y', '', NOW()),
-(100004, 'isac9305', '신이삭', 125, '04', '06', '00', 'Y', '', NOW()),
-(100005, 'waterather21', '김우진', 125, '04', '06', '00', 'Y', '', NOW()),
-(100006, 'lyj', '이윤주', 125, '04', '07', '00', 'Y', '', NOW()),
-(100007, 'hys', '한유성', 125, '04', '03', '02', 'Y', '', NOW()),
-(100008, 'ksyang7', '양승은', 125, '04', '03', '03', 'Y', '', NOW()),
-(100009, 'hslee', '이효성', 125, '04', '04', '00', 'Y', '', NOW()),
-(100010, 'cglee', '이창구', 125, '04', '04', '00', 'Y', '', NOW()),
-(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', '', NOW()),
-(0, 'admin', '관리자', 1, '03', '03', '03', 'Y', '', NOW()),
-(1, 'user', '관리자', 1, '04', '07', '00', 'Y', '', NOW());
+(100000, 'dhlee', '이대현', 125, '03', '03', '01', 'Y', null, NOW()),
+(100001, 'nile', '이한나', 125, '04', '07', '00', 'Y', null, NOW()),
+(100002, 'hwheo', '허희원', 125, '04', '07', '00', 'Y', null, NOW()),
+(100003, 'hsjeong', '정화수', 125, '04', '04', '00', 'Y', null, NOW()),
+(100004, 'isac9305', '신이삭', 125, '04', '06', '00', 'Y', null, NOW()),
+(100005, 'waterather21', '김우진', 125, '04', '06', '00', 'Y', null, NOW()),
+(100006, 'lyj', '이윤주', 125, '04', '07', '00', 'Y', null, NOW()),
+(100007, 'hys', '한유성', 125, '04', '03', '02', 'Y', null, NOW()),
+(100008, 'ksyang7', '양승은', 125, '04', '03', '03', 'Y', null, NOW()),
+(100009, 'hslee', '이효성', 125, '04', '04', '00', 'Y', null, NOW()),
+(100010, 'cglee', '이창구', 125, '04', '04', '00', 'Y', null, NOW()),
+(100011, 'ydshim', '심영도', 125, '04', '06', '00', 'Y', null, NOW());
+(0, 'admin', '관리자', 1, '03', '03', '03', 'Y', null, NOW()),
+(1, 'user', '관리자', 1, '04', '07', '00', 'Y', null, NOW());
 
 INSERT INTO DEVICE_HISTORY (
   HISTORY_NUM, DEVICE_NUM, EMP_NUM, DEVICE_STATUS_CODE, APPROVAL_STATUS_CODE,

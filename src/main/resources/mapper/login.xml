@@ -23,7 +23,7 @@
         UPDATE USER
         SET
             PASSWORD = #{newPassword}
-            , PASSWORD_CHANGE_DATE = DATE_FORMAT(NOW(), '%Y%m%d')
+            , PASSWORD_CHANGE_DATE = NOW()
         WHERE USER_ID = #{userId}
     </update>
     
