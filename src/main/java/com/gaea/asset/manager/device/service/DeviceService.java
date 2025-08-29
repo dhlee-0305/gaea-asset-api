@@ -57,6 +57,8 @@ public class DeviceService {
     private final UserMapper userMapper;
     private final CodeMapper codeMapper;
     private final MessageService messageService;
+    
+    private static final long MAX_FILE_SIZE = 5;
 
     /**
 	 * 전산 장비 목록 조회
@@ -706,6 +708,11 @@ public class DeviceService {
         if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
             return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "Excel 파일만 업로드 가능합니다.");
         }
+        
+        // 파일 사이즈 체크
+        if(file.getSize() > MAX_FILE_SIZE) {
+        	return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "파일 크기가 너무 큽니다.");
+        }
 
         // 전체 사용자 목록 조회
         List<UserVO> userList = userMapper.getAllUserList();
@@ -743,27 +750,27 @@ public class DeviceService {
 
 					DeviceVO deviceVO = new DeviceVO();
 
-		        	String userName = formatter.formatCellValue(row.getCell(2));			// 사용자
-		        	deviceVO.setEmpNum(userList.stream()
-		            		.filter(user -> user.getUserName().equals(userName))
-		            		.map(user -> user.getEmpNum())
-		            		.findFirst()
-		            		.orElse(null));
-		        	String usageDivision = formatter.formatCellValue(row.getCell(3));					// 용도구분
-		        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
-		            		.filter(code -> code.getCodeName().equals(usageDivision))
-		            		.map(code -> code.getCode())
-		            		.findFirst()
-		            		.orElse(null));
-		        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(4)));			// 사용용도
-		        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(5)));		// 보관위치
-		        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(6)));			// 관리번호
-		        	String deviceType = formatter.formatCellValue(row.getCell(7));						// 장비유형
+					String deviceType = formatter.formatCellValue(row.getCell(1));						// 장비유형
 		        	deviceVO.setDeviceTypeCode(deviceTypeList.stream()
 		            		.filter(code -> code.getCodeName().equals(deviceType))
 		            		.map(code -> code.getCode())
 		            		.findFirst()
 		            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
+		        	String userName = formatter.formatCellValue(row.getCell(3));			// 사용자
+		        	deviceVO.setEmpNum(userList.stream()
+		            		.filter(user -> user.getUserName().equals(userName))
+		            		.map(user -> user.getEmpNum())
+		            		.findFirst()
+		            		.orElse(null));
+		        	String usageDivision = formatter.formatCellValue(row.getCell(4));					// 용도구분
+		        	deviceVO.setUsageDivisionCode(usageDivisionList.stream()
+		            		.filter(code -> code.getCodeName().equals(usageDivision))
+		            		.map(code -> code.getCode())
+		            		.findFirst()
+		            		.orElse(null));
+		        	deviceVO.setUsagePurpose(formatter.formatCellValue(row.getCell(5)));			// 사용용도
+		        	deviceVO.setArchiveLocation(formatter.formatCellValue(row.getCell(6)));		// 보관위치
+		        	deviceVO.setOldDeviceId(formatter.formatCellValue(row.getCell(7)));			// 관리번호
 		        	deviceVO.setManufacturer(formatter.formatCellValue(row.getCell(8)));			// 제조사
 		        	deviceVO.setModelName(formatter.formatCellValue(row.getCell(9)));				// 모델명
 		        	deviceVO.setManufactureDate(formatter.formatCellValue(row.getCell(10)));	// 제조일
