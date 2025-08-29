@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
@@ -37,4 +38,7 @@ public class NoticeVO {
 
 	@Schema(description = "최종 변경자", example = "admin")
 	private String updateUser;
+
+    @Schema(description = "파일 목록", example = "[이미지1, 이미지2]")
+    private List<FileVO> fileList;
 }

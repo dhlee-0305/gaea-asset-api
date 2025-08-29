@@ -45,28 +45,59 @@
 
     <select id="getNoticeInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.NoticeVO">
         SELECT N.NOTICE_NUM
-             , N.TITLE
-             , N.CONTENT
-             , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
-             , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
+                , N.TITLE
+                , N.CONTENT
+                , CONCAT(O.ORG_NAME, '/', U.USER_NAME) AS CREATE_USER
+                , DATE_FORMAT(N.CREATE_DATETIME, '%Y-%m-%d') AS CREATE_DATETIME
         FROM NOTICE N
         JOIN USER U ON N.CREATE_USER = U.EMP_NUM
         JOIN ORGANIZATION O ON U.ORG_ID = O.ORG_ID
-        WHERE NOTICE_NUM = #{noticeNum}
+        WHERE N.NOTICE_NUM = #{noticeNum}
     </select>
+
+    <select id="getFileList" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.FileVO">
+        SELECT FILE_NUM
+                , ORIGIN_FILE_NAME
+                , STORED_FILE_NAME
+                , UPLOAD_DATETIME
+        FROM FILE
+        WHERE NOTICE_NUM = #{noticeNum}
+        AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getOriginFileName" parameterType="String" resultType="String">
+        SELECT ORIGIN_FILE_NAME
+        FROM FILE
+        WHERE STORED_FILE_NAME = #{storedFileName}
+    </select>
+
+    <insert id="insertFile" parameterType="com.gaea.asset.manager.notice.vo.FileVO"  keyProperty="fileNum" useGeneratedKeys="true">
+        INSERT INTO FILE
+        (
+            ORIGIN_FILE_NAME
+            , STORED_FILE_NAME
+            , UPLOAD_DATETIME
+            , NOTICE_NUM
+        ) VALUES (
+            #{originFileName}
+            , #{storedFileName}
+            , NOW()
+            , #{noticeNum}
+        )
+    </insert>
 
     <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
         INSERT INTO NOTICE
         (
             TITLE
-          , CONTENT
-          , CREATE_DATETIME
-          , CREATE_USER
+            , CONTENT
+            , CREATE_DATETIME
+            , CREATE_USER
         ) VALUES (
             #{title}
-          , #{content}
-          , NOW()
-          , #{createUser}
+            , #{content}
+            , NOW()
+            , #{createUser}
         )
     </insert>
 

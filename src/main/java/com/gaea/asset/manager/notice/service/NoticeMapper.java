@@ -3,6 +3,7 @@ package com.gaea.asset.manager.notice.service;
 import java.util.HashMap;
 import java.util.List;
 
+import com.gaea.asset.manager.notice.vo.FileVO;
 import org.apache.ibatis.annotations.Mapper;
 
 import com.gaea.asset.manager.notice.vo.NoticeVO;
@@ -20,4 +21,10 @@ public interface NoticeMapper {
 	int updateNotice(NoticeVO entity);
 
 	int deleteNotice(Long idx);
+
+    void insertFile(FileVO entity);
+
+    List<FileVO> getFileList(Long idx);
+
+    FileVO getOriginFileName(String storedFileName);
 }
