@@ -10,6 +10,17 @@
           , CODE_NAME
         FROM COMMON_CODE
         WHERE USE_YN = 'Y'
+        <if test="category != null and category != ''">
+            AND CATEGORY = #{category}
+        </if>
+    </select>
+    
+    <select id="getCategoryList" resultType="com.gaea.asset.manager.code.vo.CodeVO">
+        SELECT CATEGORY
+          , CATEGORY_NAME
+        FROM COMMON_CODE
+        WHERE USE_YN = 'Y'
+        GROUP BY CATEGORY, CATEGORY_NAME
     </select>
 
     <insert id="insertCode" parameterType="com.gaea.asset.manager.code.vo.CodeVO" keyProperty="deviceNum" useGeneratedKeys="true">

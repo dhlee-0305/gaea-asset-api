@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gaea.asset.manager.code.service.CodeService;
@@ -28,8 +29,8 @@ public class CodeController {
 
 	@GetMapping("/codes")
 	@Operation(summary = "공통 코드 목록 조회", description = "공통 코드 목록 조회 API")
-	Header<List<CodeVO>> getCodeList() {
-		return codeService.getCodeList();
+	Header<List<CodeVO>> getCodeList(@RequestParam(value="category", defaultValue = "") String category) {
+		return codeService.getCodeList(category);
 	}
 
 	@PostMapping("/codes")
@@ -52,5 +53,11 @@ public class CodeController {
 	})
 	Header<String> updateUseYn(@PathVariable(name="category") String category, @PathVariable(name="code") String code) {
 		return codeService.updateUseYn(category, code);
+	}
+	
+	@GetMapping("/categories")
+	@Operation(summary = "공통 카테고리 목록 조회", description = "공통 카테고리 목록 조회 API")
+	Header<List<CodeVO>> getCategoryList() {
+		return codeService.getCategoryList();
 	}
 }
