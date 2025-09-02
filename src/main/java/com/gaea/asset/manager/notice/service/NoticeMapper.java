@@ -30,6 +30,8 @@ public interface NoticeMapper {
 
     void updateFileFlag(Long idx);
 
+    void deleteFile(Long idx);
+
 	int deleteNotice(Long idx);
 
     void insertFile(FileVO entity);

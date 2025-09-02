@@ -65,6 +65,15 @@
         AND IS_DELETED = 'N'
     </select>
 
+    <select id="getFileInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.FileVO">
+        SELECT FILE_NUM
+                , ORIGIN_FILE_NAME
+                , STORED_FILE_NAME
+                , UPLOAD_DATETIME
+        FROM FILE
+        WHERE FILE_NUM = #{fileNum}
+    </select>
+
     <select id="getOriginFileName" parameterType="String" resultType="String">
         SELECT ORIGIN_FILE_NAME
         FROM FILE
@@ -115,6 +124,11 @@
         SET IS_DELETED = 'Y'
         WHERE FILE_NUM = #{fileNum}
     </update>
+
+    <delete id="deleteFile" parameterType="Long">
+        DELETE FROM FILE
+        WHERE NOTICE_NUM = #{noticeNum}
+    </delete>
 
     <delete id="deleteNotice" parameterType="Long">
         DELETE FROM NOTICE

@@ -1,6 +1,8 @@
 package com.gaea.asset.manager.notice.service;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -213,8 +215,20 @@ public class NoticeService {
 
 
     // 공지사항 삭제
+    @Transactional
 	public Header<String> deleteNotice(Long noticeNum) {
         try {
+            List<FileVO> fileList = noticeMapper.getFileList(noticeNum);
+            String savePath = System.getProperty("user.dir") + "/notice/files/";
+
+            for (FileVO fileVO : fileList) {
+                String storedFileName = fileVO.getStoredFileName();
+                File file = new File(savePath, storedFileName);
+                if (file.exists()  && !file.delete()) {
+                    return Header.ERROR(BAD_REQUEST, "파일 삭제에 실패했습니다.");
+                }
+            }
+            noticeMapper.deleteFile(noticeNum);
             if (noticeMapper.deleteNotice(noticeNum) > 0) {
                 return Header.OK(OK, "공지사항이 삭제되었습니다.", String.valueOf(noticeNum));
             } else {
