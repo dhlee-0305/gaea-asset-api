@@ -110,6 +110,12 @@
         WHERE NOTICE_NUM = #{noticeNum}
     </update>
 
+    <update id="updateFileFlag" parameterType="Long">
+        UPDATE FILE
+        SET IS_DELETED = 'Y'
+        WHERE FILE_NUM = #{fileNum}
+    </update>
+
     <delete id="deleteNotice" parameterType="Long">
         DELETE FROM NOTICE
         WHERE NOTICE_NUM = #{noticeNum}

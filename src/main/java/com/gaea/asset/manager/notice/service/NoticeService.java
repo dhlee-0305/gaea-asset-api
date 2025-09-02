@@ -170,17 +170,47 @@ public class NoticeService {
     }
 
     // 공지사항 정보 수정
-	public Header<NoticeVO> updateNotice(NoticeVO NoticeVO) {
+    @Transactional
+	public Header<NoticeVO> updateNotice(NoticeVO NoticeVO, List<MultipartFile> files) {
         try {
-            if (noticeMapper.updateNotice(NoticeVO) > 0) {
-                return Header.OK(OK, "공지사항이 수정되었습니다.", NoticeVO);
-            } else {
+            int result = noticeMapper.updateNotice(NoticeVO);
+            if (result <= 0) {
                 return Header.ERROR(BAD_REQUEST, "공지사항 수정에 실패했습니다.");
             }
+            saveFile(NoticeVO, files);
+            return Header.OK(OK, "공지사항이 수정되었습니다.", NoticeVO);
+        } catch (IllegalArgumentException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Header.ERROR(BAD_REQUEST, e.getMessage());
+        } catch (IOException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "파일 저장 중 오류가 발생했습니다.");
         } catch (Exception e) {
-            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 수정 중 오류가 발생했습니다.");
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 수정 중 오류가 발생했습니다." + e.getMessage());
         }
 	}
+
+    // 파일 삭제
+    public Header<String> deleteFile(Long fileNum) {
+        try {
+            FileVO FileVO = noticeMapper.getFileInfo(fileNum);
+            if (FileVO == null) {
+                return Header.ERROR(BAD_REQUEST, "파일 정보를 찾을 수 없습니다.");
+            }
+
+            String savePath = System.getProperty("user.dir") + "/notice/files/";
+            File file = new File(savePath, FileVO.getStoredFileName());
+            if (file.exists() && !file.delete()) {
+                return Header.ERROR(BAD_REQUEST, "파일 삭제에 실패했습니다.");
+            }
+
+            noticeMapper.updateFileFlag(fileNum);
+            return Header.OK(OK, "파일이 삭제되었습니다.", String.valueOf(fileNum));
+        } catch (Exception e) {
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
+        }
+    }
+
 
     // 공지사항 삭제
 	public Header<String> deleteNotice(Long noticeNum) {

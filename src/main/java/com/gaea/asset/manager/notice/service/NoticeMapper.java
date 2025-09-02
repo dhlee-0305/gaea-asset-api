@@ -16,9 +16,19 @@ public interface NoticeMapper {
 
 	NoticeVO getNoticeInfo(Long idx);
 
+    List<FileVO> getFileList(Long idx);
+
+    FileVO getFileInfo(Long idx);
+
+    FileVO getOriginFileName(String storedFileName);
+
+    void insertFile(FileVO entity);
+
 	int insertNotice(NoticeVO entity);
 
 	int updateNotice(NoticeVO entity);
+
+    void updateFileFlag(Long idx);
 
 	int deleteNotice(Long idx);
 

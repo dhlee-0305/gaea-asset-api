@@ -87,9 +87,18 @@ public class NoticeController {
 	@Parameters({
 		@Parameter(name = "noticeNum", description = "공지사항 번호", example = "15")
 	})
-	Header<NoticeVO> updateNotice(@RequestBody NoticeVO NoticeVO) {
-		return noticeService.updateNotice(NoticeVO);
+	Header<NoticeVO> updateNotice(@ModelAttribute NoticeVO NoticeVO, @RequestParam(value = "files", required = false) List<MultipartFile> files) {
+		return noticeService.updateNotice(NoticeVO, files);
 	}
+
+    @DeleteMapping("/files/{fileNum}")
+    @Operation(summary = "파일 삭제", description = "파일 삭제 API")
+    @Parameters({
+            @Parameter(name = "fileNum", description = "파일 번호", example = "1")
+    })
+    public Header<String> deleteFile(@PathVariable(name="fileNum") Long fileNum) {
+        return noticeService.deleteFile(fileNum);
+    }
 
 	@DeleteMapping("/notices/{noticeNum}")
 	@Operation(summary = "공지사항 삭제", description = "공지사항 삭제 API")
