@@ -96,61 +96,17 @@ public class NoticeService {
         }
     }
 
-    // 공지사항 등록
-    @Transactional
-    public Header<NoticeVO> insertNotice(NoticeVO NoticeVO, List<MultipartFile> files) {
-        String savePath = "D:/uploads/files/";
-        File uploadDir = new File(savePath);
-        if (!uploadDir.exists() && !uploadDir.mkdirs()) {
-            return Header.ERROR(BAD_REQUEST, "파일 저장 경로 생성에 실패했습니다.");
-        }
-
-        try {
-            int result = noticeMapper.insertNotice(NoticeVO);
-            if (result <= 0) {
-                return Header.ERROR(BAD_REQUEST, "공지사항 등록에 실패했습니다.");
-            }
-
-            Long noticeNum = NoticeVO.getNoticeNum();
-
-            if (files != null && !files.isEmpty()) {
-                for (MultipartFile multipartFile : files) {
-                    try {
-                        if (!multipartFile.isEmpty()) {
-                            FileValidator.validate(multipartFile);
-
-                            String storedFileName = insertFile(multipartFile, savePath);
-
-                            FileVO fileVO = new FileVO();
-                            fileVO.setNoticeNum(noticeNum);
-                            fileVO.setStoredFileName(storedFileName);
-                            fileVO.setOriginFileName(multipartFile.getOriginalFilename());
-
-                            noticeMapper.insertFile(fileVO);
-                        }
-                    } catch (IllegalArgumentException e) {
-                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                        return Header.ERROR(BAD_REQUEST, e.getMessage());
-                    } catch (IOException e) {
-                        TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-                        return Header.ERROR(INTERNAL_SERVER_ERROR, "파일 저장 중 오류가 발생했습니다.");
-                    }
-                }
-            }
-            return Header.OK(OK, "공지사항이 등록되었습니다.", NoticeVO);
-        } catch (Exception e) {
-            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 등록 중 오류가 발생했습니다.");
-        }
-    }
-
     // 파일 등록
     public String insertFile(MultipartFile multipartFile, String savePath) throws IOException {
         String originFileName = multipartFile.getOriginalFilename();
-        String fileExtension = null;
-        if (FilenameUtils.getExtension(originFileName) != null) {
-            fileExtension = FilenameUtils.getExtension(originFileName).toLowerCase();
+        String fileExtension = FilenameUtils.getExtension(originFileName);
+        if (fileExtension == null || fileExtension.isBlank()) {
+            throw new IllegalArgumentException("파일 확장자가 존재하지 않습니다.");
         }
-        String storedFileName = UUID.randomUUID() + "." + fileExtension;
+
+        String timestamp = new SimpleDateFormat("yyyyMMdd_HHmm").format(new Date());
+        String uuid = UUID.randomUUID().toString().substring(0, 6);
+        String storedFileName = timestamp + "_" + uuid + "." + fileExtension;
         File file = new File(savePath, storedFileName);
 
         try (InputStream in = multipartFile.getInputStream();
@@ -159,6 +115,58 @@ public class NoticeService {
         }
 
         return storedFileName;
+    }
+
+    // 파일 저장
+    public void saveFile(NoticeVO NoticeVO, List<MultipartFile> files) throws IOException {
+        String savePath = System.getProperty("user.dir") + "/notice/files/";
+        File uploadDir = new File(savePath);
+        if (!uploadDir.exists() && !uploadDir.mkdirs()) {
+            throw new RuntimeException("파일 저장 경로 생성에 실패했습니다.");
+        }
+
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile multipartFile : files) {
+                if (!multipartFile.isEmpty()) {
+                    try {
+                        FileValidator.validate(multipartFile);
+                    } catch (IllegalArgumentException e) {
+                        throw new IllegalArgumentException("파일 유효성 검사 실패: " + e.getMessage());
+                    }
+                    Long noticeNum = NoticeVO.getNoticeNum();
+                    String storedFileName = insertFile(multipartFile, savePath);
+
+                    FileVO fileVO = new FileVO();
+                    fileVO.setNoticeNum(noticeNum);
+                    fileVO.setStoredFileName(storedFileName);
+                    fileVO.setOriginFileName(multipartFile.getOriginalFilename());
+
+                    noticeMapper.insertFile(fileVO);
+                }
+            }
+        }
+    }
+
+    // 공지사항 등록
+    @Transactional
+    public Header<NoticeVO> insertNotice(NoticeVO NoticeVO, List<MultipartFile> files) {
+        try {
+            int result = noticeMapper.insertNotice(NoticeVO);
+            if (result <= 0) {
+                return Header.ERROR(BAD_REQUEST, "공지사항 등록에 실패했습니다.");
+            }
+            saveFile(NoticeVO, files);
+            return Header.OK(OK, "공지사항이 등록되었습니다.", NoticeVO);
+        } catch (IllegalArgumentException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Header.ERROR(BAD_REQUEST, e.getMessage());
+        } catch (IOException e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "파일 저장 중 오류가 발생했습니다.");
+        } catch (Exception e) {
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            return Header.ERROR(INTERNAL_SERVER_ERROR, "공지사항 등록 중 오류가 발생했습니다.");
+        }
     }
 
     // 공지사항 정보 수정
