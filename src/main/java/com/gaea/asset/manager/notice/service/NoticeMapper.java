@@ -33,10 +33,4 @@ public interface NoticeMapper {
     void deleteFile(Long idx);
 
 	int deleteNotice(Long idx);
-
-    void insertFile(FileVO entity);
-
-    List<FileVO> getFileList(Long idx);
-
-    FileVO getOriginFileName(String storedFileName);
 }
