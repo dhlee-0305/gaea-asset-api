@@ -1,9 +1,9 @@
 package com.gaea.asset.manager.notice;
 
-import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -13,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import com.gaea.asset.manager.notice.service.NoticeService;
@@ -54,31 +55,27 @@ public class NoticeController {
         return noticeService.insertNotice(NoticeVO, files);
     }
 
-    @GetMapping("/files")
+    @GetMapping("/files/{fileName}")
     @Operation(summary = "파일 다운로드", description = "파일 다운로드 API")
-    public ResponseEntity<Resource> downloadFile(@RequestParam("storedFileName") String storedFileName) {
-        String filePath = "D:/uploads/files/" + storedFileName;
-        File file = new File(filePath);
-
-        if (!file.exists()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일이 존재하지 않습니다.");
-        }
+    @Parameters({
+            @Parameter(name = "fileName", description = "파일 이름", example = "이미지1.png")
+    })
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) {
+        String path = System.getProperty("user.dir") + "/notice/files/";
+        Path filePath = Paths.get(path).resolve(fileName).normalize();
 
         try {
-            Path path = file.toPath();
-            Resource resource = new UrlResource(path.toUri());
+            Resource resource = new UrlResource(filePath.toUri());
 
-            Header<String> originFileHeader = noticeService.getOriginFileName(storedFileName);
-            if (!NoticeService.OK.equals(originFileHeader.getResultCode()) || originFileHeader.getData() == null) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, originFileHeader.getDescription());
-            }
+            String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8);
+            String cleanFileName = StringUtils.cleanPath(encodedFileName);
 
-            String originalFileName = originFileHeader.getData();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            headers.setContentDispositionFormData("attachment", cleanFileName);
 
             return ResponseEntity.ok()
-                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + URLEncoder.encode(originalFileName, StandardCharsets.UTF_8) + "\"")
+                    .headers(headers)
                     .body(resource);
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 다운로드 실패", e);
