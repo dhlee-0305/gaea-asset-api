@@ -61,4 +61,10 @@ public class UserController {
 		return userService.initPassword(userVO);
 	}
 
+	@GetMapping("/users/commonCode")
+	@Operation(summary = "사용자 정보 관련 공통 코드 조회", description = "사용자 정보 관련 공통 코드 조회 API")
+	Header<HashMap<String, Object>> getCommonCode(){
+		return Header.OK(userService.getUserCommonCode(false, null));
+	}
+
 }

@@ -28,6 +28,9 @@ public class UserVO {
 
 	@Schema(description = "조직ID", example = "1111")
 	Integer orgId;
+	
+	@Schema(description = "조직부모ID", example = "1111")
+	Integer parentOrgId;
 
 	@Schema(description = "조직명", example = "IT서비스부문")
 	String orgName;

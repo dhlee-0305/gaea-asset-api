@@ -55,6 +55,7 @@
           , CONCAT(SUBSTRING(U.USER_ID, 1, LENGTH(U.USER_ID)-2), '**') AS USER_ID
           , U.USER_NAME
           , U.ORG_ID
+          , O.PARENT_ORG_ID
           , O.ORG_NAME
           , U.USER_POSITION_CD
           , U.USER_GRADE_CD

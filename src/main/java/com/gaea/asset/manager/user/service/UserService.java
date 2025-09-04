@@ -9,8 +9,11 @@ import com.gaea.asset.manager.code.service.CodeMapper;
 import com.gaea.asset.manager.code.vo.CodeVO;
 import com.gaea.asset.manager.common.constants.CodeConstants;
 import com.gaea.asset.manager.common.constants.Constants;
+import com.gaea.asset.manager.organization.service.OrganizationMapper;
+import com.gaea.asset.manager.organization.vo.OrganizationVO;
 import com.gaea.asset.manager.util.Pagination;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.user.vo.UserVO;
@@ -19,11 +22,13 @@ import com.gaea.asset.manager.util.Search;
 
 import lombok.RequiredArgsConstructor;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
 	private final UserMapper userMapper;
 	private final CodeMapper codeMapper;
+	private final OrganizationMapper organizationMapper;
 
 	public Header<List<UserVO>> getUserList(Integer currentPage, Integer pageSize, Search search) {
 		HashMap<String, Object> paramMap = new HashMap<>();
@@ -50,24 +55,8 @@ public class UserService {
 		if(userVO == null){
 			return Header.ERROR(String.valueOf(HttpServletResponse.SC_NO_CONTENT), "조회된 정보가 없습니다.");
 		}
-		// 공통 코드 목록 조회 (직책, 직위)
-		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-				CodeConstants.CATEGORY_POSITION,
-				CodeConstants.CATEGORY_GRADE
-		));
-		// 직책 목록
-		List<CodeVO> positionList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_POSITION))
-				.collect(Collectors.toList());
-		// 직위 목록
-		List<CodeVO> gradeList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_GRADE))
-				.collect(Collectors.toList());
-
-		HashMap<String, Object> resData = new HashMap<>();
+		HashMap<String, Object> resData = this.getUserCommonCode(true, userVO);
 		resData.put("userInfo", userVO);
-		resData.put("positionList", positionList);
-		resData.put("gradeList", gradeList);
 
 		return Header.OK(resData);
 	}
@@ -129,5 +118,35 @@ public class UserService {
 			return false;
 		}
 		return true;
+	}
+
+	public HashMap<String, Object> getUserCommonCode(boolean isUpdate, UserVO userVO) {
+		HashMap<String, Object> resData = new HashMap<>();
+		// 공통 코드 목록 조회 (직책, 직위)
+		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
+				CodeConstants.CATEGORY_POSITION,
+				CodeConstants.CATEGORY_GRADE
+		));
+		// 직책 목록
+		List<CodeVO> positionList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_POSITION))
+				.collect(Collectors.toList());
+		// 직위 목록
+		List<CodeVO> gradeList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_GRADE))
+				.collect(Collectors.toList());
+		// 부서정보 조회
+		List<OrganizationVO> organizationList = organizationMapper.selectOrganizationList();
+		if (isUpdate) {
+			OrganizationVO disivion = organizationList.stream().filter(org-> org.getOrgId().equals(userVO.getParentOrgId())).findFirst().get();
+			resData.put("division", disivion.getOrgId());
+			OrganizationVO company = organizationList.stream().filter(org-> org.getOrgId().equals(disivion.getParentOrgId())).findFirst().get();
+			resData.put("company", company.getOrgId());
+		}
+
+		resData.put("positionList", positionList);
+		resData.put("gradeList", gradeList);
+		resData.put("organizationList", organizationList);
+		return resData;
 	}
 }
