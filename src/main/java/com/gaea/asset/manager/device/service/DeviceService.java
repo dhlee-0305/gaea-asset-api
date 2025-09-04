@@ -58,7 +58,8 @@ public class DeviceService {
     private final CodeMapper codeMapper;
     private final MessageService messageService;
     
-    private static final long MAX_FILE_SIZE = 5;
+    private static final long MAX_EXCEL_FILE_SIZE = 5 * 1024 * 1024;	// 엑셀 파일 업로드 최대 사이즈 5MB
+    private static final int BULK_INSERT_SIZE = 1000;					// BULK INSERT 사이즈
 
     /**
 	 * 전산 장비 목록 조회
@@ -710,7 +711,7 @@ public class DeviceService {
         }
         
         // 파일 사이즈 체크
-        if(file.getSize() > MAX_FILE_SIZE) {
+        if(file.getSize() > MAX_EXCEL_FILE_SIZE) {
         	return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "파일 크기가 너무 큽니다.");
         }
 
@@ -743,8 +744,8 @@ public class DeviceService {
 
 			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
 				Sheet sheet = workbook.getSheetAt(i);
-
 				List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
+				
 				for (Row row : sheet) {
 					if (row.getRowNum() < startRow) continue;
 
@@ -793,6 +794,12 @@ public class DeviceService {
 
 		        	deviceList.add(deviceVO);
 		        	log.info("##### Row {} : {}", i, deviceVO.toString());
+		        	
+		        	// DB 저장
+		        	if (deviceList.size() >= BULK_INSERT_SIZE) {
+		                deviceMapper.insertDeviceList(deviceList);
+		                deviceList.clear();
+		            }
 		        }
 
 		        // DB 저장
