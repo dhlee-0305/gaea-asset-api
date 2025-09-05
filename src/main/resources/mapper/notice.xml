@@ -74,12 +74,6 @@
         WHERE FILE_NUM = #{fileNum}
     </select>
 
-    <select id="getOriginFileName" parameterType="String" resultType="String">
-        SELECT ORIGIN_FILE_NAME
-        FROM FILE
-        WHERE STORED_FILE_NAME = #{storedFileName}
-    </select>
-
     <insert id="insertFile" parameterType="com.gaea.asset.manager.notice.vo.FileVO"  keyProperty="fileNum" useGeneratedKeys="true">
         INSERT INTO FILE
         (

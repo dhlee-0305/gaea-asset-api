@@ -82,22 +82,6 @@ public class NoticeService {
         }
 	}
 
-    // 원본 파일명 조회
-    public Header<String> getOriginFileName(String storedFileName) {
-        if (storedFileName == null || storedFileName.isBlank()) {
-            return Header.ERROR(BAD_REQUEST, "파일명이 누락되었습니다.");
-        }
-        try {
-            FileVO fileVO = noticeMapper.getOriginFileName(storedFileName);
-            if (fileVO == null || fileVO.getOriginFileName() == null) {
-                return Header.OK(NO_CONTENT, "원본 파일명을 찾을 수 없습니다.", null);
-            }
-            return Header.OK(fileVO.getOriginFileName());
-        } catch (Exception e) {
-            return Header.ERROR(INTERNAL_SERVER_ERROR, "파일명 조회 중 오류가 발생했습니다.");
-        }
-    }
-
     // 파일 등록
     public String insertFile(MultipartFile multipartFile, String savePath) throws IOException {
         String originFileName = multipartFile.getOriginalFilename();
@@ -120,7 +104,7 @@ public class NoticeService {
     }
 
     // 파일 저장
-    public void saveFile(NoticeVO NoticeVO, List<MultipartFile> files) throws IOException {
+    public void saveFile(NoticeVO noticeVO, List<MultipartFile> files) throws IOException {
         String savePath = System.getProperty("user.dir") + "/notice/files/";
         File uploadDir = new File(savePath);
         if (!uploadDir.exists() && !uploadDir.mkdirs()) {
@@ -135,7 +119,7 @@ public class NoticeService {
                     } catch (IllegalArgumentException e) {
                         throw new IllegalArgumentException("파일 유효성 검사 실패: " + e.getMessage());
                     }
-                    Long noticeNum = NoticeVO.getNoticeNum();
+                    Long noticeNum = noticeVO.getNoticeNum();
                     String storedFileName = insertFile(multipartFile, savePath);
 
                     FileVO fileVO = new FileVO();
@@ -151,14 +135,14 @@ public class NoticeService {
 
     // 공지사항 등록
     @Transactional
-    public Header<NoticeVO> insertNotice(NoticeVO NoticeVO, List<MultipartFile> files) {
+    public Header<NoticeVO> insertNotice(NoticeVO noticeVO, List<MultipartFile> files) {
         try {
-            int result = noticeMapper.insertNotice(NoticeVO);
+            int result = noticeMapper.insertNotice(noticeVO);
             if (result <= 0) {
                 return Header.ERROR(BAD_REQUEST, "공지사항 등록에 실패했습니다.");
             }
-            saveFile(NoticeVO, files);
-            return Header.OK(OK, "공지사항이 등록되었습니다.", NoticeVO);
+            saveFile(noticeVO, files);
+            return Header.OK(OK, "공지사항이 등록되었습니다.", noticeVO);
         } catch (IllegalArgumentException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return Header.ERROR(BAD_REQUEST, e.getMessage());
@@ -173,14 +157,14 @@ public class NoticeService {
 
     // 공지사항 정보 수정
     @Transactional
-	public Header<NoticeVO> updateNotice(NoticeVO NoticeVO, List<MultipartFile> files) {
+	public Header<NoticeVO> updateNotice(NoticeVO noticeVO, List<MultipartFile> files) {
         try {
-            int result = noticeMapper.updateNotice(NoticeVO);
+            int result = noticeMapper.updateNotice(noticeVO);
             if (result <= 0) {
                 return Header.ERROR(BAD_REQUEST, "공지사항 수정에 실패했습니다.");
             }
-            saveFile(NoticeVO, files);
-            return Header.OK(OK, "공지사항이 수정되었습니다.", NoticeVO);
+            saveFile(noticeVO, files);
+            return Header.OK(OK, "공지사항이 수정되었습니다.", noticeVO);
         } catch (IllegalArgumentException e) {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
             return Header.ERROR(BAD_REQUEST, e.getMessage());

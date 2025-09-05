@@ -20,8 +20,6 @@ public interface NoticeMapper {
 
     FileVO getFileInfo(Long idx);
 
-    FileVO getOriginFileName(String storedFileName);
-
     void insertFile(FileVO entity);
 
 	int insertNotice(NoticeVO entity);
