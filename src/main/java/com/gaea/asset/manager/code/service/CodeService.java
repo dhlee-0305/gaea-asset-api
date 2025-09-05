@@ -1,6 +1,8 @@
 package com.gaea.asset.manager.code.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -59,5 +61,20 @@ public class CodeService {
 		List<CodeVO> categoryList = codeMapper.getCategoryList();
 		
 		return Header.OK("200", "", categoryList);
+	}
+
+	public Header<HashMap<String, Object>> getCodeListByCodes(List<String> categoryList) {
+		List<CodeVO> codeList = codeMapper.getCodeListByCodes(categoryList);
+		int index = 0;
+		HashMap<String, Object> resData = new HashMap<>();
+
+		for(String category : categoryList){
+			List<CodeVO> resultData = codeList.stream()
+					.filter(code -> code.getCategory().equals(category))
+					.collect(Collectors.toList());
+			resData.put(category, resultData);
+		}
+
+		return Header.OK("0000", "", resData);
 	}
 }

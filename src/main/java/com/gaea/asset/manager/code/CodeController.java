@@ -1,5 +1,6 @@
 package com.gaea.asset.manager.code;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,5 +60,11 @@ public class CodeController {
 	@Operation(summary = "공통 카테고리 목록 조회", description = "공통 카테고리 목록 조회 API")
 	Header<List<CodeVO>> getCategoryList() {
 		return codeService.getCategoryList();
+	}
+
+	@GetMapping("/codesByCategories")
+	@Operation(summary = "공통 코드 목록 조회", description = "공통 코드 목록 조회 API")
+	Header<HashMap<String, Object>> getCodeListByCodes(@RequestParam(value="categoryList", defaultValue = "") List<String> categoryList) {
+		return codeService.getCodeListByCodes(categoryList);
 	}
 }
