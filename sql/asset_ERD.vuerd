@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -221,
-    "scrollLeft": 0,
-    "zoomLevel": 0.82,
+    "scrollTop": -1153.2317,
+    "scrollLeft": -800,
+    "zoomLevel": 1,
     "show": 511,
     "database": 4,
     "databaseName": "",
@@ -3222,18 +3222,18 @@
         "tableId": "rVp30Da5JXo_ssG8okfa9",
         "name": "RECIPIENT",
         "comment": "수신자",
-        "dataType": "INT",
+        "dataType": "VARCHAR(255)",
         "default": "",
         "options": 8,
         "ui": {
           "keys": 0,
           "widthName": 60,
           "widthComment": 60,
-          "widthDataType": 60,
+          "widthDataType": 81,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1754545146197,
+          "updateAt": 1757290756082,
           "createAt": 1754543850513
         }
       },
@@ -3242,18 +3242,18 @@
         "tableId": "rVp30Da5JXo_ssG8okfa9",
         "name": "SENDER",
         "comment": "발신자",
-        "dataType": "INT",
+        "dataType": "VARCHAR(255)",
         "default": "",
         "options": 8,
         "ui": {
           "keys": 0,
           "widthName": 60,
           "widthComment": 60,
-          "widthDataType": 60,
+          "widthDataType": 81,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1754545157223,
+          "updateAt": 1757290755016,
           "createAt": 1754543850680
         }
       },
@@ -3621,34 +3621,6 @@
         "meta": {
           "updateAt": 1751956157029,
           "createAt": 1751956157029
-        }
-      },
-      "-53B3YNG8NCKLGkEv17v9": {
-        "id": "-53B3YNG8NCKLGkEv17v9",
-        "identification": false,
-        "relationshipType": 4,
-        "startRelationshipType": 2,
-        "start": {
-          "tableId": "byRGWfhRRkf7Tf_F_lYDn",
-          "columnIds": [
-            "_vmWvAnzT9UIznBXqPyTO"
-          ],
-          "x": 1534.3538,
-          "y": 637.8051,
-          "direction": 4
-        },
-        "end": {
-          "tableId": "bc387cc2-2a42-4c1e-ad23-ae710c8eb559",
-          "columnIds": [
-            "WkR92oB5tB4xYiN0O-7Di"
-          ],
-          "x": 1534.306,
-          "y": 543.2707,
-          "direction": 8
-        },
-        "meta": {
-          "updateAt": 1756684623434,
-          "createAt": 1756684623434
         }
       },
       "gn3RAHghEa8diMmEBBi55": {

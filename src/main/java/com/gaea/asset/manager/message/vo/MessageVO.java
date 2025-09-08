@@ -18,10 +18,10 @@ public class MessageVO {
     private Integer messageNum;
 
     @Schema(description = "수신자", example = "100000")
-    private Integer recipient;
+    private String recipient;
 
     @Schema(description = "발신자", example = "100000")
-    private Integer sender;
+    private String sender;
 
     @Schema(description = "제목", example = "[메세지] 메세지")
     private String title;

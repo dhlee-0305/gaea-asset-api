@@ -35,12 +35,9 @@ public class MessageService {
 
     public void insertMessage(MessageTemplate template, Integer recipient) throws MessagingException {
         String to = messageMapper.getUserID(recipient) + "@gaeasoft.co.kr";
-        String userId = from.split("@")[0];
-        Integer sender = messageMapper.getEmpNum(userId);
-
         MessageVO messageVO = MessageVO.builder()
-                .recipient(recipient)
-                .sender(sender)
+                .recipient(to)
+                .sender(from)
                 .title(template.getSubject())
                 .content(template.formatBody())
                 .messageStatusCode(template.getMessageCode())
