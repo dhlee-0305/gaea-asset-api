@@ -35,6 +35,9 @@
             AND O.ORG_NAME LIKE CONCAT('%', #{searchKeyword}, '%')
         </if>
       </if>
+        <if test="deviceType != null and deviceType != 'all'">
+            AND D.DEVICE_TYPE = #{deviceType}
+        </if>
     </where>
         ORDER BY
         <if test="roleCode != null and roleCode == '01'">
@@ -190,6 +193,9 @@
           </if>
           <if test="loginOrgId != null">
               AND U.ORG_ID = #{loginOrgId}
+          </if>
+          <if test="deviceType != null and deviceType != 'all'">
+              AND D.DEVICE_TYPE = #{deviceType}
           </if>
       </where>
   </select>
