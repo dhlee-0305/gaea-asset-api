@@ -14,4 +14,7 @@ public class Search {
 	private String searchColumn;
 	// 검색어
 	private String searchKeyword;
+
+	// 장비유형
+	private String deviceType;
 }

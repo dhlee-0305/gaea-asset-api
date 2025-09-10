@@ -76,6 +76,7 @@ public class DeviceService {
 		paramMap.put("size", pageSize);
 		paramMap.put("searchColumn", search.getSearchColumn());
 		paramMap.put("searchKeyword", search.getSearchKeyword());
+		paramMap.put("deviceType", search.getDeviceType());
 
 		List<DeviceVO> deviceList = deviceMapper.getDeviceList(paramMap);
 		Pagination pagination = new Pagination(
@@ -461,49 +462,53 @@ public class DeviceService {
 	 * 장비 리스트 엑셀 다운로드
 	 * @param response
 	 */
-	public void downloadDeviceExcel(HttpServletResponse response) {
+	public void downloadDeviceExcel(HttpServletResponse response, Search search) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
-		HashMap<String, Object> paramMap = new HashMap<>();
-		switch (userInfo.getRoleCode()) {
-			case CodeConstants.ROLE_USER:
-				paramMap.put("loginEmpNum", userInfo.getEmpNum());
-				break;
-			case CodeConstants.ROLE_TEAM_MANAGER:
-				paramMap.put("loginOrgId", userInfo.getOrgId());
-				break;
-			case CodeConstants.ROLE_ASSET_MANAGER:
-			case CodeConstants.ROLE_SYSTEM_MANAGER:
-				break;
-			default:
-				return;
-		}
+		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
+		paramMap.put("searchColumn", search.getSearchColumn());
+		paramMap.put("searchKeyword", search.getSearchKeyword());
+		paramMap.put("deviceType", search.getDeviceType());
 
 		ClassPathResource template = new ClassPathResource("excel/DEVICE.xlsx");
 		try (InputStream is = template.getInputStream();
 			 Workbook wb = new XSSFWorkbook(is)) {
 
 			// 다운로드 날짜 정보
-			LocalDate today = LocalDate.now();
-			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-			String downloadDate = "다운로드 일: " + today.format(formatter);
-			for (int i = 0; i < wb.getNumberOfSheets(); i++) {
-				Sheet sheet = wb.getSheetAt(i);
-				Row row = sheet.getRow(0);
-				Cell cell = row.getCell(0);
-				cell.setCellValue(downloadDate);
+			Sheet sheet = wb.getSheetAt(0);
+			Row row = sheet.getRow(0);
+			Cell cell = row.getCell(0);
+			cell.setCellValue("다운로드 일: " + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy.MM.dd")));
+
+			// 디바이스 조회 및 데이터 세팅
+			List<DeviceVO> deviceList = deviceMapper.getDeviceExcelList(paramMap);
+			int rowNum = 2;
+			for (DeviceVO d : deviceList) {
+				int cellNum = 0;
+				row = sheet.createRow(rowNum++);
+				row.createCell(cellNum++).setCellValue(rowNum - 2); // 구분(순번)
+				row.createCell(cellNum++).setCellValue(d.getDeviceType());
+				row.createCell(cellNum++).setCellValue(d.getOrgName());
+				row.createCell(cellNum++).setCellValue(d.getUserName());
+				row.createCell(cellNum++).setCellValue(d.getUsageDivision());
+				row.createCell(cellNum++).setCellValue(d.getUsagePurpose());
+				row.createCell(cellNum++).setCellValue(d.getArchiveLocation());
+				row.createCell(cellNum++).setCellValue(d.getOldDeviceId());
+				row.createCell(cellNum++).setCellValue(d.getManufacturer());
+				row.createCell(cellNum++).setCellValue(d.getModelName());
+				row.createCell(cellNum++).setCellValue(d.getManufactureDate());
+				row.createCell(cellNum++).setCellValue(d.getCpuSpec());
+				row.createCell(cellNum++).setCellValue(d.getMemorySize());
+				row.createCell(cellNum++).setCellValue(d.getStorageInfo());
+				row.createCell(cellNum++).setCellValue(d.getOperatingSystem());
+				row.createCell(cellNum++).setCellValue(d.getScreenSize());
+				row.createCell(cellNum++).setCellValue(d.getGpuSpec());
+				row.createCell(cellNum++).setCellValue(d.getPurchaseDate());
+				row.createCell(cellNum++).setCellValue(d.getReturnDate());
+				row.createCell(cellNum++).setCellValue(d.getDeviceStatus());
+				row.createCell(cellNum).setCellValue(d.getRemarks());
 			}
 
-			// 디바이스 조회
-			List<DeviceVO> deviceList = deviceMapper.getDeviceExcelList(paramMap);
-
-			// 시트별 리스트 추가
-			setDeviceSheet(wb.getSheetAt(0), deviceList, CodeConstants.DEVICE_TYPE_COMPUTER);
-			setDeviceSheet(wb.getSheetAt(1), deviceList, CodeConstants.DEVICE_TYPE_MONITOR);
-			setDeviceSheet(wb.getSheetAt(2), deviceList, CodeConstants.DEVICE_TYPE_PHONE);
-			setDeviceSheet(wb.getSheetAt(3), deviceList, CodeConstants.DEVICE_TYPE_ETC);
-
-			DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyyMMdd");
-			String fileName = "DeviceList_" + today.format(formatter2) + ".xlsx";
+			String fileName = "DeviceList_" + LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + ".xlsx";
 			response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
 			response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 			wb.write(response.getOutputStream());
@@ -603,99 +608,8 @@ public class DeviceService {
 	}
 
 	/**
-	 * 장비 타입 별 엑셀 시트 세팅
-	 */
-	private void setDeviceSheet(Sheet sheet, List<DeviceVO> deviceList, String deviceType) {
-		if (sheet == null) return;
-		int rowNum = 2;
-		for (DeviceVO d : deviceList) {
-			if (!deviceType.equals(d.getDeviceTypeCode())) continue;
-			Row row = sheet.createRow(rowNum++);
-			int listIndex = rowNum - 2;
-
-			if (CodeConstants.DEVICE_TYPE_COMPUTER.equals(deviceType)) {
-				// "PC" 시트
-				row.createCell(0).setCellValue(listIndex); // 구분(순번)
-				row.createCell(1).setCellValue(d.getDeviceType());
-				row.createCell(2).setCellValue(d.getOrgName());
-				row.createCell(3).setCellValue(d.getUserName());
-				row.createCell(4).setCellValue(d.getUsageDivision());
-				row.createCell(5).setCellValue(d.getUsagePurpose());
-				row.createCell(6).setCellValue(d.getArchiveLocation());
-				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturer());
-				row.createCell(9).setCellValue(d.getModelName());
-				row.createCell(10).setCellValue(d.getManufactureDate());
-				row.createCell(11).setCellValue(d.getCpuSpec());
-				row.createCell(12).setCellValue(d.getMemorySize());
-				row.createCell(13).setCellValue(d.getStorageInfo());
-				row.createCell(14).setCellValue(d.getOperatingSystem());
-				row.createCell(15).setCellValue(d.getScreenSize());
-				row.createCell(16).setCellValue(d.getGpuSpec());
-				row.createCell(17).setCellValue(d.getPurchaseDate());
-				row.createCell(18).setCellValue(d.getReturnDate());
-				row.createCell(19).setCellValue(d.getDeviceStatus());
-				row.createCell(20).setCellValue(d.getRemarks());
-			} else if (CodeConstants.DEVICE_TYPE_MONITOR.equals(deviceType)) {
-				// "모니터" 시트
-				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getDeviceType());
-				row.createCell(2).setCellValue(d.getOrgName());
-				row.createCell(3).setCellValue(d.getUserName());
-				row.createCell(4).setCellValue(d.getUsageDivision());
-				row.createCell(5).setCellValue(d.getUsagePurpose());
-				row.createCell(6).setCellValue(d.getArchiveLocation());
-				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturer());
-				row.createCell(9).setCellValue(d.getModelName());
-				row.createCell(10).setCellValue(d.getManufactureDate());
-				row.createCell(11).setCellValue(d.getScreenSize());
-				row.createCell(12).setCellValue(d.getPurchaseDate());
-				row.createCell(13).setCellValue(d.getReturnDate());
-				row.createCell(14).setCellValue(d.getDeviceStatus());
-				row.createCell(15).setCellValue(d.getRemarks());
-			} else if (CodeConstants.DEVICE_TYPE_PHONE.equals(deviceType)) {
-				// "핸드폰" 시트
-				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getDeviceType());
-				row.createCell(2).setCellValue(d.getOrgName());
-				row.createCell(3).setCellValue(d.getUserName());
-				row.createCell(4).setCellValue(d.getUsageDivision());
-				row.createCell(5).setCellValue(d.getUsagePurpose());
-				row.createCell(6).setCellValue(d.getArchiveLocation());
-				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturer());
-				row.createCell(9).setCellValue(d.getModelName());
-				row.createCell(10).setCellValue(d.getManufactureDate());
-				row.createCell(11).setCellValue(d.getOperatingSystem());
-				row.createCell(12).setCellValue(d.getPurchaseDate());
-				row.createCell(13).setCellValue(d.getReturnDate());
-				row.createCell(14).setCellValue(d.getDeviceStatus());
-				row.createCell(15).setCellValue(d.getRemarks());
-			} else if (CodeConstants.DEVICE_TYPE_ETC.equals(deviceType)) {
-				// "기타" 시트
-				row.createCell(0).setCellValue(listIndex);
-				row.createCell(1).setCellValue(d.getDeviceType());
-				row.createCell(2).setCellValue(d.getOrgName());
-				row.createCell(3).setCellValue(d.getUserName());
-				row.createCell(4).setCellValue(d.getUsageDivision());
-				row.createCell(5).setCellValue(d.getUsagePurpose());
-				row.createCell(6).setCellValue(d.getArchiveLocation());
-				row.createCell(7).setCellValue(d.getOldDeviceId());
-				row.createCell(8).setCellValue(d.getManufacturer());
-				row.createCell(9).setCellValue(d.getModelName());
-				row.createCell(10).setCellValue(d.getManufactureDate());
-				row.createCell(11).setCellValue(d.getPurchaseDate());
-				row.createCell(12).setCellValue(d.getReturnDate());
-				row.createCell(13).setCellValue(d.getDeviceStatus());
-				row.createCell(14).setCellValue(d.getRemarks());
-			}
-		}
-	}
-
-	/**
      * 전산 장비 엑셀 업로드
-     * @param excelFile
+     * @param file
      * @return
      * @throws IOException
      * @throws EncryptedDocumentException
