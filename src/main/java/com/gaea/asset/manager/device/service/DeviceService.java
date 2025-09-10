@@ -465,6 +465,8 @@ public class DeviceService {
 	public void downloadDeviceExcel(HttpServletResponse response, Search search) {
 		UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 		HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
+		paramMap.put("searchColumn", search.getSearchColumn());
+		paramMap.put("searchKeyword", search.getSearchKeyword());
 		paramMap.put("deviceType", search.getDeviceType());
 
 		ClassPathResource template = new ClassPathResource("excel/DEVICE.xlsx");
