@@ -1,4 +1,4 @@
-package com.gaea.asset.manager.notice.vo;
+package com.gaea.asset.manager.file.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
@@ -25,6 +25,9 @@ public class FileVO {
 	@Schema(description = "삭제 여부", example = "N")
 	private boolean isDeleted;
 
-    @Schema(description = "공지사항 번호", example = "1")
-    private Long noticeNum;
+    @Schema(description = "업로드된 글 번호", example = "1")
+    private Long postNum;
+
+	@Schema(description = "업로드된 글 유형", example = "공지사항")
+	private String postType;
 }

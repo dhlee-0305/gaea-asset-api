@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.file.service.FileMapper">
+    <select id="getFileList" parameterType="Long" resultType="com.gaea.asset.manager.file.vo.FileVO">
+        SELECT FILE_NUM
+        , ORIGIN_FILE_NAME
+        , STORED_FILE_NAME
+        , UPLOAD_DATETIME
+        FROM FILE
+        WHERE POST_NUM = #{postNum}
+        AND IS_DELETED = 'N'
+    </select>
+
+    <select id="getFileInfo" parameterType="Long" resultType="com.gaea.asset.manager.file.vo.FileVO">
+        SELECT FILE_NUM
+        , ORIGIN_FILE_NAME
+        , STORED_FILE_NAME
+        , UPLOAD_DATETIME
+        FROM FILE
+        WHERE FILE_NUM = #{fileNum}
+    </select>
+
+    <insert id="insertFile" parameterType="com.gaea.asset.manager.file.vo.FileVO"  keyProperty="fileNum" useGeneratedKeys="true">
+        INSERT INTO FILE
+        (
+        ORIGIN_FILE_NAME
+        , STORED_FILE_NAME
+        , UPLOAD_DATETIME
+        , POST_NUM
+        , POST_TYPE
+        ) VALUES (
+        #{originFileName}
+        , #{storedFileName}
+        , NOW()
+        , #{postNum}
+        , #{postType}
+        )
+    </insert>
+
+    <update id="updateFileFlag" parameterType="Long">
+        UPDATE FILE
+        SET IS_DELETED = 'Y'
+        WHERE FILE_NUM = #{fileNum}
+    </update>
+
+    <delete id="deleteFile" parameterType="map">
+        DELETE FROM FILE
+        WHERE POST_NUM = #{postNum}
+        AND POST_TYPE = #{postType}
+    </delete>
+</mapper>

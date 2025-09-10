@@ -4,7 +4,7 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -1153.2317,
+    "scrollTop": -333.3333,
     "scrollLeft": -800,
     "zoomLevel": 1,
     "show": 511,
@@ -44,8 +44,7 @@
     "relationshipIds": [
       "bec4a92a-1a31-40bf-9b02-e55962d47414",
       "0rbfGXM0OXwpMK7-QyYMY",
-      "TJyduORN1KanrNAzvK-06",
-      "gn3RAHghEa8diMmEBBi55"
+      "TJyduORN1KanrNAzvK-06"
     ],
     "indexIds": [],
     "memoIds": []
@@ -466,21 +465,23 @@
         "comment": "",
         "columnIds": [
           "_vmWvAnzT9UIznBXqPyTO",
-          "NFX0ejf5XrjBjbQV68tKF",
           "HnKahtgSE6bQkW-4jXfp0",
           "xC6aZNb_IGT2eXuM9zm9A",
           "B8J4jhDUIdVUfIwFfOgva",
-          "S4zbeQAxTHCgDUk3g2Sh2"
+          "S4zbeQAxTHCgDUk3g2Sh2",
+          "NFX0ejf5XrjBjbQV68tKF",
+          "8a21n00LpTONCO7DNoC8W"
         ],
         "seqColumnIds": [
           "_vmWvAnzT9UIznBXqPyTO",
-          "NFX0ejf5XrjBjbQV68tKF",
           "hAyn4rGvYOoxwIPxwy9I5",
           "HnKahtgSE6bQkW-4jXfp0",
           "xC6aZNb_IGT2eXuM9zm9A",
           "B8J4jhDUIdVUfIwFfOgva",
           "S4zbeQAxTHCgDUk3g2Sh2",
-          "2jtYBZyYWmBP2pQvDM22T"
+          "NFX0ejf5XrjBjbQV68tKF",
+          "2jtYBZyYWmBP2pQvDM22T",
+          "8a21n00LpTONCO7DNoC8W"
         ],
         "ui": {
           "x": 1213.4148,
@@ -491,7 +492,7 @@
           "color": ""
         },
         "meta": {
-          "updateAt": 1756684659149,
+          "updateAt": 1757484740435,
           "createAt": 1756684359978
         }
       }
@@ -3520,21 +3521,41 @@
       "NFX0ejf5XrjBjbQV68tKF": {
         "id": "NFX0ejf5XrjBjbQV68tKF",
         "tableId": "byRGWfhRRkf7Tf_F_lYDn",
-        "name": "NOTICE_NUM",
-        "comment": "공지사항 번호",
+        "name": "POST_NUM",
+        "comment": "업로드된 글 번호",
         "dataType": "INT",
         "default": "",
         "options": 8,
         "ui": {
-          "keys": 2,
-          "widthName": 75,
-          "widthComment": 77,
+          "keys": 0,
+          "widthName": 63,
+          "widthComment": 93,
           "widthDataType": 60,
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1756684641115,
+          "updateAt": 1757484785157,
           "createAt": 1756684641115
+        }
+      },
+      "8a21n00LpTONCO7DNoC8W": {
+        "id": "8a21n00LpTONCO7DNoC8W",
+        "tableId": "byRGWfhRRkf7Tf_F_lYDn",
+        "name": "POST_TYPE",
+        "comment": "업로드된 글 유형",
+        "dataType": "VARCHAR(2)",
+        "default": "",
+        "options": 8,
+        "ui": {
+          "keys": 0,
+          "widthName": 61,
+          "widthComment": 93,
+          "widthDataType": 68,
+          "widthDefault": 60
+        },
+        "meta": {
+          "updateAt": 1757484806639,
+          "createAt": 1757484738005
         }
       }
     },

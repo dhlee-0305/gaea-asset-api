@@ -148,7 +148,8 @@ CREATE TABLE FILE
   STORED_FILE_NAME		VARCHAR(255) NOT NULL COMMENT '저장된 파일명',
   UPLOAD_DATETIME		DATETIME 	 NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일시',
   IS_DELETED			CHAR(1)      NOT NULL DEFAULT 'N' COMMENT '삭제여부 (삭제:Y, 미삭제:N)',
-  NOTICE_NUM			INT          NOT NULL COMMENT '공지사항 번호',
+  POST_NUM				INT          NOT NULL COMMENT '업로드된 글 번호',
+  POST_TYPE		        VARCHAR(2)   NOT NULL COMMENT '업로드된 글 유형'
   PRIMARY KEY (FILE_NUM)
 );
 
@@ -201,10 +202,11 @@ INSERT INTO COMMON_CODE (CATEGORY, CATEGORY_NAME, CODE, CODE_NAME, USE_YN) VALUE
 ('C007', '용도구분', '01', '업무용', 'Y'),
 ('C007', '용도구분', '02', '개발용', 'Y'),
 ('C007', '용도구분', '03', '실증용', 'Y'),
-('C008', '메세지상태코드', 'A1', '장비 할당', 'Y'),
-('C008', '메세지상태코드', 'A2', '장비 상태 변경 요청', 'Y'),
-('C008', '메세지상태코드', 'A3', '장비 상태 변경 승인', 'Y'),
-('C008', '메세지상태코드', 'A4', '장비 상태 변경 반려', 'Y');
+('C008', '메세지상태코드', 'M1', '장비 할당', 'Y'),
+('C008', '메세지상태코드', 'M2', '장비 상태 변경 요청', 'Y'),
+('C008', '메세지상태코드', 'M3', '장비 상태 변경 승인', 'Y'),
+('C008', '메세지상태코드', 'M4', '장비 상태 변경 반려', 'Y'),
+('C009', '파일유형코드', 'NO', '공지사항', 'Y');
 
 
 /* NOTICE */
