@@ -55,40 +55,6 @@
         WHERE N.NOTICE_NUM = #{noticeNum}
     </select>
 
-    <select id="getFileList" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.FileVO">
-        SELECT FILE_NUM
-                , ORIGIN_FILE_NAME
-                , STORED_FILE_NAME
-                , UPLOAD_DATETIME
-        FROM FILE
-        WHERE NOTICE_NUM = #{noticeNum}
-        AND IS_DELETED = 'N'
-    </select>
-
-    <select id="getFileInfo" parameterType="Long" resultType="com.gaea.asset.manager.notice.vo.FileVO">
-        SELECT FILE_NUM
-                , ORIGIN_FILE_NAME
-                , STORED_FILE_NAME
-                , UPLOAD_DATETIME
-        FROM FILE
-        WHERE FILE_NUM = #{fileNum}
-    </select>
-
-    <insert id="insertFile" parameterType="com.gaea.asset.manager.notice.vo.FileVO"  keyProperty="fileNum" useGeneratedKeys="true">
-        INSERT INTO FILE
-        (
-            ORIGIN_FILE_NAME
-            , STORED_FILE_NAME
-            , UPLOAD_DATETIME
-            , NOTICE_NUM
-        ) VALUES (
-            #{originFileName}
-            , #{storedFileName}
-            , NOW()
-            , #{noticeNum}
-        )
-    </insert>
-
     <insert id="insertNotice" parameterType="com.gaea.asset.manager.notice.vo.NoticeVO" keyProperty="noticeNum" useGeneratedKeys="true">
         INSERT INTO NOTICE
         (
@@ -112,17 +78,6 @@
           , UPDATE_USER = #{updateUser}
         WHERE NOTICE_NUM = #{noticeNum}
     </update>
-
-    <update id="updateFileFlag" parameterType="Long">
-        UPDATE FILE
-        SET IS_DELETED = 'Y'
-        WHERE FILE_NUM = #{fileNum}
-    </update>
-
-    <delete id="deleteFile" parameterType="Long">
-        DELETE FROM FILE
-        WHERE NOTICE_NUM = #{noticeNum}
-    </delete>
 
     <delete id="deleteNotice" parameterType="Long">
         DELETE FROM NOTICE

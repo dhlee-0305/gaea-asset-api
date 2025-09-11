@@ -1,5 +1,6 @@
 package com.gaea.asset.manager.notice.vo;
 
+import com.gaea.asset.manager.file.vo.FileVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
