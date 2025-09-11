@@ -122,30 +122,15 @@ public class UserService {
 
 	public HashMap<String, Object> getUserCommonCode(boolean isUpdate, UserVO userVO) {
 		HashMap<String, Object> resData = new HashMap<>();
-		// 공통 코드 목록 조회 (직책, 직위)
-		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-				CodeConstants.CATEGORY_POSITION,
-				CodeConstants.CATEGORY_GRADE
-		));
-		// 직책 목록
-		List<CodeVO> positionList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_POSITION))
-				.collect(Collectors.toList());
-		// 직위 목록
-		List<CodeVO> gradeList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_GRADE))
-				.collect(Collectors.toList());
 		// 부서정보 조회
 		List<OrganizationVO> organizationList = organizationMapper.selectOrganizationList();
 		if (isUpdate) {
+			// 수정페이지에서 요청한 경우
 			OrganizationVO disivion = organizationList.stream().filter(org-> org.getOrgId().equals(userVO.getParentOrgId())).findFirst().get();
 			resData.put("division", disivion.getOrgId());
 			OrganizationVO company = organizationList.stream().filter(org-> org.getOrgId().equals(disivion.getParentOrgId())).findFirst().get();
 			resData.put("company", company.getOrgId());
 		}
-
-		resData.put("positionList", positionList);
-		resData.put("gradeList", gradeList);
 		resData.put("organizationList", organizationList);
 		return resData;
 	}

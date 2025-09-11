@@ -65,7 +65,6 @@ public class CodeService {
 
 	public Header<HashMap<String, Object>> getCodeListByCodes(List<String> categoryList) {
 		List<CodeVO> codeList = codeMapper.getCodeListByCodes(categoryList);
-		int index = 0;
 		HashMap<String, Object> resData = new HashMap<>();
 
 		for(String category : categoryList){
