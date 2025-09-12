@@ -1,8 +1,5 @@
 package com.gaea.asset.manager.device.service;
 
-import static com.gaea.asset.manager.util.DeviceFieldUtil.appendIfPresent;
-import static com.gaea.asset.manager.util.DeviceFieldUtil.isEqual;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -48,6 +45,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import static com.gaea.asset.manager.util.DeviceFieldUtil.*;
 
 @Slf4j
 @Service
@@ -520,21 +519,32 @@ public class DeviceService {
 	private DeviceHistoryVO setRegisterHistory(DeviceVO origin) {
 		DeviceHistoryVO history = new DeviceHistoryVO();
 		StringBuilder sb = new StringBuilder();
-		appendIfPresent(sb, "장비담당자", origin.getUserName());
-		appendIfPresent(sb, "모델명", origin.getModelName());
-		appendIfPresent(sb, "용도구분", origin.getUsageDivision());
-		appendIfPresent(sb, "제조사", origin.getManufacturer());
-		appendIfPresent(sb, "제조년도", origin.getManufactureDate());
-		appendIfPresent(sb, "CPU", origin.getCpuSpec());
-		appendIfPresent(sb, "메모리", origin.getMemorySize());
-		appendIfPresent(sb, "SSD/HDD", origin.getStorageInfo());
-		appendIfPresent(sb, "OS", origin.getOperatingSystem());
-		appendIfPresent(sb, "인치", origin.getScreenSize());
-		appendIfPresent(sb, "GPU", origin.getGpuSpec());
-		appendIfPresent(sb, "구매일자", origin.getPurchaseDate());
-		appendIfPresent(sb, "반납일자", origin.getReturnDate());
-		appendIfPresent(sb, "비고", origin.getRemarks());
-		history.setChangeContents(sb.toString());
+
+		// 코드 목록 조회(장비유형/용도구분을 코드명으로 표기)
+		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
+				CodeConstants.CATEGORY_DEVICE_TYPE,
+				CodeConstants.CATEGORY_USAGE_DIVISION));
+		List<CodeVO> deviceTypeList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+				.toList();
+		List<CodeVO> usageDivisionList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+				.toList();
+		List<DeviceField> fields = getDeviceSummaryFields(deviceTypeList, usageDivisionList);
+
+		// 등록 요약 : 값이 있는 필드만 추가
+		for (DeviceField f : fields) {
+			String value = f.getter.apply(origin);
+			if (value != null && !value.isBlank()) {
+				sb.append(f.label).append(": \"").append(value).append("\" || ");
+			}
+		}
+		String summary = sb.toString();
+		if (summary.endsWith(" || ")) {
+			summary = summary.substring(0, summary.length() - 4);
+		}
+
+		history.setChangeContents(summary);
 		history.setDeviceStatus(origin.getDeviceStatusCode());
 		history.setApprovalStatus(origin.getApprovalStatusCode());
 
@@ -544,61 +554,32 @@ public class DeviceService {
 	private DeviceHistoryVO setUpdateHistory(DeviceVO origin, DeviceVO updated) {
 		DeviceHistoryVO history = new DeviceHistoryVO();
 		StringBuilder sb = new StringBuilder();
-		if (!isEqual(origin.getUserName(), updated.getUserName())) {
-			sb.append("장비담당자: \"").append(updated.getUserName()).append("\" || ");
-		}
-		if (!isEqual(origin.getUsagePurpose(), updated.getUsagePurpose())) {
-			sb.append("사용용도: \"").append(updated.getUsagePurpose()).append("\" || ");
-		}
-		if (!isEqual(origin.getArchiveLocation(), updated.getArchiveLocation())) {
-			sb.append("사용/보관 위치: \"").append(updated.getArchiveLocation()).append("\" || ");
-		}
-		if (!isEqual(origin.getUsageDivisionCode(), updated.getUsageDivisionCode()) || !isEqual(origin.getUsageDivision(), updated.getUsageDivision())) {
-			sb.append("용도구분: \"").append(updated.getUsageDivision()).append("\" || ");
-		}
-		if (!isEqual(origin.getOldDeviceId(), updated.getOldDeviceId())) {
-			sb.append("기존 장비관리번호: \"").append(updated.getOldDeviceId()).append("\" || ");
-		}
-		if (!isEqual(origin.getManufacturer(), updated.getManufacturer())) {
-			sb.append("제조사: \"").append(updated.getManufacturer()).append("\" || ");
-		}
-		if (!isEqual(origin.getModelName(), updated.getModelName())) {
-			sb.append("모델명: \"").append(updated.getModelName()).append("\" || ");
-		}
-		if (!isEqual(origin.getManufactureDate(), updated.getManufactureDate())) {
-			sb.append("제조년도: \"").append(updated.getManufactureDate()).append("\" || ");
-		}
-		if (!isEqual(origin.getCpuSpec(), updated.getCpuSpec())) {
-			sb.append("CPU: \"").append(updated.getCpuSpec()).append("\" || ");
-		}
-		if (!isEqual(origin.getMemorySize(), updated.getMemorySize())) {
-			sb.append("메모리: \"").append(updated.getMemorySize()).append("\" || ");
-		}
-		if (!isEqual(origin.getStorageInfo(), updated.getStorageInfo())) {
-			sb.append("SSD/HDD: \"").append(updated.getStorageInfo()).append("\" || ");
-		}
-		if (!isEqual(origin.getOperatingSystem(), updated.getOperatingSystem())) {
-			sb.append("OS: \"").append(updated.getOperatingSystem()).append("\" || ");
-		}
-		if (!isEqual(origin.getScreenSize(), updated.getScreenSize())) {
-			sb.append("인치: \"").append(updated.getScreenSize()).append("\" || ");
-		}
-		if (!isEqual(origin.getGpuSpec(), updated.getGpuSpec())) {
-			sb.append("GPU: \"").append(updated.getGpuSpec()).append("\" || ");
-		}
-		if (!isEqual(origin.getPurchaseDate(), updated.getPurchaseDate())) {
-			sb.append("구매일자: \"").append(updated.getPurchaseDate()).append("\" || ");
-		}
-		if (!isEqual(origin.getReturnDate(), updated.getReturnDate())) {
-			sb.append("반납일자: \"").append(updated.getReturnDate()).append("\" || ");
-		}
-		if (!isEqual(origin.getRemarks(), updated.getRemarks())) {
-			sb.append("비고: \"").append(updated.getRemarks()).append("\" || ");
+
+		// 코드 목록 조회(장비유형/용도구분을 코드명으로 표기)
+		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
+				CodeConstants.CATEGORY_DEVICE_TYPE,
+				CodeConstants.CATEGORY_USAGE_DIVISION));
+		List<CodeVO> deviceTypeList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+				.toList();
+		List<CodeVO> usageDivisionList = codeList.stream()
+				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+				.toList();
+		List<DeviceField> fields = getDeviceSummaryFields(deviceTypeList, usageDivisionList);
+
+		// 변경된 필드만 추가
+		for (DeviceField f : fields) {
+			String o = f.getter.apply(origin);
+			String u = f.getter.apply(updated);
+			if (!isEqual(o, u)) {
+				sb.append(f.label).append(": \"").append(u == null ? "" : u).append("\" || ");
+			}
 		}
 		String summary = sb.toString();
 		if (summary.endsWith(" || ")) {
 			summary = summary.substring(0, summary.length() - 4);
 		}
+
 		history.setChangeContents(summary);
 		history.setDeviceStatus(updated.getDeviceStatusCode());
 		history.setApprovalStatus(origin.getApprovalStatusCode());
