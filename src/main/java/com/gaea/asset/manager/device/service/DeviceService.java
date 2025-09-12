@@ -182,8 +182,8 @@ public class DeviceService {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
 					try {
-						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "01");
-						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "02");
+						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "01");
+						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "02");
 					} catch (MessagingException e) {
 						log.error(String.valueOf(e));
 					}
@@ -196,7 +196,7 @@ public class DeviceService {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
 					try {
-						messageService.sendToManager(CodeConstants.MESSAGE_STATUS_CHANGE_REQUESTED, "02");
+						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "02");
 					} catch (MessagingException e) {
 						log.error(String.valueOf(e));
 					}
@@ -288,7 +288,7 @@ public class DeviceService {
                 deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
 				try {
-					messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_APPROVED, deviceVO.getDeviceNum());
+					messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
 				} catch (MessagingException e) {
 					log.error(String.valueOf(e));
 				}
@@ -298,7 +298,7 @@ public class DeviceService {
 
 		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
 		try {
-			messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_APPROVED, deviceVO.getDeviceNum());
+			messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
 		} catch (MessagingException e) {
 			log.error(String.valueOf(e));
 		}
@@ -339,7 +339,7 @@ public class DeviceService {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), Constants.REJECT);
 			try {
-				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_STATUS_CHANGE_REJECTED, deviceVO.getDeviceNum());
+				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_REJECTED, deviceVO.getDeviceNum());
 			} catch (MessagingException e) {
 				log.error(String.valueOf(e));
 			}

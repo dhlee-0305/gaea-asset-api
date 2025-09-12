@@ -27,9 +27,9 @@ public class CodeConstants {
 
 	// 메세지 상태 코드
 	public static final String MESSAGE_DEVICE_ASSIGNED = "M1";				// 장비 할당
-	public static final String MESSAGE_STATUS_CHANGE_REQUESTED = "M2";		// 장비 상태 변경 요청
-	public static final String MESSAGE_STATUS_CHANGE_APPROVED = "M3";		// 장비 상태 변경 승인
-	public static final String MESSAGE_STATUS_CHANGE_REJECTED = "M4";		// 장비 상태 변경 반려
+	public static final String MESSAGE_DEVICE_CHANGE_REQUESTED = "M2";		// 장비 상태 변경 요청
+	public static final String MESSAGE_DEVICE_CHANGE_APPROVED = "M3";		// 장비 상태 변경 승인
+	public static final String MESSAGE_DEVICE_CHANGE_REJECTED = "M4";		// 장비 상태 변경 반려
 
 	// 파일 유형 코드
 	public static final String POST_TYPE_NOTICE = "NO";
