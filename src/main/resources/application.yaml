@@ -1,5 +1,8 @@
 server:
   port: 8090
+# Front-end URL
+cors:
+  allowed-origins: http://localhost:3000
 
 spring:
 # DB 연결 정보

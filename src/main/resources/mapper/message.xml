@@ -3,27 +3,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.gaea.asset.manager.message.service.MessageMapper">
-    <select id="getEmpNum" parameterType="String" resultType="Integer">
-        SELECT EMP_NUM
-        FROM USER
-        WHERE USER_ID = #{userId}
+    <select id="getUserName" parameterType="Integer" resultType="String">
+        SELECT U.USER_NAME
+        FROM USER U
+        JOIN DEVICE D ON U.EMP_NUM = D.EMP_NUM
+        WHERE D.DEVICE_NUM = #{deviceNum}
     </select>
 
-    <select id="getUserID" parameterType="Integer" resultType="String">
-        SELECT USER_ID
-        FROM USER
-        WHERE EMP_NUM = #{empNum}
-    </select>
-
-    <select id="getDeviceOwner" parameterType="Integer" resultType="String">
+    <select id="getDeviceOwnerID" parameterType="Integer" resultType="String">
         SELECT U.USER_ID
         FROM USER U
         JOIN DEVICE D ON U.EMP_NUM = D.EMP_NUM
         WHERE D.DEVICE_NUM = #{deviceNum}
     </select>
 
-    <select id="getManagerEmpNum" parameterType="String" resultType="Integer">
-        SELECT EMP_NUM
+    <select id="getManagerID" parameterType="String" resultType="String">
+        SELECT USER_ID
         FROM USER
         WHERE ROLE_CODE = #{roleCode}
     </select>

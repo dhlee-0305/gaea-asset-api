@@ -11,35 +11,45 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class MessageService {
     @Value("${spring.mail.username}")
     private String from;
+    @Value("${cors.allowed-origins}")
+    private String frontendUrl;
     private final JavaMailSender mailSender;
     private final MessageMapper messageMapper;
 
     public void sendToDeviceOwner(String messageCode, Integer deviceNum) throws MessagingException {
         MessageTemplate template = MessageTemplate.fromCode(messageCode);
-        String userId = messageMapper.getDeviceOwner(deviceNum);
-        Integer empNum = messageMapper.getEmpNum(userId);
-        insertMessage(template, empNum);
+        String userId = messageMapper.getDeviceOwnerID(deviceNum);
+        String userName = messageMapper.getUserName(deviceNum);
+        String url = String.format("%s/device-management/devices/%d", frontendUrl, deviceNum);
+
+        insertMessage(template, userId, userName, url);
     }
 
-    public void sendToManager(String messageCode, String roleCode) throws MessagingException {
+    public void sendToManager(String messageCode, String roleCode, Integer deviceNum) throws MessagingException {
         MessageTemplate template = MessageTemplate.fromCode(messageCode);
-        Integer empNum = messageMapper.getManagerEmpNum(roleCode);
-        insertMessage(template, empNum);
+        List<String> managerId = messageMapper.getManagerID(roleCode);
+        for (String userId : managerId) {
+            String userName = messageMapper.getUserName(deviceNum);
+            String url = String.format("%s/device-management/devices/%d", frontendUrl, deviceNum);
+            insertMessage(template, userId, userName, url);
+        }
     }
 
-    public void insertMessage(MessageTemplate template, Integer recipient) throws MessagingException {
-        String to = messageMapper.getUserID(recipient) + "@gaeasoft.co.kr";
+    public void insertMessage(MessageTemplate template, String userId, String userName, String url) throws MessagingException {
+        String to = userId + "@gaeasoft.co.kr";
         MessageVO messageVO = MessageVO.builder()
                 .recipient(to)
                 .sender(from)
                 .title(template.getSubject())
-                .content(template.formatBody())
+                .content(template.formatBody(userName, url))
                 .messageStatusCode(template.getMessageCode())
                 .build();
 
