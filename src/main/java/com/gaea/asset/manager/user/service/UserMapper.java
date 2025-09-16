@@ -28,4 +28,6 @@ public interface UserMapper {
 	int initPassword(UserVO entity);
 
     int getTeamManagerCount(Integer orgId);
+
+	int insertUserList(List<UserVO> userList);
 }

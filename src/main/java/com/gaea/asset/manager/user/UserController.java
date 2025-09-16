@@ -15,6 +15,7 @@ import com.gaea.asset.manager.util.Search;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Tag(name = "사용자 관리 관리자 API", description = "사용자 관리 관리자 API 입니다.")
@@ -65,6 +66,12 @@ public class UserController {
 	@Operation(summary = "사용자 정보 관련 공통 코드 조회", description = "사용자 정보 관련 공통 코드 조회 API")
 	Header<HashMap<String, Object>> getCommonCode(){
 		return Header.OK(userService.getUserCommonCode(false, null));
+	}
+
+	@PostMapping("/users/upload/excel")
+	@Operation(summary = "사용자 엑셀 업로드", description = "사용자 엑셀 업로드 API")
+	public Header<UserVO> uploadDeviceExcel(@RequestParam("file") MultipartFile file) throws Exception {
+		return userService.uploadUserExcel(file);
 	}
 
 }

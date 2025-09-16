@@ -151,4 +151,39 @@
         AND ROLE_CODE = ${@com.gaea.asset.manager.common.constants.CodeConstants@ROLE_TEAM_MANAGER}
     </select>
 
+    <insert id="insertUserList" parameterType="com.gaea.asset.manager.user.vo.UserVO">
+        INSERT INTO USER(
+        EMP_NUM,
+        USER_ID,
+        USER_NAME,
+        ORG_ID,
+        USER_POSITION_CD,
+        USER_GRADE_CD,
+        ROLE_CODE
+        )
+        VALUES
+        <foreach collection="list" item="user" separator=",">
+          (
+            #{user.empNum},
+            #{user.userId},
+            #{user.userName},
+            #{user.orgId},
+            #{user.userPositionCd},
+            #{user.userGradeCd},
+            <if test="user.userPositionCd != null and user.userPositionCd == '04'">
+              '00'
+            </if>
+            <if test="user.userPositionCd != null and user.userPositionCd == '03'">
+              '01'
+            </if>
+          )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        USER_NAME = VALUES(USER_NAME)
+        , ORG_ID = VALUES(ORG_ID)
+        , USER_POSITION_CD = VALUES(USER_POSITION_CD)
+        , USER_GRADE_CD = VALUES(USER_GRADE_CD)
+        , ROLE_CODE = VALUES(ROLE_CODE)
+    </insert>
+
 </mapper>
