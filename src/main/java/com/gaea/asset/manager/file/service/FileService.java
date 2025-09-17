@@ -1,5 +1,6 @@
 package com.gaea.asset.manager.file.service;
 
+import com.gaea.asset.manager.common.constants.ResultCode;
 import com.gaea.asset.manager.file.vo.FileVO;
 import com.gaea.asset.manager.util.FileTypeMapper;
 import com.gaea.asset.manager.util.FileValidator;
@@ -24,11 +25,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileService {
     private final FileMapper fileMapper;
-
-    public static final String OK = "200";
-    public static final String NO_CONTENT = "204";
-    public static final String BAD_REQUEST = "400";
-    public static final String INTERNAL_SERVER_ERROR = "500";
 
     // 파일 경로 설정
     public String savePath(String postType) {
@@ -100,19 +96,19 @@ public class FileService {
         try {
             FileVO FileVO = fileMapper.getFileInfo(fileNum);
             if (FileVO == null) {
-                return Header.OK(NO_CONTENT, "해당 파일을 찾을 수 없습니다.", null);
+                return Header.OK(ResultCode.NO_CONTENT, "해당 파일을 찾을 수 없습니다.", null);
             }
 
             String savePath = savePath(postType);
             File file = new File(savePath, FileVO.getStoredFileName());
             if (file.exists() && !file.delete()) {
-                return Header.ERROR(BAD_REQUEST, "파일 삭제에 실패했습니다.");
+                return Header.ERROR(ResultCode.BAD_REQUEST, "파일 삭제에 실패했습니다.");
             }
 
             fileMapper.updateFileFlag(fileNum);
-            return Header.OK(OK, "파일이 삭제되었습니다.", String.valueOf(fileNum));
+            return Header.OK(ResultCode.OK, "파일이 삭제되었습니다.", String.valueOf(fileNum));
         } catch (Exception e) {
-            return Header.ERROR(INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
+            return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "파일 삭제 중 오류가 발생했습니다.");
         }
     }
 
