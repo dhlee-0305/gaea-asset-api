@@ -1,5 +1,8 @@
 package com.gaea.asset.manager.device.service;
 
+import static com.gaea.asset.manager.util.DeviceFieldUtil.getDeviceSummaryFields;
+import static com.gaea.asset.manager.util.DeviceFieldUtil.isEqual;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
@@ -27,8 +30,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.gaea.asset.manager.code.service.CodeMapper;
 import com.gaea.asset.manager.code.vo.CodeVO;
-import com.gaea.asset.manager.common.constants.CodeConstants;
+import com.gaea.asset.manager.common.constants.CommonCode;
 import com.gaea.asset.manager.common.constants.Constants;
+import com.gaea.asset.manager.common.constants.ResultCode;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.device.vo.DeviceVO;
 import com.gaea.asset.manager.login.vo.UserInfoVO;
@@ -36,6 +40,7 @@ import com.gaea.asset.manager.message.service.MessageService;
 import com.gaea.asset.manager.user.service.UserMapper;
 import com.gaea.asset.manager.user.vo.UserVO;
 import com.gaea.asset.manager.util.AuthUtil;
+import com.gaea.asset.manager.util.DeviceFieldUtil.DeviceField;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.Pagination;
 import com.gaea.asset.manager.util.Search;
@@ -46,8 +51,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import static com.gaea.asset.manager.util.DeviceFieldUtil.*;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -56,7 +59,7 @@ public class DeviceService {
     private final UserMapper userMapper;
     private final CodeMapper codeMapper;
     private final MessageService messageService;
-    
+
     private static final long MAX_EXCEL_FILE_SIZE = 5 * 1024 * 1024;	// 엑셀 파일 업로드 최대 사이즈 5MB
     private static final int BULK_INSERT_SIZE = 1000;					// BULK INSERT 사이즈
 
@@ -120,23 +123,23 @@ public class DeviceService {
 
 		// 일반사용자, 부서장은 등록 권한 없음
 		if(StringUtils.isEmpty(userInfo.getRoleCode())
-				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
-				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+				|| CommonCode.ROLE_USER.equals(userInfo.getRoleCode())
+				|| CommonCode.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
 
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "등록 권한이 없습니다.");
+			return Header.ERROR(ResultCode.FORBIDDEN, "등록 권한이 없습니다.");
 		}
 
 		deviceVO.setCreateUser(userInfo.getEmpNum());
 		if (deviceMapper.insertDevice(deviceVO) > 0) {
 			insertDeviceHistory(deviceVO, null, userInfo.getEmpNum(), Constants.REGISTER);
 			try {
-				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_ASSIGNED, deviceVO.getDeviceNum());
+				messageService.sendToDeviceOwner(CommonCode.MESSAGE_DEVICE_ASSIGNED, deviceVO.getDeviceNum());
 			} catch (MessagingException e) {
 				log.error(String.valueOf(e));
 			}
 			return Header.OK();
 		} else {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
@@ -152,58 +155,58 @@ public class DeviceService {
     	paramMap.put("deviceNum", deviceVO.getDeviceNum());
 
     	// 일반사용자, 부서장은 본인 장비만 수정 가능
-    	if(CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
-    			|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+    	if(CommonCode.ROLE_USER.equals(userInfo.getRoleCode())
+    			|| CommonCode.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
     		paramMap.put("loginEmpNum", userInfo.getEmpNum());
     	}
 
         DeviceVO originDevice = deviceMapper.getDevice(paramMap);
         if(originDevice == null || StringUtils.isEmpty(userInfo.getRoleCode())) {
-    		return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "수정 권한이 없습니다.");
+    		return Header.ERROR(ResultCode.FORBIDDEN, "수정 권한이 없습니다.");
     	}
 
         String currentStatus = originDevice.getApprovalStatusCode();
         deviceVO.setUpdateUser(userInfo.getEmpNum());
 
         // 결재 대기 상태(부서장 승인대기, 관리자 승인대기)면 수정 불가
-        if (CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)
-        		|| CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 대기 중인 장비는 수정할 수 없습니다.");
+        if (CommonCode.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)
+        		|| CommonCode.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
+            return Header.ERROR(ResultCode.FORBIDDEN, "승인 대기 중인 장비는 수정할 수 없습니다.");
         }
 
         switch (userInfo.getRoleCode()) {
-            case CodeConstants.ROLE_USER: // 일반 사용자
+            case CommonCode.ROLE_USER: // 일반 사용자
 				// 부서장이 없는 조직일 경우, 관리자 승인 대기로 설정
-				String approvalStatusCode = (userMapper.getTeamManagerCount(userInfo.getOrgId()) > 0) ? CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING : CodeConstants.APPROVAL_STATUS_ADMIN_PENDING;
+				String approvalStatusCode = (userMapper.getTeamManagerCount(userInfo.getOrgId()) > 0) ? CommonCode.APPROVAL_STATUS_TEAM_MANAGER_PENDING : CommonCode.APPROVAL_STATUS_ADMIN_PENDING;
                 originDevice.setApprovalStatusCode(approvalStatusCode);
 
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
 					try {
-						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "01", deviceVO.getDeviceNum());
-						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "02", deviceVO.getDeviceNum());
+						messageService.sendToManager(CommonCode.MESSAGE_DEVICE_CHANGE_REQUESTED, "01", deviceVO.getDeviceNum());
+						messageService.sendToManager(CommonCode.MESSAGE_DEVICE_CHANGE_REQUESTED, "02", deviceVO.getDeviceNum());
 					} catch (MessagingException e) {
 						log.error(String.valueOf(e));
 					}
 					return Header.OK();
                 }
                 break;
-            case CodeConstants.ROLE_TEAM_MANAGER: // 부서장
-                originDevice.setApprovalStatusCode(CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
+            case CommonCode.ROLE_TEAM_MANAGER: // 부서장
+                originDevice.setApprovalStatusCode(CommonCode.APPROVAL_STATUS_ADMIN_PENDING);
                 if (deviceMapper.insertDeviceTemp(deviceVO) > 0) {
                     deviceMapper.updateApprovalStatusCode(originDevice);
 					insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.UPDATE);
 					try {
-						messageService.sendToManager(CodeConstants.MESSAGE_DEVICE_CHANGE_REQUESTED, "02", deviceVO.getDeviceNum());
+						messageService.sendToManager(CommonCode.MESSAGE_DEVICE_CHANGE_REQUESTED, "02", deviceVO.getDeviceNum());
 					} catch (MessagingException e) {
 						log.error(String.valueOf(e));
 					}
 					return Header.OK();
                 }
                 break;
-            case CodeConstants.ROLE_ASSET_MANAGER: // 관리자
-            case CodeConstants.ROLE_SYSTEM_MANAGER: // 시스템 관리자
+            case CommonCode.ROLE_ASSET_MANAGER: // 관리자
+            case CommonCode.ROLE_SYSTEM_MANAGER: // 시스템 관리자
 				originDevice.setApprovalStatusCode(null); // 장비 결재 상태 초기화
 				deviceVO.setApprovalStatusCode(null); // 장비 이력 결재 상태 초기화
                 if (deviceMapper.updateDevice(deviceVO) > 0) {
@@ -212,9 +215,9 @@ public class DeviceService {
                 }
                 break;
             default:
-                return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "수정 권한이 없습니다.");
+                return Header.ERROR(ResultCode.FORBIDDEN, "수정 권한이 없습니다.");
         }
-        return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+        return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
     }
 
     /**
@@ -227,16 +230,16 @@ public class DeviceService {
 
 		// 일반사용자, 부서장은 삭제 권한 없음
 		if(StringUtils.isEmpty(userInfo.getRoleCode())
-				|| CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())
-				|| CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
+				|| CommonCode.ROLE_USER.equals(userInfo.getRoleCode())
+				|| CommonCode.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())) {
 
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "삭제 권한이 없습니다.");
+			return Header.ERROR(ResultCode.FORBIDDEN, "삭제 권한이 없습니다.");
 		}
 
 		if (deviceMapper.deleteDevice(deviceNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
@@ -257,23 +260,23 @@ public class DeviceService {
 
         // 승인 권한 확인 및 다음 결재 상태 세팅
         switch (userInfo.getRoleCode()) {
-            case CodeConstants.ROLE_TEAM_MANAGER: // 부서장
-                if (!CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
-                    return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
+            case CommonCode.ROLE_TEAM_MANAGER: // 부서장
+                if (!CommonCode.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
+                    return Header.ERROR(ResultCode.FORBIDDEN, "승인 권한이 없습니다.");
                 }
-                nextStatus = CodeConstants.APPROVAL_STATUS_ADMIN_PENDING;
+                nextStatus = CommonCode.APPROVAL_STATUS_ADMIN_PENDING;
                 break;
-            case CodeConstants.ROLE_ASSET_MANAGER: // 관리자
-                if (!CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-                    return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
+            case CommonCode.ROLE_ASSET_MANAGER: // 관리자
+                if (!CommonCode.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
+                    return Header.ERROR(ResultCode.FORBIDDEN, "승인 권한이 없습니다.");
                 }
-                nextStatus = CodeConstants.APPROVAL_STATUS_APPROVED;
+                nextStatus = CommonCode.APPROVAL_STATUS_APPROVED;
                 break;
-            case CodeConstants.ROLE_SYSTEM_MANAGER: // 시스템 관리자
-                nextStatus = CodeConstants.APPROVAL_STATUS_APPROVED;
+            case CommonCode.ROLE_SYSTEM_MANAGER: // 시스템 관리자
+                nextStatus = CommonCode.APPROVAL_STATUS_APPROVED;
                 break;
             default:
-                return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "승인 권한이 없습니다.");
+                return Header.ERROR(ResultCode.FORBIDDEN, "승인 권한이 없습니다.");
         }
 
         // 결재 상태 업데이트
@@ -281,13 +284,13 @@ public class DeviceService {
         deviceMapper.updateApprovalStatusCode(originDevice);
 
         // 최종 승인일 때만 device 정보 업데이트 + temp 삭제
-        if (CodeConstants.APPROVAL_STATUS_APPROVED.equals(nextStatus)) {
+        if (CommonCode.APPROVAL_STATUS_APPROVED.equals(nextStatus)) {
             deviceVO.setApprovalStatusCode(nextStatus);
             if (deviceMapper.updateDevice(deviceVO) > 0) {
                 deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 				insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
 				try {
-					messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
+					messageService.sendToDeviceOwner(CommonCode.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
 				} catch (MessagingException e) {
 					log.error(String.valueOf(e));
 				}
@@ -297,7 +300,7 @@ public class DeviceService {
 
 		insertDeviceHistory(originDevice, deviceVO, userInfo.getEmpNum(), Constants.APPROVE);
 		try {
-			messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
+			messageService.sendToDeviceOwner(CommonCode.MESSAGE_DEVICE_CHANGE_APPROVED, deviceVO.getDeviceNum());
 		} catch (MessagingException e) {
 			log.error(String.valueOf(e));
 		}
@@ -319,33 +322,33 @@ public class DeviceService {
         UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
 
         // 권한 확인
-        if (userInfo.getRoleCode() == null || CodeConstants.ROLE_USER.equals(userInfo.getRoleCode())) {
-            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
+        if (userInfo.getRoleCode() == null || CommonCode.ROLE_USER.equals(userInfo.getRoleCode())) {
+            return Header.ERROR(ResultCode.FORBIDDEN, "반려 권한이 없습니다.");
         }
-        if (CodeConstants.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())
-        		&& !CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
-            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
+        if (CommonCode.ROLE_TEAM_MANAGER.equals(userInfo.getRoleCode())
+        		&& !CommonCode.APPROVAL_STATUS_TEAM_MANAGER_PENDING.equals(currentStatus)) {
+            return Header.ERROR(ResultCode.FORBIDDEN, "반려 권한이 없습니다.");
         }
-        if (CodeConstants.ROLE_ASSET_MANAGER.equals(userInfo.getRoleCode())
-        		&& !CodeConstants.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
-            return Header.ERROR(String.valueOf(HttpServletResponse.SC_FORBIDDEN), "반려 권한이 없습니다.");
+        if (CommonCode.ROLE_ASSET_MANAGER.equals(userInfo.getRoleCode())
+        		&& !CommonCode.APPROVAL_STATUS_ADMIN_PENDING.equals(currentStatus)) {
+            return Header.ERROR(ResultCode.FORBIDDEN, "반려 권한이 없습니다.");
         }
 
-		String nextStatus = CodeConstants.APPROVAL_STATUS_REJECTED;
+		String nextStatus = CommonCode.APPROVAL_STATUS_REJECTED;
         originDevice.setApprovalStatusCode(nextStatus);
 		originDevice.setRejectReason(deviceVO.getRejectReason());
         if (deviceMapper.updateApprovalStatusCode(originDevice) > 0) {
             deviceMapper.deleteDeviceTemp(deviceVO.getDeviceNum());
 			insertDeviceHistory(originDevice, null, userInfo.getEmpNum(), Constants.REJECT);
 			try {
-				messageService.sendToDeviceOwner(CodeConstants.MESSAGE_DEVICE_CHANGE_REJECTED, deviceVO.getDeviceNum());
+				messageService.sendToDeviceOwner(CommonCode.MESSAGE_DEVICE_CHANGE_REJECTED, deviceVO.getDeviceNum());
 			} catch (MessagingException e) {
 				log.error(String.valueOf(e));
 			}
 			return Header.OK();
         }
 
-		return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+		return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 	}
 
 	// DeviceHistory 관련 메서드
@@ -398,10 +401,10 @@ public class DeviceService {
 
 		// 조회 조건 세팅
 		String userRoleCode = AuthUtil.getLoginUserInfo().getRoleCode();
-		if (CodeConstants.ROLE_TEAM_MANAGER.equals(userRoleCode)) {
-			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
-		} else if (CodeConstants.ROLE_ASSET_MANAGER.equals(userRoleCode) || CodeConstants.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
-			paramMap.put("approvalStatusCode", CodeConstants.APPROVAL_STATUS_ADMIN_PENDING);
+		if (CommonCode.ROLE_TEAM_MANAGER.equals(userRoleCode)) {
+			paramMap.put("approvalStatusCode", CommonCode.APPROVAL_STATUS_TEAM_MANAGER_PENDING);
+		} else if (CommonCode.ROLE_ASSET_MANAGER.equals(userRoleCode) || CommonCode.ROLE_SYSTEM_MANAGER.equals(userRoleCode)) {
+			paramMap.put("approvalStatusCode", CommonCode.APPROVAL_STATUS_ADMIN_PENDING);
 		}
 
 		List<DeviceVO> historyList = deviceMapper.getDevicePendingList(paramMap);
@@ -444,7 +447,7 @@ public class DeviceService {
 			case Constants.REJECT: // 장비/결재 상태 저장
 				history = new DeviceHistoryVO();
 				history.setDeviceStatus(origin.getDeviceStatusCode());
-				history.setApprovalStatus(CodeConstants.APPROVAL_STATUS_REJECTED);
+				history.setApprovalStatus(CommonCode.APPROVAL_STATUS_REJECTED);
 				history.setReason(origin.getRejectReason());
 				break;
 		}
@@ -522,13 +525,13 @@ public class DeviceService {
 
 		// 코드 목록 조회(장비유형/용도구분을 코드명으로 표기)
 		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-				CodeConstants.CATEGORY_DEVICE_TYPE,
-				CodeConstants.CATEGORY_USAGE_DIVISION));
+				CommonCode.CATEGORY_DEVICE_TYPE,
+				CommonCode.CATEGORY_USAGE_DIVISION));
 		List<CodeVO> deviceTypeList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_DEVICE_TYPE))
 				.toList();
 		List<CodeVO> usageDivisionList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_USAGE_DIVISION))
 				.toList();
 		List<DeviceField> fields = getDeviceSummaryFields(deviceTypeList, usageDivisionList);
 
@@ -557,13 +560,13 @@ public class DeviceService {
 
 		// 코드 목록 조회(장비유형/용도구분을 코드명으로 표기)
 		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-				CodeConstants.CATEGORY_DEVICE_TYPE,
-				CodeConstants.CATEGORY_USAGE_DIVISION));
+				CommonCode.CATEGORY_DEVICE_TYPE,
+				CommonCode.CATEGORY_USAGE_DIVISION));
 		List<CodeVO> deviceTypeList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_DEVICE_TYPE))
 				.toList();
 		List<CodeVO> usageDivisionList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_USAGE_DIVISION))
 				.toList();
 		List<DeviceField> fields = getDeviceSummaryFields(deviceTypeList, usageDivisionList);
 
@@ -604,7 +607,7 @@ public class DeviceService {
         if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
             return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "Excel 파일만 업로드 가능합니다.");
         }
-        
+
         // 파일 사이즈 체크
         if(file.getSize() > MAX_EXCEL_FILE_SIZE) {
         	return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "파일 크기가 너무 큽니다.");
@@ -614,20 +617,20 @@ public class DeviceService {
         List<UserVO> userList = userMapper.getAllUserList();
         // 코드 목록 조회
         List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-        		CodeConstants.CATEGORY_DEVICE_TYPE,
-        		CodeConstants.CATEGORY_DEVICE_STATUS,
-        		CodeConstants.CATEGORY_USAGE_DIVISION));
+        		CommonCode.CATEGORY_DEVICE_TYPE,
+        		CommonCode.CATEGORY_DEVICE_STATUS,
+        		CommonCode.CATEGORY_USAGE_DIVISION));
         // 장비 유형 코드 목록
         List<CodeVO> deviceTypeList = codeList.stream()
-        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_TYPE))
+        		.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_DEVICE_TYPE))
         		.collect(Collectors.toList());
         // 장비 상태 코드 목록
         List<CodeVO> deviceStatusList = codeList.stream()
-        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_DEVICE_STATUS))
+        		.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_DEVICE_STATUS))
         		.collect(Collectors.toList());
         // 사용 용도 코드 목록
         List<CodeVO> usageDivisionList = codeList.stream()
-        		.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_USAGE_DIVISION))
+        		.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_USAGE_DIVISION))
         		.collect(Collectors.toList());
 
         // Excel 파일 처리
@@ -640,7 +643,7 @@ public class DeviceService {
 			for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
 				Sheet sheet = workbook.getSheetAt(i);
 				List<DeviceVO> deviceList = new ArrayList<DeviceVO>();
-				
+
 				for (Row row : sheet) {
 					if (row.getRowNum() < startRow) continue;
 
@@ -651,7 +654,7 @@ public class DeviceService {
 		            		.filter(code -> code.getCodeName().equals(deviceType))
 		            		.map(code -> code.getCode())
 		            		.findFirst()
-		            		.orElse(CodeConstants.DEVICE_TYPE_ETC));
+		            		.orElse(CommonCode.DEVICE_TYPE_ETC));
 		        	String userName = formatter.formatCellValue(row.getCell(3));			// 사용자
 		        	deviceVO.setEmpNum(userList.stream()
 		            		.filter(user -> user.getUserName().equals(userName))
@@ -689,7 +692,7 @@ public class DeviceService {
 
 		        	deviceList.add(deviceVO);
 		        	log.info("##### Row {} : {}", i, deviceVO.toString());
-		        	
+
 		        	// DB 저장
 		        	if (deviceList.size() >= BULK_INSERT_SIZE) {
 		                deviceMapper.insertDeviceList(deviceList);
@@ -705,7 +708,7 @@ public class DeviceService {
 
 		} catch (Exception e) {
 			log.error("excel upload error : ", e);
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}finally {
 			if(workbook != null) {
 				workbook.close();
@@ -720,14 +723,14 @@ public class DeviceService {
 		HashMap<String, Object> paramMap = new HashMap<>();
 		paramMap.put("roleCode", userInfo.getRoleCode());
 		switch (userInfo.getRoleCode()) {
-			case CodeConstants.ROLE_USER:
+			case CommonCode.ROLE_USER:
 				paramMap.put("loginEmpNum", userInfo.getEmpNum());
 				break;
-			case CodeConstants.ROLE_TEAM_MANAGER:
+			case CommonCode.ROLE_TEAM_MANAGER:
 				paramMap.put("loginOrgId", userInfo.getOrgId());
 				break;
-			case CodeConstants.ROLE_ASSET_MANAGER:
-			case CodeConstants.ROLE_SYSTEM_MANAGER:
+			case CommonCode.ROLE_ASSET_MANAGER:
+			case CommonCode.ROLE_SYSTEM_MANAGER:
 				break;
 		}
 		return paramMap;

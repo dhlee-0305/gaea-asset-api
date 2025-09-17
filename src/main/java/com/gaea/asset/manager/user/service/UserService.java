@@ -1,31 +1,38 @@
 package com.gaea.asset.manager.user.service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.gaea.asset.manager.code.service.CodeMapper;
 import com.gaea.asset.manager.code.vo.CodeVO;
-import com.gaea.asset.manager.common.constants.CodeConstants;
+import com.gaea.asset.manager.common.constants.CommonCode;
 import com.gaea.asset.manager.common.constants.Constants;
-import com.gaea.asset.manager.device.vo.DeviceVO;
+import com.gaea.asset.manager.common.constants.ResultCode;
 import com.gaea.asset.manager.login.vo.UserInfoVO;
 import com.gaea.asset.manager.organization.service.OrganizationMapper;
 import com.gaea.asset.manager.organization.vo.OrganizationVO;
-import com.gaea.asset.manager.util.AuthUtil;
-import com.gaea.asset.manager.util.Pagination;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.ss.usermodel.*;
-import org.springframework.stereotype.Service;
-
 import com.gaea.asset.manager.user.vo.UserVO;
+import com.gaea.asset.manager.util.AuthUtil;
 import com.gaea.asset.manager.util.Header;
+import com.gaea.asset.manager.util.Pagination;
 import com.gaea.asset.manager.util.Search;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -61,7 +68,7 @@ public class UserService {
 	public Header<HashMap<String, Object>> getUser(Integer empNum) {
 		UserVO userVO = userMapper.getUser(empNum);
 		if(userVO == null){
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_NO_CONTENT), "조회된 정보가 없습니다.");
+			return Header.ERROR(ResultCode.NO_CONTENT, "조회된 정보가 없습니다.");
 		}
 		HashMap<String, Object> resData = this.getUserCommonCode(true, userVO);
 		resData.put("userInfo", userVO);
@@ -72,26 +79,26 @@ public class UserService {
 	public Header<UserVO> insertUser(UserVO userVO) {
 		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_CONFLICT), "이미 팀장이 존재합니다.");
+			return Header.ERROR(ResultCode.CONFLICT, "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.insertUser(userVO) > 0) {
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
 	public Header<UserVO> updateUser(UserVO userVO) {
 		if(!chkUserData(userVO)){
 			// 팀장 선택 가능여부 체크
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_CONFLICT), "이미 팀장이 존재합니다.");
+			return Header.ERROR(ResultCode.CONFLICT, "이미 팀장이 존재합니다.");
 		}
 
 		if (userMapper.updateUser(userVO) > 0){
 			return Header.OK(userVO);
 		} else {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
@@ -99,19 +106,19 @@ public class UserService {
 		if(userMapper.deleteUser(empNum) > 0) {
 			return Header.OK();
 		} else {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
 	public Header<String> initPassword(UserVO userVO ){
 		if(userVO == null || userVO.getUserId().isBlank()){
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "필수입력 정보가 누락 되었습니다.");
+			return Header.ERROR(ResultCode.BAD_REQUEST, "필수입력 정보가 누락 되었습니다.");
 		}
 		userVO.setInitPassword(Constants.INIT_PASSWORD);
 		if(userMapper.initPassword(userVO) > 0){
 			return Header.OK();
 		} else {
-			return  Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "패스워드 초기화 중 오류가 발생했습니다.");
+			return  Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "패스워드 초기화 중 오류가 발생했습니다.");
 		}
 	}
 
@@ -121,7 +128,7 @@ public class UserService {
 	 * @return
 	 */
 	public boolean chkUserData(UserVO userVO){
-		if(CodeConstants.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
+		if(CommonCode.TEAM_LEADER.equals(userVO.getUserPositionCd()) && userMapper.chkLeaderAvl(userVO) > 0){
 			// 팀장 선택 가능여부 체크
 			return false;
 		}
@@ -157,25 +164,25 @@ public class UserService {
 		// 파일 확장자 검증
 		String filename = file.getOriginalFilename();
 		if (!filename.endsWith(".xlsx") && !filename.endsWith(".xls")) {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "Excel 파일만 업로드 가능합니다.");
+			return Header.ERROR(ResultCode.BAD_REQUEST, "Excel 파일만 업로드 가능합니다.");
 		}
 
 		// 파일 사이즈 체크
 		if(file.getSize() > MAX_EXCEL_FILE_SIZE) {
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_BAD_REQUEST), "파일 크기가 너무 큽니다.");
+			return Header.ERROR(ResultCode.BAD_REQUEST, "파일 크기가 너무 큽니다.");
 		}
 
 		// 코드 목록 조회
 		List<CodeVO> codeList = codeMapper.getCodeListByCodes(Arrays.asList(
-				CodeConstants.CATEGORY_POSITION,
-				CodeConstants.CATEGORY_GRADE));
+				CommonCode.CATEGORY_POSITION,
+				CommonCode.CATEGORY_GRADE));
 		// 직책 코드 목록
 		List<CodeVO> positionList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_POSITION))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_POSITION))
 				.collect(Collectors.toList());
 		// 직위 코드 목록
 		List<CodeVO> gradeList = codeList.stream()
-				.filter(code -> code.getCategory().equals(CodeConstants.CATEGORY_GRADE))
+				.filter(code -> code.getCategory().equals(CommonCode.CATEGORY_GRADE))
 				.collect(Collectors.toList());
 		// 부서정보 조회
 		List<OrganizationVO> organizationList = organizationMapper.selectOrganizationList();
@@ -222,7 +229,7 @@ public class UserService {
 
 					if(!chkUserData(userVO)){
 						// 팀장 선택 가능여부 체크
-						return Header.ERROR(String.valueOf(HttpServletResponse.SC_CONFLICT), "팀장이 중복되는 항목이 존재하여 업로드가 불가능합니다.");
+						return Header.ERROR(ResultCode.CONFLICT, "팀장이 중복되는 항목이 존재하여 업로드가 불가능합니다.");
 					}
 
 					userList.add(userVO);
@@ -231,7 +238,7 @@ public class UserService {
 					// DB 저장
 					if (userList.size() >= BULK_INSERT_SIZE) {
 						Map<Integer, List<UserVO>> leaderByOrg = userList.stream()
-								.filter(user -> user.getUserPositionCd().equals(CodeConstants.TEAM_LEADER))
+								.filter(user -> user.getUserPositionCd().equals(CommonCode.TEAM_LEADER))
 								.collect(Collectors.groupingBy(UserVO::getOrgId));
 
 						boolean hasDuplicateLeader = leaderByOrg.values().stream()
@@ -248,7 +255,7 @@ public class UserService {
 				// DB 저장
 				if(userList.size() > 0) {
 					Map<Integer, List<UserVO>> leaderByOrg = userList.stream()
-							.filter(user -> user.getUserPositionCd().equals(CodeConstants.TEAM_LEADER))
+							.filter(user -> user.getUserPositionCd().equals(CommonCode.TEAM_LEADER))
 							.collect(Collectors.groupingBy(UserVO::getOrgId));
 
 					boolean hasDuplicateLeader = leaderByOrg.values().stream()
@@ -263,7 +270,7 @@ public class UserService {
 
 		} catch (Exception e) {
 			log.error("excel upload error : ", e);
-			return Header.ERROR(String.valueOf(HttpServletResponse.SC_INTERNAL_SERVER_ERROR), "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}finally {
 			if(workbook != null) {
 				workbook.close();

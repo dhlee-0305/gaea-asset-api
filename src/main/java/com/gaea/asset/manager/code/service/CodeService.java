@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.code.vo.CodeVO;
+import com.gaea.asset.manager.common.constants.ResultCode;
 import com.gaea.asset.manager.util.Header;
 
 import jakarta.transaction.Transactional;
@@ -20,27 +21,27 @@ public class CodeService {
 	public Header<List<CodeVO>> getCodeList(String category) {
 		CodeVO codeVO = new CodeVO();
 		codeVO.setCategory(category);
-		
+
 		List<CodeVO> codeList = codeMapper.getCodeList(codeVO);
-		
-		return Header.OK("200", "", codeList);
+
+		return Header.OK(ResultCode.OK, "", codeList);
 	}
 
 	@Transactional
 	public Header<CodeVO> insertCode(CodeVO codeVO) {
 		if (codeMapper.insertCode(codeVO) > 0) {
-			return Header.OK("200", "", null);
+			return Header.OK(ResultCode.OK, "", null);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
 	@Transactional
 	public Header<CodeVO> updateCode(CodeVO codeVO) {
 		if (codeMapper.updateCode(codeVO) > 0) {
-			return Header.OK("200", "", null);
+			return Header.OK(ResultCode.OK, "", null);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
 
@@ -49,18 +50,18 @@ public class CodeService {
 		CodeVO codeVO = new CodeVO();
 		codeVO.setCategory(category);
 		codeVO.setCode(code);
-		
+
 		if (codeMapper.updateUseYn(codeVO) > 0) {
-			return Header.OK("200", "", null);
+			return Header.OK(ResultCode.OK, "", null);
 		} else {
-			return Header.ERROR("9999", "ERROR");
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
 	}
-	
+
 	public Header<List<CodeVO>> getCategoryList() {
 		List<CodeVO> categoryList = codeMapper.getCategoryList();
-		
-		return Header.OK("200", "", categoryList);
+
+		return Header.OK(ResultCode.OK, "", categoryList);
 	}
 
 	public Header<HashMap<String, Object>> getCodeListByCodes(List<String> categoryList) {
@@ -74,6 +75,6 @@ public class CodeService {
 			resData.put(category, resultData);
 		}
 
-		return Header.OK("0000", "", resData);
+		return Header.OK(ResultCode.OK, "", resData);
 	}
 }

@@ -3,6 +3,8 @@ package com.gaea.asset.manager.util;
 
 import java.time.LocalDateTime;
 
+import com.gaea.asset.manager.common.constants.ResultCode;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,7 +25,7 @@ public class Header<T> {
 	public static <T> Header<T> OK() {
 		return (Header<T>) Header.builder()
 				.transactionTime(LocalDateTime.now())
-				.resultCode("0000")
+				.resultCode(ResultCode.OK)
 				.description("OK")
 				.build();
 	}
@@ -33,7 +35,7 @@ public class Header<T> {
 	public static <T> Header<T> OK(T data) {
 		return (Header<T>) Header.builder()
 				.transactionTime(LocalDateTime.now())
-				.resultCode("0000")
+				.resultCode(ResultCode.OK)
 				.description("OK")
 				.data(data)
 				.build();
@@ -43,7 +45,7 @@ public class Header<T> {
 	public static <T> Header<T> OK(T data, Pagination pagination) {
 		return (Header<T>) Header.builder()
 				.transactionTime(LocalDateTime.now())
-				.resultCode("0000")
+				.resultCode(ResultCode.OK)
 				.description("OK")
 				.data(data)
 				.pagination(pagination)
