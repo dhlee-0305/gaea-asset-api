@@ -26,6 +26,11 @@ public enum MessageTemplate {
             CommonCode.MESSAGE_DEVICE_CHANGE_REJECTED,
             "[알림] 장비 정보 변경 반려",
             "<h4>%s님의 장비 정보 변경이 반려되었습니다.</h4><br><a href='%s'>상세 내역 보기</a>"
+    ),
+    RESET_PASSWORD_OTP(
+            CommonCode.MESSAGE_RESET_PASSWORD_OTP,
+            "[알림] 비밀번호 초기화 인증",
+            "<h4>인증번호는 <h3>[%s]</h3>입니다. 5분 안에 입력해주세요.</h4>"
     );
 
     private final String subject;

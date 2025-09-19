@@ -43,13 +43,19 @@ public class MessageService {
         }
     }
 
-    public void insertMessage(MessageTemplate template, String userId, String userName, String url) throws MessagingException {
+    public void sendToUser(String messageCode, String userId, String otpCode) throws MessagingException {
+        MessageTemplate template = MessageTemplate.fromCode(messageCode);
+        insertMessage(template, userId, otpCode);
+    }
+
+    public void insertMessage(MessageTemplate template, String userId, Object... args) throws MessagingException {
         String to = userId + "@gaeasoft.co.kr";
+        String content = template.formatBody(args);
         MessageVO messageVO = MessageVO.builder()
                 .recipient(to)
                 .sender(from)
                 .title(template.getSubject())
-                .content(template.formatBody(userName, url))
+                .content(content)
                 .messageStatusCode(template.getMessageCode())
                 .build();
 
