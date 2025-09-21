@@ -34,7 +34,7 @@ public class SecurityConfig {
 	}
 
 	private static final String[] AUTH_WHITELIST = {
-		"/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/files/**"
+		"/auth/**", "/swagger-ui/**", "/v3/api-docs/**", "/files/**", "/verification/**"
 	};
 	
 	@SuppressWarnings("removal")

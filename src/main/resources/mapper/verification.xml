@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.gaea.asset.manager.verification.service.UserVerificationMapper">
+    <select id="getLatestValidCode" resultType="com.gaea.asset.manager.verification.vo.UserVerificationVO">
+        SELECT VERIFICATION_NUM
+        FROM USER_VERIFICATION
+        WHERE USER_ID = #{userId}
+        AND CODE = #{code}
+        AND EXPIRES_DATETIME > NOW()
+        AND IS_VERIFIED = FALSE
+        ORDER BY CREATE_DATETIME DESC
+        LIMIT 1
+    </select>
+    
+    <insert id="insertVerificationCode" parameterType="com.gaea.asset.manager.verification.vo.UserVerificationVO">
+        INSERT INTO USER_VERIFICATION 
+        (
+          USER_ID
+        , CODE
+        , CREATE_DATETIME
+        , EXPIRES_DATETIME
+        )  VALUES (
+        #{userId}
+        , #{code}
+        , NOW()
+        , #{expiresDatetime})
+    </insert>
+    
+    <update id="updateVerified" parameterType="com.gaea.asset.manager.verification.vo.UserVerificationVO">
+        UPDATE USER_VERIFICATION
+        SET IS_VERIFIED = TRUE
+        WHERE VERIFICATION_NUM = #{verificationNum}
+    </update>
+</mapper>
