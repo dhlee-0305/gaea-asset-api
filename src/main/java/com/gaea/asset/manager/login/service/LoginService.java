@@ -10,6 +10,8 @@ import com.gaea.asset.manager.login.vo.UserInfoVO;
 import com.gaea.asset.manager.util.Header;
 import com.gaea.asset.manager.util.JwtUtil;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -20,7 +22,7 @@ public class LoginService {
 
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
-	public Header<String> authLogin(LoginVO loginVO) {
+	public Header<String> authLogin(LoginVO loginVO, HttpServletResponse res) {
 		if(loginVO == null || loginVO.getUserId().isBlank() || loginVO.getPassword().isBlank()) {
 			LOG.info("로그인 정보 누락.");
 			return Header.ERROR(ResultCode.BAD_REQUEST, "필수입력 정보가 누락 되었습니다.");
@@ -32,11 +34,49 @@ public class LoginService {
 			if(userInfoVO.getPasswordChangeDate() == null || userInfoVO.getPasswordChangeDate().isBlank() ) {
 				return Header.ERROR(ResultCode.NO_CONTENT, "초기 비밀번호를 사용 중입니다. 비밀번호를 변경해 주세요.");
 			}
-			String token = jwtUtil.generateToken(userInfoVO);
-			return Header.OK(ResultCode.OK, "", token);
+			String accessToken = jwtUtil.generateToken(userInfoVO);
+			String refreshToken = jwtUtil.generateRefreshToken(userInfoVO);
+
+			Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+			refreshCookie.setHttpOnly(true);
+			refreshCookie.setPath("/");
+			refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+			res.addCookie(refreshCookie);
+			
+			return Header.OK(ResultCode.OK, "", accessToken);
 		} else {
 			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "ERROR");
 		}
+	}
+	
+	public Header<String> authLogOut(HttpServletResponse res) {
+		Cookie cookie = new Cookie("refreshToken", null);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(0); // 쿠키 만료 즉시 삭제
+		res.addCookie(cookie);
+			
+		return Header.OK(ResultCode.OK, "", null);
+	}
+	
+	public Header<String> authRefresh(String refreshToken) {
+		
+		if (!jwtUtil.validateRefreshToken(refreshToken)) {
+			LOG.info("authRefresh Invalid token : {}", refreshToken);
+			return Header.ERROR(ResultCode.INTERNAL_SERVER_ERROR, "Invalid token");
+		}
+
+		String userId = jwtUtil.extractUserId(refreshToken);
+		
+		LoginVO loginVO = new LoginVO();
+		loginVO.setUserId(userId);
+		
+		UserInfoVO userInfoVO = getUserInfo(loginVO);
+		String newAccessToken = jwtUtil.generateToken(userInfoVO);
+		
+		LOG.info("authRefresh newAccessToken : {}", newAccessToken);
+		
+		return Header.OK(ResultCode.OK, "", newAccessToken);
 	}
 
 	public Header<LoginVO> updatePassword(LoginVO loginVO) {

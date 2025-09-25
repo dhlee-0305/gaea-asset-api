@@ -16,7 +16,8 @@ public class JwtUtil {
 	@Value("${jwt.secret}")
 	private String SECRET_KEY;
 	
-	private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+	private final long ACCESS_TOKEN_EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+	private final long REFRESH_TOKEN_EXPIRATION_TIME = 7 * 24 * 60 * 60 * 1000; // 7일
 
 	public String generateToken(UserInfoVO userInfoVO) {
 		return Jwts.builder()
@@ -28,7 +29,22 @@ public class JwtUtil {
 				.claim("roleCode", userInfoVO.getRoleCode())
 				.setSubject(userInfoVO.getUserId())
 				.setIssuedAt(new Date())
-				.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+				.setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME))
+				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
+				.compact();
+	}
+	
+	public String generateRefreshToken(UserInfoVO userInfoVO) {
+		return Jwts.builder()
+				.claim("empNum", userInfoVO.getEmpNum())
+				.claim("userId", userInfoVO.getUserId())
+				.claim("userName", userInfoVO.getUserName())
+				.claim("orgId", userInfoVO.getOrgId())
+				.claim("orgName", userInfoVO.getOrgName())
+				.claim("roleCode", userInfoVO.getRoleCode())
+				.setSubject(userInfoVO.getUserId())
+				.setIssuedAt(new Date())
+				.setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME))
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes(StandardCharsets.UTF_8))
 				.compact();
 	}
@@ -48,5 +64,14 @@ public class JwtUtil {
 	// 토큰 유효성 검증
 	public boolean validateToken(String token, String userId) {
 		return extractUserId(token).equals(userId) && !isTokenExpired(token);
+	}
+	
+	public boolean validateRefreshToken(String token) {
+		try {
+			Jwts.parser().setSigningKey(SECRET_KEY.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token);
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 }
