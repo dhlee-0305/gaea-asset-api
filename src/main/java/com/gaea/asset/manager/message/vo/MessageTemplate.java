@@ -30,7 +30,7 @@ public enum MessageTemplate {
     RESET_PASSWORD_OTP(
             CommonCode.MESSAGE_RESET_PASSWORD_OTP,
             "[알림] 비밀번호 초기화 인증",
-            "<h4>인증번호는 <h3>[%s]</h3>입니다. 5분 안에 입력해주세요.</h4>"
+            "<h4>인증번호는 <span style=\"color:blue; text-decoration:underline;\">[%s]</span>입니다.<br>5분 안에 입력해주세요.</h4>"
     );
 
     private final String subject;
