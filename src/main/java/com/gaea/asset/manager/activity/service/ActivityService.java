@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.gaea.asset.manager.activity.vo.ActivityVO;
+import com.gaea.asset.manager.common.constants.CommonCode;
 import com.gaea.asset.manager.device.service.DeviceMapper;
 import com.gaea.asset.manager.device.vo.DeviceHistoryVO;
 import com.gaea.asset.manager.login.vo.UserInfoVO;
@@ -26,13 +27,13 @@ public class ActivityService {
     public Header<ActivityVO> getActivityInfo() {
         UserInfoVO userInfo = AuthUtil.getLoginUserInfo();
         
+        // 역할 기반 필터 파라미터 생성
+        HashMap<String, Object> paramMap = getRoleFilterParams(userInfo);
+        
         // 최근 활동 가져오기
-        List<ActivityVO.RecentActivityItem> recentActivities = getRecentActivities();
+        List<ActivityVO.RecentActivityItem> recentActivities = getRecentActivities(paramMap);
         
         // 대기중인 승인 건수
-        HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("roleCode", userInfo.getRoleCode());
-        paramMap.put("empNum", userInfo.getEmpNum());
         int pendingApprovalCount = activityMapper.getPendingApprovalCount(paramMap);
         
         // 읽지 않은 메시지 건수
@@ -63,15 +64,15 @@ public class ActivityService {
         return Header.OK(activityVO);
     }
     
-    private List<ActivityVO.RecentActivityItem> getRecentActivities() {
+    private List<ActivityVO.RecentActivityItem> getRecentActivities(HashMap<String, Object> paramMap) {
         List<ActivityVO.RecentActivityItem> activities = new ArrayList<>();
         
-        // 최근 장비 이력 가져오기 (최대 5개)
-        HashMap<String, Object> paramMap = new HashMap<>();
-        paramMap.put("page", 0);
-        paramMap.put("size", 5);
+        // 최근 장비 이력 가져오기 (최대 5개) - 역할 기반 필터 적용
+        HashMap<String, Object> historyParams = new HashMap<>(paramMap);
+        historyParams.put("page", 0);
+        historyParams.put("size", 5);
         
-        List<DeviceHistoryVO> histories = deviceMapper.getDeviceHistoryList(paramMap);
+        List<DeviceHistoryVO> histories = deviceMapper.getDeviceHistoryList(historyParams);
         
         for (DeviceHistoryVO history : histories) {
             String activityType = getActivityType(history.getApprovalStatusCode());
@@ -129,5 +130,30 @@ public class ActivityService {
             default:
                 return deviceType + " 상태가 변경되었습니다";
         }
+    }
+    
+    /**
+     * 사용자 역할에 따른 필터 파라미터 생성
+     * @param userInfo 사용자 정보
+     * @return 필터 파라미터 맵
+     */
+    private HashMap<String, Object> getRoleFilterParams(UserInfoVO userInfo) {
+        HashMap<String, Object> paramMap = new HashMap<>();
+        paramMap.put("roleCode", userInfo.getRoleCode());
+        paramMap.put("empNum", userInfo.getEmpNum());
+        
+        switch (userInfo.getRoleCode()) {
+            case CommonCode.ROLE_USER:
+                paramMap.put("loginEmpNum", userInfo.getEmpNum());
+                break;
+            case CommonCode.ROLE_TEAM_MANAGER:
+                paramMap.put("loginOrgId", userInfo.getOrgId());
+                break;
+            case CommonCode.ROLE_ASSET_MANAGER:
+            case CommonCode.ROLE_SYSTEM_MANAGER:
+                // 관리자는 모든 데이터 접근 가능
+                break;
+        }
+        return paramMap;
     }
 }

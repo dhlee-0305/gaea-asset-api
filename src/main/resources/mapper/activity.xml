@@ -40,7 +40,7 @@
         </if>
     </select>
     
-    <!-- 읽지 않은 메시지 건수 조회 -->
+    <!-- 메시지 건수 조회 (MESSAGE_STATUS_CODE가 있는 모든 메시지) -->
     <select id="getUnreadMessageCount" parameterType="String" resultType="Integer">
         SELECT COUNT(*)
         FROM MESSAGE
