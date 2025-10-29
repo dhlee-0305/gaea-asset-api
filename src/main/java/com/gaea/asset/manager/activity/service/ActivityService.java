@@ -134,6 +134,9 @@ public class ActivityService {
     
     /**
      * 사용자 역할에 따른 필터 파라미터 생성
+     * DeviceService.getRoleFilterParams()와 동일한 로직 사용
+     * (최소한의 변경을 위해 복제, 향후 공통 유틸리티로 리팩토링 권장)
+     * 
      * @param userInfo 사용자 정보
      * @return 필터 파라미터 맵
      */
