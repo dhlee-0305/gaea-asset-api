@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gaea.asset.manager.activity.service.ActivityMapper">
+    
+    <!-- 전체 장비 수 조회 -->
+    <select id="getTotalDeviceCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM DEVICE
+    </select>
+    
+    <!-- 사용 중인 장비 수 조회 -->
+    <select id="getActiveDeviceCount" resultType="Integer">
+        SELECT COUNT(*)
+        FROM DEVICE
+        WHERE DEVICE_STATUS_CODE = '01'
+    </select>
+    
+    <!-- 내 장비 수 조회 -->
+    <select id="getMyDeviceCount" parameterType="Integer" resultType="Integer">
+        SELECT COUNT(*)
+        FROM DEVICE
+        WHERE EMP_NUM = #{empNum}
+    </select>
+    
+    <!-- 대기중인 승인 건수 조회 -->
+    <select id="getPendingApprovalCount" parameterType="Map" resultType="Integer">
+        SELECT COUNT(*)
+        FROM DEVICE
+        WHERE 1=1
+        <if test="roleCode != null and roleCode == '01'">
+            AND APPROVAL_STATUS_CODE = 'A1'
+        </if>
+        <if test="roleCode != null and roleCode == '02'">
+            AND APPROVAL_STATUS_CODE = 'A2'
+        </if>
+        <if test="roleCode != null and roleCode == '00'">
+            AND APPROVAL_STATUS_CODE IN ('A1', 'A2')
+            AND EMP_NUM = #{empNum}
+        </if>
+    </select>
+    
+    <!-- 메시지 건수 조회 (MESSAGE_STATUS_CODE가 있는 모든 메시지) -->
+    <select id="getUnreadMessageCount" parameterType="String" resultType="Integer">
+        SELECT COUNT(*)
+        FROM MESSAGE
+        WHERE RECIPIENT = #{userId}
+        AND MESSAGE_STATUS_CODE IS NOT NULL
+    </select>
+    
+</mapper>
